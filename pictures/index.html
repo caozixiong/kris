@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>递归图片画廊</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .breadcrumb {
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .breadcrumb a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 15px;
+            margin-bottom: 20px;
+        }
+        .folder-item {
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .folder-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .folder-icon {
+            font-size: 40px;
+            color: #0366d6;
+        }
+        .folder-name {
+            margin-top: 10px;
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 20px;
+        }
+        .gallery-item {
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        .image-info {
+            padding: 10px;
+        }
+        .image-name {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .path-info {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .back-to-top:hover {
+            background-color: #0353b4;
+        }
+    </style>
+</head>
+<body>
+    <h1>递归图片画廊</h1>
+    <div id="breadcrumb" class="breadcrumb">
+        <a href="#" data-path="">首页</a>
+    </div>
+    <div id="folders" class="folder-grid"></div>
+    <div id="gallery" class="gallery">
+        <div class="loading">正在加载内容...</div>
+    </div>
+    <button id="backToTop" class="back-to-top" title="返回顶部">↑</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryElement = document.getElementById('gallery');
+            const foldersElement = document.getElementById('folders');
+            const breadcrumbElement = document.getElementById('breadcrumb');
+            const backToTopButton = document.getElementById('backToTop');
+            
+            // 支持的图片格式
+            const imgExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+            
+            // 当前路径
+            let currentPath = '';
+            
+            // 存储所有发现的图片
+            let allImages = [];
+            
+            // 初始化
+            loadDirectory(currentPath);
+            
+            // 处理面包屑导航点击
+            breadcrumbElement.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (e.target.tagName === 'A') {
+                    currentPath = e.target.getAttribute('data-path');
+                    loadDirectory(currentPath);
+                }
+            });
+            
+            // 处理返回顶部按钮
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.style.display = 'block';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // 加载指定目录
+            function loadDirectory(path) {
+                galleryElement.innerHTML = '<div class="loading">正在加载内容...</div>';
+                foldersElement.innerHTML = '';
+                
+                // 更新面包屑导航
+                updateBreadcrumb(path);
+                
+                // 构建请求URL
+                const requestUrl = path ? path + '/' : '.';
+                
+                fetch(requestUrl)
+                    .then(response => response.text())
+                    .then(html => {
+                        // 清除加载信息
+                        galleryElement.innerHTML = '';
+                        
+                        // 创建临时DOM元素来解析响应
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        // 获取所有链接
+                        const links = doc.querySelectorAll('a');
+                        
+                        // 存储当前目录的文件夹和图片
+                        const folders = [];
+                        const images = [];
+                        
+                        // 处理链接
+                        links.forEach(link => {
+                            const href = link.getAttribute('href');
+                            // 跳过父目录链接
+                            if (href === '../' || href === './' || !href) return;
+                            
+                            // 构建完整路径
+                            const fullPath = path ? path + '/' + href : href;
+                            
+                            // 检查是否是文件夹（以/结尾）
+                            if (href.endsWith('/')) {
+                                // 移除尾部斜杠以获得文件夹名
+                                const folderName = href.slice(0, -1);
+                                folders.push({
+                                    name: folderName,
+                                    path: fullPath.slice(0, -1)
+                                });
+                            } 
+                            // 检查是否是图片
+                            else if (imgExtensions.some(ext => href.toLowerCase().endsWith(ext))) {
+                                images.push({
+                                    name: href,
+                                    path: fullPath,
+                                    directory: path
+                                });
+                            }
+                        });
+                        
+                        // 显示文件夹
+                        if (folders.length > 0) {
+                            folders.forEach(folder => {
+                                const folderElement = createFolderElement(folder);
+                                foldersElement.appendChild(folderElement);
+                            });
+                        }
+                        
+                        // 显示图片
+                        if (images.length > 0) {
+                            images.forEach(image => {
+                                const imageElement = createImageElement(image);
+                                galleryElement.appendChild(imageElement);
+                            });
+                        } else if (folders.length === 0) {
+                            galleryElement.innerHTML = '<div class="loading">当前目录没有图片</div>';
+                        }
+                        
+                        // 如果没有内容
+                        if (folders.length === 0 && images.length === 0) {
+                            galleryElement.innerHTML = '<div class="loading">当前目录为空</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('加载目录内容时出错:', error);
+                        galleryElement.innerHTML = '<div class="loading">加载目录内容时出错</div>';
+                    });
+            }
+            
+            // 创建文件夹元素
+            function createFolderElement(folder) {
+                const item = document.createElement('div');
+                item.className = 'folder-item';
+                item.setAttribute('data-path', folder.path);
+                
+                const icon = document.createElement('div');
+                icon.className = 'folder-icon';
+                icon.textContent = '📁';
+                
+                const name = document.createElement('div');
+                name.className = 'folder-name';
+                name.textContent = folder.name;
+                
+                item.appendChild(icon);
+                item.appendChild(name);
+                
+                // 点击文件夹时导航到该文件夹
+                item.addEventListener('click', function() {
+                    currentPath = folder.path;
+                    loadDirectory(currentPath);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                
+                return item;
+            }
+            
+            // 创建图片元素
+            function createImageElement(image) {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = image.path;
+                img.alt = image.name;
+                img.loading = 'lazy'; // 延迟加载
+                
+                const info = document.createElement('div');
+                info.className = 'image-info';
+                
+                const name = document.createElement('h3');
+                name.className = 'image-name';
+                name.textContent = image.name;
+                
+                const pathInfo = document.createElement('p');
+                pathInfo.className = 'path-info';
+                pathInfo.textContent = image.directory || '根目录';
+                
+                info.appendChild(name);
+                info.appendChild(pathInfo);
+                item.appendChild(img);
+                item.appendChild(info);
+                
+                // 点击图片时全屏显示
+                item.addEventListener('click', function() {
+                    window.open(image.path, '_blank');
+                });
+                
+                return item;
+            }
+            
+            // 更新面包屑导航
+            function updateBreadcrumb(path) {
+                // 清除现有导航（保留首页）
+                while (breadcrumbElement.childNodes.length > 1) {
+                    breadcrumbElement.removeChild(breadcrumbElement.lastChild);
+                }
+                
+                // 如果不是根目录，创建路径导航
+                if (path) {
+                    const parts = path.split('/');
+                    let currentPath = '';
+                    
+                    parts.forEach((part, index) => {
+                        // 添加分隔符
+                        breadcrumbElement.appendChild(document.createTextNode(' > '));
+                        
+                        // 构建当前部分的完整路径
+                        currentPath += (index > 0 ? '/' : '') + part;
+                        
+                        // 创建链接
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.setAttribute('data-path', currentPath);
+                        link.textContent = part;
+                        breadcrumbElement.appendChild(link);
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
