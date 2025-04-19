@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片库</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: #4a6fa5;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .card-body {
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+        }
+        .image-container {
+            width: calc(33.333% - 10px);
+            margin-bottom: 15px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .image-container img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+        .image-container .caption {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 0.9rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .image-container {
+                width: calc(50% - 10px);
+            }
+        }
+        @media (max-width: 480px) {
+            .image-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>我的图片库</h1>
+        <p>图片按照子目录分类显示</p>
+    </header>
+    
+    <div id="gallery" class="container">
+        <div class="loading">加载中...</div>
+    </div>
+
+    <!-- 引入 Marked.js 用于解析 Markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载并解析 Markdown 文件
+            fetch('gallery.md')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('无法加载 gallery.md 文件');
+                    }
+                    return response.text();
+                })
+                .then(markdown => {
+                    // 解析 Markdown 文本
+                    const lines = markdown.split('\n');
+                    const images = [];
+                    
+                    // 解析 Markdown 中的图片链接和说明
+                    lines.forEach(line => {
+                        // 匹配 Markdown 图片语法: ![alt text](image-path "title")
+                        const match = line.match(/!\[(.*?)\]\(([^"]*)(?: "([^"]*)")?\)/);
+                        if (match) {
+                            const alt = match[1];
+                            const path = match[2];
+                            const title = match[3] || alt;
+                            
+                            // 提取目录名作为类别
+                            let category = '未分类';
+                            const pathParts = path.split('/');
+                            if (pathParts.length > 1) {
+                                category = pathParts[0];
+                            }
+                            
+                            images.push({
+                                path: path,
+                                alt: alt,
+                                title: title,
+                                category: category
+                            });
+                        }
+                    });
+                    
+                    // 按类别分组图片
+                    const categories = {};
+                    images.forEach(image => {
+                        if (!categories[image.category]) {
+                            categories[image.category] = [];
+                        }
+                        categories[image.category].push(image);
+                    });
+                    
+                    // 清除加载中提示
+                    document.getElementById('gallery').innerHTML = '';
+                    
+                    // 为每个类别创建卡片
+                    Object.keys(categories).forEach(category => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        
+                        const header = document.createElement('div');
+                        header.className = 'card-header';
+                        header.textContent = category;
+                        card.appendChild(header);
+                        
+                        const body = document.createElement('div');
+                        body.className = 'card-body';
+                        
+                        // 添加该类别的所有图片
+                        categories[category].forEach(image => {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.className = 'image-container';
+                            
+                            const img = document.createElement('img');
+                            img.src = image.path;
+                            img.alt = image.alt;
+                            img.loading = 'lazy'; // 延迟加载图片
+                            imgContainer.appendChild(img);
+                            
+                            const caption = document.createElement('div');
+                            caption.className = 'caption';
+                            caption.textContent = image.title;
+                            imgContainer.appendChild(caption);
+                            
+                            body.appendChild(imgContainer);
+                        });
+                        
+                        card.appendChild(body);
+                        document.getElementById('gallery').appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById('gallery').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                            <h2>加载失败</h2>
+                            <p>${error.message}</p>
+                            <p>请确保 gallery.md 文件存在且内容格式正确</p>
+                        </div>
+                    `;
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
