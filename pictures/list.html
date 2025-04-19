@@ -15,6 +15,25 @@
             text-align: center;
             color: #333;
         }
+        .debug-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .debug-toggle {
+            margin: 0 auto 20px;
+            display: block;
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .breadcrumb {
             padding: 10px;
             background-color: #fff;
@@ -127,6 +146,10 @@
 </head>
 <body>
     <h1>递归图片画廊</h1>
+    
+    <button id="debugToggle" class="debug-toggle">显示调试信息</button>
+    <div id="debugInfo" class="debug-info"></div>
+    
     <div id="breadcrumb" class="breadcrumb">
         <a href="#" data-path="">首页</a>
     </div>
@@ -142,6 +165,19 @@
             const foldersElement = document.getElementById('folders');
             const breadcrumbElement = document.getElementById('breadcrumb');
             const backToTopButton = document.getElementById('backToTop');
+            const debugInfoElement = document.getElementById('debugInfo');
+            const debugToggleButton = document.getElementById('debugToggle');
+            
+            // 调试信息显示开关
+            debugToggleButton.addEventListener('click', function() {
+                if (debugInfoElement.style.display === 'none' || debugInfoElement.style.display === '') {
+                    debugInfoElement.style.display = 'block';
+                    debugToggleButton.textContent = '隐藏调试信息';
+                } else {
+                    debugInfoElement.style.display = 'none';
+                    debugToggleButton.textContent = '显示调试信息';
+                }
+            });
             
             // 支持的图片格式
             const imgExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
@@ -149,10 +185,31 @@
             // 当前路径
             let currentPath = '';
             
-            // 存储所有发现的图片
-            let allImages = [];
+            // 记录调试信息的函数
+            function logDebug(message, data = null) {
+                const timestamp = new Date().toLocaleTimeString();
+                let logMessage = `[${timestamp}] ${message}`;
+                
+                if (data) {
+                    if (typeof data === 'object') {
+                        try {
+                            logMessage += "\n" + JSON.stringify(data, null, 2);
+                        } catch (e) {
+                            logMessage += "\n[无法序列化数据]";
+                        }
+                    } else {
+                        logMessage += "\n" + data;
+                    }
+                }
+                
+                debugInfoElement.textContent += logMessage + "\n\n";
+                // 自动滚动到底部
+                debugInfoElement.scrollTop = debugInfoElement.scrollHeight;
+                console.log(message, data);
+            }
             
             // 初始化
+            logDebug("页面加载完成，开始初始化");
             loadDirectory(currentPath);
             
             // 处理面包屑导航点击
@@ -160,6 +217,7 @@
                 e.preventDefault();
                 if (e.target.tagName === 'A') {
                     currentPath = e.target.getAttribute('data-path');
+                    logDebug(`导航到路径: ${currentPath}`);
                     loadDirectory(currentPath);
                 }
             });
@@ -185,11 +243,23 @@
                 // 更新面包屑导航
                 updateBreadcrumb(path);
                 
-                // 构建请求URL
+                // 构建请求URL - 使用相对路径
                 const requestUrl = path ? path + '/' : '.';
+                logDebug(`准备请求URL: ${requestUrl}`);
+                
+                // 记录当前页面URL信息，帮助调试
+                logDebug("页面URL信息", {
+                    href: window.location.href,
+                    pathname: window.location.pathname,
+                    protocol: window.location.protocol,
+                    host: window.location.host
+                });
                 
                 fetch(requestUrl)
-                    .then(response => response.text())
+                    .then(response => {
+                        logDebug(`收到响应: ${response.status} ${response.statusText}`);
+                        return response.text();
+                    })
                     .then(html => {
                         // 清除加载信息
                         galleryElement.innerHTML = '';
@@ -197,6 +267,13 @@
                         // 创建临时DOM元素来解析响应
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
+                        
+                        // 记录解析后的HTML结构（节选）
+                        logDebug("解析HTML响应", {
+                            title: doc.title,
+                            bodyLength: doc.body ? doc.body.innerHTML.length : 0,
+                            linkCount: doc.querySelectorAll('a').length
+                        });
                         
                         // 获取所有链接
                         const links = doc.querySelectorAll('a');
@@ -208,11 +285,14 @@
                         // 处理链接
                         links.forEach(link => {
                             const href = link.getAttribute('href');
-                            // 跳过父目录链接
-                            if (href === '../' || href === './' || !href) return;
+                            // 跳过无效链接、父目录链接和锚点链接
+                            if (!href || href === '../' || href === './' || href.startsWith('#')) {
+                                return;
+                            }
                             
                             // 构建完整路径
-                            const fullPath = path ? path + '/' + href : href;
+                            const fullPath = path ? `${path}/${href}` : href;
+                            logDebug(`发现链接: ${href}, 完整路径: ${fullPath}`);
                             
                             // 检查是否是文件夹（以/结尾）
                             if (href.endsWith('/')) {
@@ -222,16 +302,21 @@
                                     name: folderName,
                                     path: fullPath.slice(0, -1)
                                 });
+                                logDebug(`添加文件夹: ${folderName}`);
                             } 
                             // 检查是否是图片
                             else if (imgExtensions.some(ext => href.toLowerCase().endsWith(ext))) {
                                 images.push({
                                     name: href,
                                     path: fullPath,
-                                    directory: path
+                                    directory: path || '根目录'
                                 });
+                                logDebug(`添加图片: ${href}`);
                             }
                         });
+                        
+                        // 汇总信息
+                        logDebug(`发现 ${folders.length} 个文件夹和 ${images.length} 张图片`);
                         
                         // 显示文件夹
                         if (folders.length > 0) {
@@ -254,11 +339,44 @@
                         // 如果没有内容
                         if (folders.length === 0 && images.length === 0) {
                             galleryElement.innerHTML = '<div class="loading">当前目录为空</div>';
+                            logDebug("目录为空，尝试直接列出一些常见文件名称");
+                            
+                            // 尝试直接查找一些常见的图片名称
+                            const commonNames = ['test.jpg', 'image.png', 'photo.jpg', 'screenshot.png', 'pic.jpg'];
+                            commonNames.forEach(name => {
+                                fetch(path ? `${path}/${name}` : name)
+                                    .then(response => {
+                                        if (response.ok) {
+                                            logDebug(`找到直接访问的图片: ${name}`);
+                                            const image = {
+                                                name: name,
+                                                path: path ? `${path}/${name}` : name,
+                                                directory: path || '根目录'
+                                            };
+                                            const imageElement = createImageElement(image);
+                                            if (galleryElement.querySelector('.loading')) {
+                                                galleryElement.innerHTML = '';
+                                            }
+                                            galleryElement.appendChild(imageElement);
+                                        }
+                                    })
+                                    .catch(() => { /* 忽略错误 */ });
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('加载目录内容时出错:', error);
+                        logDebug(`加载目录内容时出错: ${error.message}`);
                         galleryElement.innerHTML = '<div class="loading">加载目录内容时出错</div>';
+                        
+                        // 添加一个尝试按钮
+                        const retryButton = document.createElement('button');
+                        retryButton.textContent = '重试加载';
+                        retryButton.style.display = 'block';
+                        retryButton.style.margin = '20px auto';
+                        retryButton.style.padding = '10px 20px';
+                        retryButton.addEventListener('click', () => loadDirectory(currentPath));
+                        galleryElement.appendChild(retryButton);
                     });
             }
             
@@ -282,6 +400,7 @@
                 // 点击文件夹时导航到该文件夹
                 item.addEventListener('click', function() {
                     currentPath = folder.path;
+                    logDebug(`点击文件夹，导航到: ${currentPath}`);
                     loadDirectory(currentPath);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
@@ -299,6 +418,17 @@
                 img.alt = image.name;
                 img.loading = 'lazy'; // 延迟加载
                 
+                // 添加图片加载错误处理
+                img.onerror = function() {
+                    logDebug(`图片加载失败: ${image.path}`);
+                    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="16" text-anchor="middle" fill="%23999">加载失败</text></svg>';
+                    img.style.background = '#f0f0f0';
+                };
+                
+                img.onload = function() {
+                    logDebug(`图片加载成功: ${image.path}`);
+                };
+                
                 const info = document.createElement('div');
                 info.className = 'image-info';
                 
@@ -308,7 +438,7 @@
                 
                 const pathInfo = document.createElement('p');
                 pathInfo.className = 'path-info';
-                pathInfo.textContent = image.directory || '根目录';
+                pathInfo.textContent = image.directory;
                 
                 info.appendChild(name);
                 info.appendChild(pathInfo);
@@ -317,6 +447,7 @@
                 
                 // 点击图片时全屏显示
                 item.addEventListener('click', function() {
+                    logDebug(`点击图片: ${image.path}`);
                     window.open(image.path, '_blank');
                 });
                 
@@ -350,6 +481,31 @@
                         breadcrumbElement.appendChild(link);
                     });
                 }
+                
+                logDebug(`更新面包屑导航: ${path || '根目录'}`);
+            }
+            
+            // 检测是否在GitHub Pages环境中
+            if (window.location.hostname.includes('github.io')) {
+                logDebug("检测到GitHub Pages环境");
+                
+                // 扫描所有常见子目录
+                const commonDirs = ['images', 'img', 'photos', 'pictures', 'pics', 'assets'];
+                commonDirs.forEach(dir => {
+                    fetch(dir)
+                        .then(response => {
+                            if (response.ok) {
+                                logDebug(`发现有效目录: ${dir}`);
+                                const folderItem = {
+                                    name: dir,
+                                    path: dir
+                                };
+                                const folderElement = createFolderElement(folderItem);
+                                foldersElement.appendChild(folderElement);
+                            }
+                        })
+                        .catch(() => { /* 忽略错误 */ });
+                });
             }
         });
     </script>
