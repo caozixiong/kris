@@ -1,0 +1,136 @@
+/* 全局样式和重置 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f7f6; /* 淡雅背景色 */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #4a90e2; /* 蓝色系标题栏 */
+    color: #ffffff;
+    padding: 1.5rem 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* 主要内容区域 */
+#content-container {
+    max-width: 800px; /* 内容最大宽度 */
+    margin: 2rem auto; /* 上下边距和左右自动居中 */
+    padding: 2rem;
+    background-color: #ffffff; /* 内容区白色背景 */
+    border-radius: 8px; /* 圆角 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); /* 更明显的阴影 */
+    flex-grow: 1; /* 让内容区填充剩余空间 */
+    transition: opacity 0.5s ease-in-out; /* 加载淡入效果 */
+}
+
+#content-container.loaded {
+    opacity: 1;
+}
+
+#loading-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* Markdown 解析后的 HTML 样式 */
+#content-container h1,
+#content-container h2,
+#content-container h3 {
+    color: #2c3e50; /* 深蓝灰色标题 */
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #eaecef; /* 标题下划线 */
+}
+
+#content-container h1 { font-size: 1.8em; }
+#content-container h2 { font-size: 1.5em; }
+#content-container h3 { font-size: 1.25em; }
+
+#content-container p {
+    margin-bottom: 1em;
+    color: #555; /* 稍深的段落文本颜色 */
+}
+
+#content-container ul {
+    list-style: none; /* 去掉默认的列表点 */
+    padding-left: 0;
+}
+
+#content-container li {
+    background-color: #f9f9f9; /* 列表项淡背景 */
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin-bottom: 1em; /* 列表项间距 */
+    padding: 1em 1.5em;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* 交互效果 */
+}
+
+/* 交互效果：鼠标悬停时轻微上移并增加阴影 */
+#content-container li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+#content-container a {
+    color: #007bff; /* 链接蓝色 */
+    text-decoration: none; /* 去掉下划线 */
+    font-weight: 500;
+    transition: color 0.2s ease; /* 颜色变化过渡 */
+}
+
+#content-container a:hover {
+    color: #0056b3; /* 悬停时加深蓝色 */
+    text-decoration: underline; /* 悬停时显示下划线 */
+}
+
+/* 列表项内的描述文字 */
+#content-container li > span {
+    display: block; /* 让描述换行 */
+    margin-top: 0.3em;
+    color: #666; /* 描述文字颜色 */
+    font-size: 0.9em;
+}
+
+
+/* 页脚 */
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    color: #777;
+    font-size: 0.9em;
+    background-color: #e9ecef; /* 页脚背景色 */
+    border-top: 1px solid #dee2e6;
+}
+
+/* 响应式设计：小屏幕调整 */
+@media (max-width: 600px) {
+    #content-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    header h1 {
+        font-size: 1.5rem;
+    }
+    #content-container h1 { font-size: 1.5em; }
+    #content-container h2 { font-size: 1.3em; }
+}
