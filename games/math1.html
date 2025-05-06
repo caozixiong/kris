@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小朋友算术游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 30px;
+        }
+        .game-area {
+            margin: 30px 0;
+        }
+        .problem {
+            font-size: 36px;
+            margin: 20px 0;
+            color: #5c7cfa;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .option {
+            background-color: #74c0fc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .option:hover {
+            transform: scale(1.1);
+            background-color: #4dabf7;
+        }
+        .score {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #495057;
+        }
+        .message {
+            height: 50px;
+            font-size: 28px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .correct {
+            color: #40c057;
+        }
+        .wrong {
+            color: #fa5252;
+        }
+        .controls {
+            margin-top: 30px;
+        }
+        .btn {
+            background-color: #ff8787;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #ff6b6b;
+        }
+        .settings {
+            margin: 20px 0;
+            text-align: left;
+            padding: 0 20px;
+        }
+        .operation-toggle {
+            margin: 10px 0;
+        }
+        label {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .stars {
+            margin: 20px 0;
+            font-size: 30px;
+            color: #fcc419;
+        }
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f76707;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>小朋友算术游戏</h1>
+        
+        <div class="settings">
+            <div class="operation-toggle">
+                <label><input type="checkbox" id="addition" checked> 加法</label>
+                <label><input type="checkbox" id="subtraction" checked> 减法</label>
+                <label><input type="checkbox" id="multiplication" checked> 乘法</label>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="problem" id="problem">6 + 3 = ?</div>
+            <div class="options" id="options">
+                <!-- 选项将通过JavaScript生成 -->
+            </div>
+            <div class="message" id="message"></div>
+        </div>
+        
+        <div class="score">得分: <span id="score">0</span></div>
+        <div class="stars" id="stars"></div>
+        
+        <div class="controls">
+            <button class="btn" id="next-btn">下一题</button>
+        </div>
+    </div>
+    
+    <div class="celebration" id="celebration"></div>
+    
+    <script>
+        // 游戏状态
+        const gameState = {
+            score: 0,
+            currentProblem: null,
+            currentAnswer: null,
+            operations: ['addition', 'subtraction', 'multiplication']
+        };
+        
+        // 获取DOM元素
+        const problemElement = document.getElementById('problem');
+        const optionsElement = document.getElementById('options');
+        const messageElement = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const starsElement = document.getElementById('stars');
+        const nextButton = document.getElementById('next-btn');
+        const celebrationElement = document.getElementById('celebration');
+        
+        // 操作选项
+        const additionCheckbox = document.getElementById('addition');
+        const subtractionCheckbox = document.getElementById('subtraction');
+        const multiplicationCheckbox = document.getElementById('multiplication');
+        
+        // 初始化游戏
+        function initGame() {
+            gameState.score = 0;
+            scoreElement.textContent = '0';
+            starsElement.textContent = '';
+            updateProblem();
+            
+            // 添加事件监听器
+            nextButton.addEventListener('click', updateProblem);
+            additionCheckbox.addEventListener('change', checkOperations);
+            subtractionCheckbox.addEventListener('change', checkOperations);
+            multiplicationCheckbox.addEventListener('change', checkOperations);
+        }
+        
+        // 检查选择的运算种类
+        function checkOperations() {
+            gameState.operations = [];
+            if (additionCheckbox.checked) gameState.operations.push('addition');
+            if (subtractionCheckbox.checked) gameState.operations.push('subtraction');
+            if (multiplicationCheckbox.checked) gameState.operations.push('multiplication');
+            
+            // 确保至少选择一种运算
+            if (gameState.operations.length === 0) {
+                additionCheckbox.checked = true;
+                gameState.operations.push('addition');
+            }
+            
+            updateProblem();
+        }
+        
+        // 生成新题目
+        function updateProblem() {
+            messageElement.textContent = '';
+            messageElement.className = 'message';
+            
+            // 随机选择运算类型
+            const operationType = gameState.operations[Math.floor(Math.random() * gameState.operations.length)];
+            
+            let num1, num2, answer, operator;
+            
+            switch (operationType) {
+                case 'addition':
+                    num1 = Math.floor(Math.random() * 10);
+                    num2 = Math.floor(Math.random() * 10);
+                    answer = num1 + num2;
+                    operator = '+';
+                    break;
+                case 'subtraction':
+                    num2 = Math.floor(Math.random() * 10);
+                    // 确保结果是非负数
+                    num1 = num2 + Math.floor(Math.random() * 10);
+                    answer = num1 - num2;
+                    operator = '-';
+                    break;
+                case 'multiplication':
+                    num1 = Math.floor(Math.random() * 10);
+                    num2 = Math.floor(Math.random() * 10);
+                    answer = num1 * num2;
+                    operator = '×';
+                    break;
+            }
+            
+            // 更新题目显示
+            problemElement.textContent = `${num1} ${operator} ${num2} = ?`;
+            
+            // 保存当前答案
+            gameState.currentAnswer = answer;
+            
+            // 生成选项
+            generateOptions(answer);
+        }
+        
+        // 生成答案选项
+        function generateOptions(correctAnswer) {
+            // 清空选项
+            optionsElement.innerHTML = '';
+            
+            // 创建一个包含正确答案的数组
+            const options = [correctAnswer];
+            
+            // 添加3个不同的错误选项
+            while (options.length < 4) {
+                // 在正确答案附近生成一个随机数(-3到+3范围内)
+                let offset = Math.floor(Math.random() * 7) - 3;
+                let wrongAnswer = correctAnswer + offset;
+                
+                // 确保错误答案是非负的且不重复
+                if (wrongAnswer >= 0 && !options.includes(wrongAnswer) && wrongAnswer !== correctAnswer) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // 打乱选项顺序
+            shuffleArray(options);
+            
+            // 创建选项按钮
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option));
+                optionsElement.appendChild(button);
+            });
+        }
+        
+        // 检查答案
+        function checkAnswer(selectedAnswer) {
+            if (selectedAnswer === gameState.currentAnswer) {
+                // 答对了
+                messageElement.textContent = '答对了！';
+                messageElement.className = 'message correct';
+                gameState.score++;
+                scoreElement.textContent = gameState.score;
+                updateStars();
+                celebrate();
+            } else {
+                // 答错了
+                messageElement.textContent = '答错了，再试一次！';
+                messageElement.className = 'message wrong';
+            }
+            
+            // 禁用所有选项按钮
+            const optionButtons = document.querySelectorAll('.option');
+            optionButtons.forEach(button => {
+                button.disabled = true;
+                if (parseInt(button.textContent) === gameState.currentAnswer) {
+                    button.style.backgroundColor = '#40c057'; // 正确答案标绿
+                } else if (parseInt(button.textContent) === selectedAnswer && selectedAnswer !== gameState.currentAnswer) {
+                    button.style.backgroundColor = '#fa5252'; // 错误选择标红
+                }
+            });
+            
+            // 延迟后进入下一题
+            if (selectedAnswer === gameState.currentAnswer) {
+                setTimeout(updateProblem, 1500);
+            }
+        }
+        
+        // 更新星星显示
+        function updateStars() {
+            starsElement.textContent = '★'.repeat(Math.min(5, Math.floor(gameState.score / 5)));
+        }
+        
+        // 庆祝动画
+        function celebrate() {
+            celebrationElement.style.display = 'block';
+            celebrationElement.innerHTML = '';
+            
+            // 创建30个彩色碎片
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // 随机位置
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                
+                // 随机颜色
+                const colors = ['#ff6b6b', '#5c7cfa', '#40c057', '#fcc419', '#7950f2'];
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                celebrationElement.appendChild(confetti);
+                
+                // 动画
+                const animation = confetti.animate([
+                    { top: '-10px', transform: 'rotate(0deg)' },
+                    { top: '110%', transform: 'rotate(360deg)' }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(.37,0,.63,1)'
+                });
+                
+                animation.onfinish = () => {
+                    confetti.remove();
+                    // 当所有碎片都消失时，隐藏庆祝元素
+                    if (celebrationElement.children.length === 0) {
+                        celebrationElement.style.display = 'none';
+                    }
+                };
+            }
+        }
+        
+        // 打乱数组顺序 (Fisher-Yates洗牌算法)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 启动游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
