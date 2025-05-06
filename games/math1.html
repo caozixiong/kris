@@ -244,19 +244,20 @@
                 btn.style.opacity = '0.5';
             });
             
+            // 先生成图形，然后启动倒计时
+            generateShapes();
+            
             // 启动3秒倒计时
             gameState.timerValue = 3;
             timerElement.textContent = gameState.timerValue;
             gameState.playing = false;
             
-            // 在倒计时结束后生成图形
             gameState.timerInterval = setInterval(() => {
                 gameState.timerValue--;
                 timerElement.textContent = gameState.timerValue;
                 
                 if (gameState.timerValue <= 0) {
                     clearInterval(gameState.timerInterval);
-                    generateShapes();
                     gameState.playing = true;
                     
                     // 启用数字按钮
