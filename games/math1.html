@@ -230,9 +230,19 @@
             messageElement.textContent = '';
             messageElement.className = 'message';
             
-            // 根据级别调整难度
-            const maxCount = Math.min(9, 3 + Math.floor(gameState.level / 2));
-            gameState.currentCount = Math.floor(Math.random() * maxCount) + 1;
+            // 根据级别调整难度，倾向于生成6-10个图形
+            const randomValue = Math.random();
+            let maxCount;
+            
+            if (randomValue < 0.7) {
+                // 70%的概率生成6-10个图形
+                maxCount = 10;
+                gameState.currentCount = Math.floor(Math.random() * 5) + 6; // 6-10
+            } else {
+                // 30%的概率生成1-5个图形
+                maxCount = 5;
+                gameState.currentCount = Math.floor(Math.random() * 5) + 1; // 1-5
+            }
             
             // 清空并生成新图形
             shapesContainer.innerHTML = '';
