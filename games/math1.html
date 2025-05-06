@@ -3,62 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小朋友算术游戏</title>
+    <title>一年级数字游戏</title>
     <style>
         body {
-            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
-            background-color: #f0f8ff;
+            font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
+            background-color: #e9f5ff;
             margin: 0;
             padding: 20px;
             text-align: center;
             color: #333;
+            user-select: none;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: white;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            position: relative;
         }
         h1 {
             color: #ff6b6b;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            font-size: 32px;
         }
-        .game-area {
-            margin: 30px 0;
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff8787;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
         }
-        .problem {
-            font-size: 36px;
-            margin: 20px 0;
-            color: #5c7cfa;
+        .shapes-container {
+            height: 300px;
+            margin: 30px auto;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
         }
-        .options {
+        .shape {
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .shape svg {
+            width: 50px;
+            height: 50px;
+        }
+        .numbers {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
             margin: 20px 0;
         }
-        .option {
+        .number {
             background-color: #74c0fc;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             font-size: 24px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .option:hover {
+        .number:hover {
             transform: scale(1.1);
             background-color: #4dabf7;
-        }
-        .score {
-            font-size: 24px;
-            margin-top: 20px;
-            color: #495057;
         }
         .message {
             height: 50px;
@@ -72,34 +100,10 @@
         .wrong {
             color: #fa5252;
         }
-        .controls {
-            margin-top: 30px;
-        }
-        .btn {
-            background-color: #ff8787;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: background-color 0.2s;
-        }
-        .btn:hover {
-            background-color: #ff6b6b;
-        }
-        .settings {
-            margin: 20px 0;
-            text-align: left;
-            padding: 0 20px;
-        }
-        .operation-toggle {
-            margin: 10px 0;
-        }
-        label {
-            margin-right: 10px;
-            font-size: 18px;
+        .score {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #495057;
         }
         .stars {
             margin: 20px 0;
@@ -123,33 +127,40 @@
             background-color: #f76707;
             border-radius: 50%;
         }
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #ff6b6b;
+            width: 0%;
+            transition: width 0.5s;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>小朋友算术游戏</h1>
+        <h1>数一数有多少个图形？</h1>
+        <div class="timer" id="timer">3</div>
         
-        <div class="settings">
-            <div class="operation-toggle">
-                <label><input type="checkbox" id="addition" checked> 加法</label>
-                <label><input type="checkbox" id="subtraction" checked> 减法</label>
-                <label><input type="checkbox" id="multiplication" checked> 乘法</label>
-            </div>
+        <div class="shapes-container" id="shapes-container">
+            <!-- 图形将通过JavaScript生成 -->
         </div>
         
-        <div class="game-area">
-            <div class="problem" id="problem">6 + 3 = ?</div>
-            <div class="options" id="options">
-                <!-- 选项将通过JavaScript生成 -->
-            </div>
-            <div class="message" id="message"></div>
+        <div class="numbers" id="numbers">
+            <!-- 数字选项将通过JavaScript生成 -->
         </div>
         
+        <div class="message" id="message"></div>
         <div class="score">得分: <span id="score">0</span></div>
         <div class="stars" id="stars"></div>
         
-        <div class="controls">
-            <button class="btn" id="next-btn">下一题</button>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
         </div>
     </div>
     
@@ -159,133 +170,127 @@
         // 游戏状态
         const gameState = {
             score: 0,
-            currentProblem: null,
-            currentAnswer: null,
-            operations: ['addition', 'subtraction', 'multiplication']
+            currentCount: 0,
+            timerValue: 3,
+            timerInterval: null,
+            level: 1,
+            playing: false
         };
         
         // 获取DOM元素
-        const problemElement = document.getElementById('problem');
-        const optionsElement = document.getElementById('options');
+        const shapesContainer = document.getElementById('shapes-container');
+        const numbersContainer = document.getElementById('numbers');
         const messageElement = document.getElementById('message');
         const scoreElement = document.getElementById('score');
         const starsElement = document.getElementById('stars');
-        const nextButton = document.getElementById('next-btn');
+        const timerElement = document.getElementById('timer');
         const celebrationElement = document.getElementById('celebration');
+        const progressElement = document.getElementById('progress');
         
-        // 操作选项
-        const additionCheckbox = document.getElementById('addition');
-        const subtractionCheckbox = document.getElementById('subtraction');
-        const multiplicationCheckbox = document.getElementById('multiplication');
+        // 图形SVG
+        const shapes = [
+            // 圆形
+            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#ff6b6b" /></svg>`,
+            // 正方形
+            `<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="#5c7cfa" /></svg>`,
+            // 三角形
+            `<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#40c057" /></svg>`,
+            // 星形
+            `<svg viewBox="0 0 100 100"><polygon points="50,10 61,35 90,40 70,60 75,90 50,75 25,90 30,60 10,40 39,35" fill="#fcc419" /></svg>`,
+            // 心形
+            `<svg viewBox="0 0 100 100"><path d="M50,80 C35,65 10,50 10,30 C10,15 25,10 35,10 C45,10 50,20 50,20 C50,20 55,10 65,10 C75,10 90,15 90,30 C90,50 65,65 50,80 Z" fill="#f06595" /></svg>`
+        ];
         
         // 初始化游戏
         function initGame() {
             gameState.score = 0;
+            gameState.level = 1;
             scoreElement.textContent = '0';
             starsElement.textContent = '';
-            updateProblem();
-            
-            // 添加事件监听器
-            nextButton.addEventListener('click', updateProblem);
-            additionCheckbox.addEventListener('change', checkOperations);
-            subtractionCheckbox.addEventListener('change', checkOperations);
-            multiplicationCheckbox.addEventListener('change', checkOperations);
+            progressElement.style.width = '0%';
+            updateProgressBar();
+            createNumberButtons();
+            startNewRound();
         }
         
-        // 检查选择的运算种类
-        function checkOperations() {
-            gameState.operations = [];
-            if (additionCheckbox.checked) gameState.operations.push('addition');
-            if (subtractionCheckbox.checked) gameState.operations.push('subtraction');
-            if (multiplicationCheckbox.checked) gameState.operations.push('multiplication');
-            
-            // 确保至少选择一种运算
-            if (gameState.operations.length === 0) {
-                additionCheckbox.checked = true;
-                gameState.operations.push('addition');
+        // 创建数字按钮
+        function createNumberButtons() {
+            numbersContainer.innerHTML = '';
+            for (let i = 0; i <= 10; i++) {
+                const button = document.createElement('div');
+                button.className = 'number';
+                button.textContent = i;
+                button.addEventListener('click', () => checkAnswer(i));
+                numbersContainer.appendChild(button);
             }
-            
-            updateProblem();
         }
         
-        // 生成新题目
-        function updateProblem() {
+        // 开始新一轮
+        function startNewRound() {
             messageElement.textContent = '';
             messageElement.className = 'message';
             
-            // 随机选择运算类型
-            const operationType = gameState.operations[Math.floor(Math.random() * gameState.operations.length)];
+            // 根据级别调整难度
+            const maxCount = Math.min(9, 3 + Math.floor(gameState.level / 2));
+            gameState.currentCount = Math.floor(Math.random() * maxCount) + 1;
             
-            let num1, num2, answer, operator;
+            // 清空并生成新图形
+            shapesContainer.innerHTML = '';
             
-            switch (operationType) {
-                case 'addition':
-                    num1 = Math.floor(Math.random() * 10);
-                    num2 = Math.floor(Math.random() * 10);
-                    answer = num1 + num2;
-                    operator = '+';
-                    break;
-                case 'subtraction':
-                    num2 = Math.floor(Math.random() * 10);
-                    // 确保结果是非负数
-                    num1 = num2 + Math.floor(Math.random() * 10);
-                    answer = num1 - num2;
-                    operator = '-';
-                    break;
-                case 'multiplication':
-                    num1 = Math.floor(Math.random() * 10);
-                    num2 = Math.floor(Math.random() * 10);
-                    answer = num1 * num2;
-                    operator = '×';
-                    break;
-            }
+            // 禁用数字按钮直到计时器结束
+            const numberButtons = document.querySelectorAll('.number');
+            numberButtons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            });
             
-            // 更新题目显示
-            problemElement.textContent = `${num1} ${operator} ${num2} = ?`;
+            // 启动3秒倒计时
+            gameState.timerValue = 3;
+            timerElement.textContent = gameState.timerValue;
+            gameState.playing = false;
             
-            // 保存当前答案
-            gameState.currentAnswer = answer;
-            
-            // 生成选项
-            generateOptions(answer);
+            // 在倒计时结束后生成图形
+            gameState.timerInterval = setInterval(() => {
+                gameState.timerValue--;
+                timerElement.textContent = gameState.timerValue;
+                
+                if (gameState.timerValue <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    generateShapes();
+                    gameState.playing = true;
+                    
+                    // 启用数字按钮
+                    numberButtons.forEach(btn => {
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.opacity = '1';
+                    });
+                }
+            }, 1000);
         }
         
-        // 生成答案选项
-        function generateOptions(correctAnswer) {
-            // 清空选项
-            optionsElement.innerHTML = '';
-            
-            // 创建一个包含正确答案的数组
-            const options = [correctAnswer];
-            
-            // 添加3个不同的错误选项
-            while (options.length < 4) {
-                // 在正确答案附近生成一个随机数(-3到+3范围内)
-                let offset = Math.floor(Math.random() * 7) - 3;
-                let wrongAnswer = correctAnswer + offset;
+        // 生成图形
+        function generateShapes() {
+            for (let i = 0; i < gameState.currentCount; i++) {
+                const shapeDiv = document.createElement('div');
+                shapeDiv.className = 'shape';
                 
-                // 确保错误答案是非负的且不重复
-                if (wrongAnswer >= 0 && !options.includes(wrongAnswer) && wrongAnswer !== correctAnswer) {
-                    options.push(wrongAnswer);
-                }
+                // 随机选择图形
+                const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+                shapeDiv.innerHTML = randomShape;
+                
+                // 随机位置和旋转
+                const rotation = Math.floor(Math.random() * 360);
+                shapeDiv.style.transform = `rotate(${rotation}deg)`;
+                
+                shapesContainer.appendChild(shapeDiv);
             }
-            
-            // 打乱选项顺序
-            shuffleArray(options);
-            
-            // 创建选项按钮
-            options.forEach(option => {
-                const button = document.createElement('button');
-                button.className = 'option';
-                button.textContent = option;
-                button.addEventListener('click', () => checkAnswer(option));
-                optionsElement.appendChild(button);
-            });
         }
         
         // 检查答案
-        function checkAnswer(selectedAnswer) {
-            if (selectedAnswer === gameState.currentAnswer) {
+        function checkAnswer(selectedNumber) {
+            if (!gameState.playing) return;
+            
+            if (selectedNumber === gameState.currentCount) {
                 // 答对了
                 messageElement.textContent = '答对了！';
                 messageElement.className = 'message correct';
@@ -293,32 +298,37 @@
                 scoreElement.textContent = gameState.score;
                 updateStars();
                 celebrate();
+                
+                // 提高级别
+                if (gameState.score % 3 === 0) {
+                    gameState.level++;
+                }
+                
+                updateProgressBar();
+                
+                // 延迟后进入下一轮
+                setTimeout(startNewRound, 1500);
             } else {
                 // 答错了
-                messageElement.textContent = '答错了，再试一次！';
+                messageElement.textContent = '答错了，正确答案是 ' + gameState.currentCount;
                 messageElement.className = 'message wrong';
+                
+                // 延迟后进入下一轮
+                setTimeout(startNewRound, 2000);
             }
             
-            // 禁用所有选项按钮
-            const optionButtons = document.querySelectorAll('.option');
-            optionButtons.forEach(button => {
-                button.disabled = true;
-                if (parseInt(button.textContent) === gameState.currentAnswer) {
-                    button.style.backgroundColor = '#40c057'; // 正确答案标绿
-                } else if (parseInt(button.textContent) === selectedAnswer && selectedAnswer !== gameState.currentAnswer) {
-                    button.style.backgroundColor = '#fa5252'; // 错误选择标红
-                }
-            });
-            
-            // 延迟后进入下一题
-            if (selectedAnswer === gameState.currentAnswer) {
-                setTimeout(updateProblem, 1500);
-            }
+            gameState.playing = false;
         }
         
         // 更新星星显示
         function updateStars() {
             starsElement.textContent = '★'.repeat(Math.min(5, Math.floor(gameState.score / 5)));
+        }
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = Math.min(100, (gameState.score / 20) * 100);
+            progressElement.style.width = progress + '%';
         }
         
         // 庆祝动画
@@ -334,6 +344,11 @@
                 // 随机位置
                 confetti.style.left = Math.random() * 100 + '%';
                 confetti.style.top = '-10px';
+                
+                // 随机大小
+                const size = 5 + Math.random() * 10;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
                 
                 // 随机颜色
                 const colors = ['#ff6b6b', '#5c7cfa', '#40c057', '#fcc419', '#7950f2'];
@@ -358,15 +373,6 @@
                     }
                 };
             }
-        }
-        
-        // 打乱数组顺序 (Fisher-Yates洗牌算法)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
         }
         
         // 启动游戏
