@@ -9,10 +9,11 @@
             font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
             background-color: #e9f5ff;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
             color: #333;
             user-select: none;
+            touch-action: manipulation;
         }
         .container {
             max-width: 800px;
@@ -20,23 +21,35 @@
             background-color: white;
             border-radius: 20px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            padding: 15px;
             position: relative;
         }
         h1 {
             color: #ff6b6b;
-            margin-bottom: 20px;
-            font-size: 32px;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .cheer {
+            color: #ff6b6b;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         .timer {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             background-color: #ff8787;
             color: white;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -44,54 +57,56 @@
             font-weight: bold;
         }
         .shapes-container {
-            height: 300px;
-            margin: 30px auto;
+            height: 200px;
+            margin: 20px auto;
             background-color: #f8f9fa;
             border-radius: 15px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 15px;
             position: relative;
         }
         .shape {
-            margin: 10px;
+            margin: 8px;
             transition: transform 0.2s;
         }
         .shape svg {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
         }
         .numbers {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 15px 0;
         }
         .number {
             background-color: #74c0fc;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
+            width: 55px;
+            height: 55px;
+            font-size: 22px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .number:hover {
+        .number:hover, .number:active {
             transform: scale(1.1);
             background-color: #4dabf7;
         }
         .message {
-            height: 50px;
-            font-size: 28px;
-            margin: 20px 0;
+            height: 40px;
+            font-size: 24px;
+            margin: 15px 0;
             font-weight: bold;
         }
         .correct {
@@ -101,13 +116,13 @@
             color: #fa5252;
         }
         .score {
-            font-size: 24px;
-            margin-top: 20px;
+            font-size: 20px;
+            margin-top: 15px;
             color: #495057;
         }
         .stars {
-            margin: 20px 0;
-            font-size: 30px;
+            margin: 15px 0;
+            font-size: 26px;
             color: #fcc419;
         }
         .celebration {
@@ -128,10 +143,10 @@
             border-radius: 50%;
         }
         .progress-bar {
-            height: 20px;
+            height: 15px;
             background-color: #e9ecef;
-            border-radius: 10px;
-            margin: 15px 0;
+            border-radius: 8px;
+            margin: 10px 0;
             overflow: hidden;
         }
         .progress {
@@ -140,11 +155,53 @@
             width: 0%;
             transition: width 0.5s;
         }
+        
+        /* 响应式设计，适配手机 */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+            .cheer {
+                font-size: 18px;
+            }
+            .timer {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                top: 10px;
+                right: 10px;
+            }
+            .shapes-container {
+                height: 180px;
+                margin: 15px auto;
+            }
+            .shape svg {
+                width: 35px;
+                height: 35px;
+            }
+            .number {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            .message {
+                font-size: 20px;
+                height: 30px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>数一数有多少个图形？</h1>
+        <div class="cheer">Kris，加油！</div>
         <div class="timer" id="timer">2</div>
         
         <div class="shapes-container" id="shapes-container">
