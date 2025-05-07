@@ -171,7 +171,7 @@
             40%, 80% { transform: translateX(5px); }
         }
         
-                    @media (max-width: 500px) {
+        @media (max-width: 500px) {
             .game-container {
                 padding: 10px;
             }
@@ -495,7 +495,6 @@
             const displaySeconds = seconds.toString().padStart(2, '0');
             const displayMilliseconds = Math.floor(milliseconds / 10).toString().padStart(2, '0');
             timerDisplay.textContent = `${displaySeconds}:${displayMilliseconds}`;
-        }
         }
         
         // Start the game when page loads
