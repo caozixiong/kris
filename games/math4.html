@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>一年级保龄球算术</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff; /* Light blue background */
+            overflow: hidden; /* Prevent scrollbars from ball animation */
+            touch-action: manipulation; /* Improve touch responsiveness on mobile */
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 95%;
+            max-width: 400px; /* Max width for larger screens */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        #pins-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; /* Allow pins to wrap if too many */
+            margin-bottom: 20px;
+            min-height: 100px; /* Ensure space for pins */
+            width: 100%;
+        }
+
+        .pin {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 50%;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em; /* Hide numbers initially if any */
+            color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .pin.hit {
+            background-color: black;
+        }
+
+        #bowling-ball {
+            width: 40px;
+            height: 40px;
+            background-color: #d9534f; /* Reddish color */
+            border-radius: 50%;
+            position: absolute;
+            bottom: 180px; /* Start position above start button */
+            left: calc(50% - 20px);
+            z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1); /* Smooth roll */
+            transform: translateY(0); /* Initial state for animation */
+            visibility: hidden; /* Hidden until game starts */
+        }
+
+        #equation-area {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            min-height: 1.2em; /* Ensure space even when M is not shown */
+        }
+
+        #options-area {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            font-size: 1.8em;
+            padding: 15px 20px;
+            background-color: #5cb85c; /* Green */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0 5px;
+            flex-grow: 1; /* Allow buttons to grow */
+            transition: background-color 0.2s;
+        }
+
+        .option-button:hover {
+            background-color: #4cae4c;
+        }
+
+        #start-button {
+            font-size: 1.8em;
+            padding: 15px 30px;
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #start-button:hover {
+            background-color: #0056b3;
+        }
+        
+        #start-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #feedback-area {
+            position: fixed; /* Overlay */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            color: white;
+            visibility: hidden; /* Use visibility for smoother transitions */
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+        }
+        
+        #feedback-area.visible {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        #feedback-icon {
+            font-size: 5em; /* Large emoji */
+        }
+
+        #feedback-text {
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        #countdown-display {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 2em;
+            color: #aaa;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 5;
+            display: none; /* Hidden initially */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="pins-area"></div>
+        <div id="bowling-ball"></div>
+        <div id="equation-area">
+            <span id="n-value">N</span>
+            <span> - </span>
+            <span id="m-value"></span>
+            <span> = </span>
+            <span id="q-mark">?</span>
+        </div>
+        <div id="options-area">
+            <!-- Option buttons will be generated here -->
+        </div>
+        <button id="start-button">开始</button>
+    </div>
+
+    <div id="feedback-area">
+        <div id="feedback-icon"></div>
+        <div id="feedback-text"></div>
+    </div>
+
+    <div id="countdown-display">3</div>
+
+    <script>
+        const pinsArea = document.getElementById('pins-area');
+        const bowlingBall = document.getElementById('bowling-ball');
+        const nValueSpan = document.getElementById('n-value');
+        const mValueSpan = document.getElementById('m-value');
+        const qMarkSpan = document.getElementById('q-mark');
+        const optionsArea = document.getElementById('options-area');
+        const startButton = document.getElementById('start-button');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackText = document.getElementById('feedback-text');
+        const countdownDisplay = document.getElementById('countdown-display');
+
+        let N, M, correctAnswer;
+        let currentPins = [];
+        let countdownTimer;
+        let gameActive = false; // To prevent multiple clicks during animation
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function setupRound() {
+            gameActive = false;
+            startButton.disabled = true; // Disable until countdown finishes
+            startButton.style.display = 'block';
+            optionsArea.innerHTML = ''; // Clear previous options
+            mValueSpan.textContent = '';
+            qMarkSpan.textContent = '?';
+            feedbackArea.classList.remove('visible');
+            bowlingBall.style.visibility = 'hidden';
+            bowlingBall.style.transform = 'translateY(0px)'; // Reset ball position
+
+            // N: Number of circles (pins), also the first number in subtraction
+            // Let's make N between 5 and 10 as per "N+5" could mean N starts around 5
+            N = getRandomInt(5, 10); 
+            nValueSpan.textContent = N;
+
+            pinsArea.innerHTML = '';
+            currentPins = [];
+            for (let i = 0; i < N; i++) {
+                const pin = document.createElement('div');
+                pin.classList.add('pin');
+                pinsArea.appendChild(pin);
+                currentPins.push(pin);
+            }
+            
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let count = 3;
+            countdownDisplay.textContent = count;
+            countdownDisplay.style.display = 'block';
+
+            if (countdownTimer) clearInterval(countdownTimer); // Clear existing timer
+
+            countdownTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownDisplay.textContent = count;
+                } else {
+                    clearInterval(countdownTimer);
+                    countdownDisplay.style.display = 'none';
+                    startButton.disabled = false; // Enable start button
+                }
+            }, 1000);
+        }
+
+
+        function rollBall() {
+            if (gameActive) return;
+            gameActive = true;
+            startButton.style.display = 'none';
+            bowlingBall.style.visibility = 'visible';
+            
+            // Calculate distance to approximately the center of the pins area
+            const pinsAreaRect = pinsArea.getBoundingClientRect();
+            const ballRect = bowlingBall.getBoundingClientRect();
+            const gameContainerRect = document.getElementById('game-container').getBoundingClientRect();
+
+            // Distance from ball's initial bottom to pinsArea's center (approx)
+            // The ball starts `bottom: 180px` relative to game-container.
+            // Pins area is at the top of the game container.
+            // We want the ball to move "up" from its current position to hit pins.
+            // `transform: translateY(-Ypx)` moves it up.
+            // Let's aim for the ball to move near the pins.
+            const travelDistance = ballRect.top - (pinsAreaRect.top + pinsAreaRect.height / 2) + gameContainerRect.top;
+
+            bowlingBall.style.transform = `translateY(-${travelDistance + 20}px)`; // Move ball up slightly past center
+
+            setTimeout(() => {
+                knockPins();
+            }, 800); // Match animation duration
+        }
+
+        function knockPins() {
+            M = getRandomInt(1, N); // M pins knocked down, M <= N
+            mValueSpan.textContent = M;
+            qMarkSpan.textContent = '?';
+
+            // Reset all pins visual state before knocking new ones
+            currentPins.forEach(pin => pin.classList.remove('hit'));
+
+            let hitIndices = [];
+            while(hitIndices.length < M) {
+                let randomIndex = getRandomInt(0, N - 1);
+                if (!hitIndices.includes(randomIndex)) {
+                    hitIndices.push(randomIndex);
+                }
+            }
+
+            hitIndices.forEach(index => {
+                currentPins[index].classList.add('hit');
+            });
+
+            correctAnswer = N - M;
+            displayOptions();
+            gameActive = false; // Allow interaction with options
+        }
+
+        function displayOptions() {
+            optionsArea.innerHTML = ''; // Clear previous options
+            let options = [correctAnswer];
+
+            // Generate two distractor options
+            while (options.length < 3) {
+                let distractor;
+                // Try to make distractors somewhat close but not negative
+                let offset = getRandomInt(1, 3);
+                if (Math.random() < 0.5) {
+                    distractor = correctAnswer + offset;
+                } else {
+                    distractor = correctAnswer - offset;
+                }
+                // Ensure distractor is non-negative and unique
+                if (distractor >= 0 && !options.includes(distractor)) {
+                    options.push(distractor);
+                } else if (!options.includes(N-M+1) && (N-M+1) >= 0 && (N-M+1) !== correctAnswer ) { // Fallback
+                     options.push(N-M+1);
+                } else if (!options.includes(N-M+2) && (N-M+2) >= 0 && (N-M+2) !== correctAnswer ) {
+                     options.push(N-M+2);
+                } else if (!options.includes(Math.max(0, N-M-1)) && (N-M-1) !== correctAnswer) {
+                     options.push(Math.max(0, N-M-1));
+                }
+                 // Final fallback to ensure 3 options if logic above fails in edge cases
+                if (options.length < 3 && !options.includes(0) && 0 !== correctAnswer) options.push(0);
+                if (options.length < 3 && !options.includes(1) && 1 !== correctAnswer) options.push(1);
+                if (options.length < 3 && !options.includes(2) && 2 !== correctAnswer) options.push(2);
+                 // Ensure options are unique again by converting to Set and back to Array
+                options = Array.from(new Set(options)); 
+                // If somehow we still don't have 3, fill with simple numbers
+                let fillValue = 0;
+                while(options.length < 3) {
+                    if(!options.includes(fillValue)) {
+                        options.push(fillValue);
+                    }
+                    fillValue++;
+                }
+            }
+
+
+            shuffleArray(options);
+
+            options.forEach(opt => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = opt;
+                button.addEventListener('click', () => checkAnswer(opt));
+                button.addEventListener('touchstart', (e) => { // For mobile, prevent double tap zoom
+                    e.preventDefault();
+                    checkAnswer(opt);
+                }, { passive: false });
+                optionsArea.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedAnswer) {
+            if (gameActive) return; // Prevent checking while feedback is shown
+            gameActive = true;
+
+            if (selectedAnswer === correctAnswer) {
+                feedbackIcon.textContent = '😊🌸'; // Smiley and flower
+                feedbackText.textContent = 'Good Job Kris!';
+                feedbackArea.classList.add('visible');
+                setTimeout(() => {
+                    feedbackArea.classList.remove('visible');
+                    setupRound(); // Next round
+                }, 1500); // Show for 1.5 seconds, then next round
+            } else {
+                feedbackIcon.textContent = '😢🌵'; // Crying face and thorny shape (cactus)
+                feedbackText.textContent = '再试一次!';
+                feedbackArea.classList.add('visible');
+                setTimeout(() => {
+                    feedbackArea.classList.remove('visible');
+                    // "回到本次内容不进入下一个循环"
+                    // Re-enable options for the same problem
+                    optionsArea.childNodes.forEach(btn => btn.disabled = false);
+                    gameActive = false;
+                }, 2000); // Show for 2 seconds, then allow retry
+            }
+        }
+
+        startButton.addEventListener('click', rollBall);
+        // For touch devices, also listen to 'touchstart' for better responsiveness
+        startButton.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent potential double action (click after touch)
+            if (!startButton.disabled) rollBall();
+        }, { passive: false });
+
+        // Initial setup
+        setupRound();
+
+    </script>
+</body>
+</html>
