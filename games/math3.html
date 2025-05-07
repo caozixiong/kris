@@ -234,7 +234,7 @@
     
     <div class="game-container">
         <div class="shapes-container">
-            <div class="shape-group" id="mixed-shapes-group"></div> {/* Changed: Single group for mixed shapes */}
+            <div class="shape-group" id="mixed-shapes-group"></div>
         </div>
         
         <div class="math-container">
@@ -283,7 +283,7 @@
         let centisecondsLeft;
         
         // DOM elements
-        const mixedShapesGroup = document.getElementById('mixed-shapes-group'); // Changed
+        const mixedShapesGroup = document.getElementById('mixed-shapes-group');
         const icon1 = document.getElementById('icon-1');
         const icon2 = document.getElementById('icon-2');
         const options1 = document.getElementById('options-1');
@@ -312,7 +312,7 @@
             count2 = Math.floor(Math.random() * maxShapes) + 1;
             sumCount = count1 + count2;
             
-            displayMixedShapes(mixedShapesGroup, currentShape1, count1, currentShape2, count2); // Changed
+            displayMixedShapes(mixedShapesGroup, currentShape1, count1, currentShape2, count2);
             
             icon1.textContent = currentShape1;
             icon2.textContent = currentShape2;
@@ -324,9 +324,8 @@
             startTimer();
         }
 
-        // New function to display mixed shapes
         function displayMixedShapes(container, shape1, num1, shape2, num2) {
-            container.innerHTML = ''; // Clear previous shapes
+            container.innerHTML = ''; 
             const allShapeElements = [];
 
             for (let i = 0; i < num1; i++) {
@@ -343,7 +342,7 @@
                 allShapeElements.push(shapeElem);
             }
 
-            shuffleArray(allShapeElements); // Shuffle the DOM elements
+            shuffleArray(allShapeElements); 
 
             allShapeElements.forEach(shapeElem => {
                 container.appendChild(shapeElem);
@@ -351,7 +350,7 @@
         }
         
         function clearShapesAndOptions() {
-            mixedShapesGroup.innerHTML = ''; // Changed
+            mixedShapesGroup.innerHTML = ''; 
             options1.innerHTML = '';
             options2.innerHTML = '';
             optionsSum.innerHTML = '';
