@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Grade Math Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shapes-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        
+        .shape-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 45%;
+            padding: 10px;
+            border: 2px dashed #70a1ff;
+            border-radius: 10px;
+        }
+        
+        .shape {
+            margin: 5px;
+            font-size: 30px;
+        }
+        
+        .math-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .math-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 5px 0;
+            justify-content: center;
+        }
+        
+        .shape-icon {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+        
+        .operator {
+            font-size: 30px;
+            margin: 5px 0;
+        }
+        
+        .number-options {
+            display: flex;
+            justify-content: space-around;
+            width: 60%;
+        }
+        
+        .number-option {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #70a1ff;
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        
+        .number-option:hover, .number-option:active {
+            transform: scale(1.1);
+            background-color: #1e90ff;
+        }
+        
+        .number-option.selected {
+            background-color: #27ae60;
+            transform: scale(1.1);
+        }
+        
+        .number-option.wrong {
+            background-color: #e74c3c;
+            animation: shake 0.5s;
+        }
+        
+        .result {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 10;
+            font-size: 50px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .result.show {
+            opacity: 1;
+        }
+        
+        .result-emoji {
+            font-size: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .result-text {
+            font-size: 36px;
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        
+        .timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #e74c3c;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 500px) {
+            .game-container {
+                padding: 10px;
+            }
+            
+            .shape {
+                font-size: 24px;
+            }
+            
+            .shape-icon {
+                font-size: 20px;
+            }
+            
+            .number-option {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .result-emoji {
+                font-size: 80px;
+            }
+            
+            .result-text {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer">3</div>
+    
+    <div class="game-container">
+        <div class="shapes-container">
+            <div class="shape-group" id="shape-group-1"></div>
+            <div class="shape-group" id="shape-group-2"></div>
+        </div>
+        
+        <div class="math-container">
+            <!-- First row: Shape 1 + numbers -->
+            <div class="math-row">
+                <div class="shape-icon" id="icon-1"></div>
+                <div class="number-options" id="options-1"></div>
+            </div>
+            
+            <!-- Second row: + symbol -->
+            <div class="math-row">
+                <div class="operator">+</div>
+            </div>
+            
+            <!-- Third row: Shape 2 + numbers -->
+            <div class="math-row">
+                <div class="shape-icon" id="icon-2"></div>
+                <div class="number-options" id="options-2"></div>
+            </div>
+            
+            <!-- Fourth row: = symbol -->
+            <div class="math-row">
+                <div class="operator">=</div>
+            </div>
+            
+            <!-- Fifth row: Sum numbers -->
+            <div class="math-row">
+                <div class="number-options" id="options-sum"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="result" id="result">
+        <div class="result-emoji" id="result-emoji"></div>
+        <div class="result-text" id="result-text"></div>
+    </div>
+    
+    <script>
+        // Game configuration
+        const shapeTypes = ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'];
+        const maxShapes = 5;
+        const timerDuration = 3; // seconds
+        
+        // Game state
+        let currentShape1;
+        let currentShape2;
+        let count1;
+        let count2;
+        let sumCount;
+        let selectedNumbers = [null, null, null];
+        let timerInterval;
+        let timeLeft;
+        
+        // DOM elements
+        const shapeGroup1 = document.getElementById('shape-group-1');
+        const shapeGroup2 = document.getElementById('shape-group-2');
+        const icon1 = document.getElementById('icon-1');
+        const icon2 = document.getElementById('icon-2');
+        const options1 = document.getElementById('options-1');
+        const options2 = document.getElementById('options-2');
+        const optionsSum = document.getElementById('options-sum');
+        const resultDiv = document.getElementById('result');
+        const resultEmoji = document.getElementById('result-emoji');
+        const resultText = document.getElementById('result-text');
+        const timerDisplay = document.querySelector('.timer');
+        
+        // Initialize the game
+        function initGame() {
+            // Reset state
+            selectedNumbers = [null, null, null];
+            clearShapes();
+            
+            // Generate random shapes and counts
+            const shapeIndex1 = Math.floor(Math.random() * shapeTypes.length);
+            let shapeIndex2 = Math.floor(Math.random() * shapeTypes.length);
+            // Make sure we have different shapes
+            while (shapeIndex2 === shapeIndex1) {
+                shapeIndex2 = Math.floor(Math.random() * shapeTypes.length);
+            }
+            
+            currentShape1 = shapeTypes[shapeIndex1];
+            currentShape2 = shapeTypes[shapeIndex2];
+            
+            // Generate random counts (1-5)
+            count1 = Math.floor(Math.random() * maxShapes) + 1;
+            count2 = Math.floor(Math.random() * maxShapes) + 1;
+            sumCount = count1 + count2;
+            
+            // Display shapes
+            displayShapes(shapeGroup1, currentShape1, count1);
+            displayShapes(shapeGroup2, currentShape2, count2);
+            
+            // Set shape icons
+            icon1.textContent = currentShape1;
+            icon2.textContent = currentShape2;
+            
+            // Generate number options
+            generateNumberOptions(options1, count1);
+            generateNumberOptions(options2, count2);
+            generateNumberOptions(optionsSum, sumCount);
+            
+            // Start timer
+            startTimer();
+        }
+        
+        // Display shapes in a container
+        function displayShapes(container, shapeType, count) {
+            for (let i = 0; i < count; i++) {
+                const shapeElem = document.createElement('div');
+                shapeElem.className = 'shape';
+                shapeElem.textContent = shapeType;
+                container.appendChild(shapeElem);
+            }
+        }
+        
+        // Clear all shapes
+        function clearShapes() {
+            shapeGroup1.innerHTML = '';
+            shapeGroup2.innerHTML = '';
+            options1.innerHTML = '';
+            options2.innerHTML = '';
+            optionsSum.innerHTML = '';
+        }
+        
+        // Generate number options (one correct, two random)
+        function generateNumberOptions(container, correctNumber) {
+            // Create array with the correct number
+            const numbers = [correctNumber];
+            
+            // Add two random numbers (different from the correct one and each other)
+            while (numbers.length < 3) {
+                const randomNum = Math.floor(Math.random() * 10) + 1;
+                if (!numbers.includes(randomNum)) {
+                    numbers.push(randomNum);
+                }
+            }
+            
+            // Shuffle the array
+            shuffleArray(numbers);
+            
+            // Create number option elements
+            for (let i = 0; i < numbers.length; i++) {
+                const optionElem = document.createElement('div');
+                optionElem.className = 'number-option';
+                optionElem.textContent = numbers[i];
+                
+                // Determine which row this option belongs to
+                let rowIndex;
+                if (container === options1) rowIndex = 0;
+                else if (container === options2) rowIndex = 1;
+                else rowIndex = 2;
+                
+                // Add click event
+                optionElem.addEventListener('click', function() {
+                    selectNumber(this, numbers[i], rowIndex, container);
+                });
+                
+                container.appendChild(optionElem);
+            }
+        }
+        
+        // Shuffle array in place
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // Handle number selection
+        function selectNumber(element, number, rowIndex, container) {
+            // Remove selected class from siblings
+            const siblings = container.getElementsByClassName('number-option');
+            for (let i = 0; i < siblings.length; i++) {
+                siblings[i].classList.remove('selected');
+            }
+            
+            // Add selected class to clicked element
+            element.classList.add('selected');
+            
+            // Store the selected number
+            selectedNumbers[rowIndex] = number;
+            
+            // Check if all numbers are selected
+            if (selectedNumbers.every(num => num !== null)) {
+                checkAnswer();
+            }
+        }
+        
+        // Check if the answer is correct
+        function checkAnswer() {
+            const isFirstCorrect = selectedNumbers[0] === count1;
+            const isSecondCorrect = selectedNumbers[1] === count2;
+            const isSumCorrect = selectedNumbers[2] === sumCount;
+            
+            if (isFirstCorrect && isSecondCorrect && isSumCorrect) {
+                showResult(true);
+                setTimeout(() => {
+                    resultDiv.classList.remove('show');
+                    initGame();
+                }, 1000);
+            } else {
+                showResult(false);
+                // Reset selections but keep the same problem
+                resetSelections();
+            }
+            
+            // Stop the timer
+            clearInterval(timerInterval);
+        }
+        
+        // Reset selections without changing the problem
+        function resetSelections() {
+            selectedNumbers = [null, null, null];
+            
+            const allOptions = document.getElementsByClassName('number-option');
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.remove('selected');
+            }
+            
+            // Restart timer
+            startTimer();
+        }
+        
+        // Show result (success or failure)
+        function showResult(isSuccess) {
+            if (isSuccess) {
+                resultEmoji.textContent = '😄🌸';
+                resultText.textContent = 'Good Job Kris!';
+                resultText.style.color = '#2ecc71';
+            } else {
+                resultEmoji.textContent = '😢🌵';
+                resultText.textContent = 'Try Again!';
+                resultText.style.color = '#e74c3c';
+            }
+            
+            resultDiv.classList.add('show');
+            
+            if (!isSuccess) {
+                setTimeout(() => {
+                    resultDiv.classList.remove('show');
+                }, 1000);
+            }
+        }
+        
+        // Start the countdown timer
+        function startTimer() {
+            timeLeft = timerDuration;
+            timerDisplay.textContent = timeLeft;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Time's up - show failure and reset
+                    showResult(false);
+                    setTimeout(() => {
+                        resultDiv.classList.remove('show');
+                        initGame();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+        
+        // Start the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
