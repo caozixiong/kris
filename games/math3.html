@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Grade Math Game</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto;
+            touch-action: manipulation;
+        }
+        
+        #more-challenging-btn {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+
+        #more-challenging-btn:hover, #more-challenging-btn:active {
+            background-color: #e0a800;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shapes-container {
+            display: flex;
+            justify-content: center; /* Center the single group */
+            width: 100%;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        
+        .shape-group { /* This now applies to the single mixed-shapes-group */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 90%; /* Make it wider as it's the only one */
+            max-width: 100%;
+            padding: 10px;
+            border: 2px dashed #70a1ff;
+            border-radius: 10px;
+        }
+        
+        .shape {
+            margin: 5px;
+            font-size: 30px;
+        }
+        
+        .math-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .math-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 5px 0;
+            justify-content: center;
+        }
+        
+        .shape-icon {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+        
+        .operator {
+            font-size: 40px;
+            margin: 5px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .number-options {
+            display: flex;
+            justify-content: space-around;
+            width: 60%;
+        }
+        
+        .number-option {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #70a1ff;
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .number-option:hover, .number-option:active {
+            transform: scale(1.1);
+            background-color: #1e90ff;
+        }
+        
+        .number-option.selected {
+            background-color: #27ae60;
+            transform: scale(1.1);
+        }
+        
+        .number-option.wrong {
+            background-color: #e74c3c;
+            animation: shake 0.5s;
+        }
+        
+        .result {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 10;
+            font-size: 50px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .result.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .result-emoji {
+            font-size: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .result-text {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            min-width: 90px;
+            text-align: center;
+            font-family: sans-serif;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) scale(1.1); }
+            20%, 60% { transform: translateX(-5px) scale(1.1); }
+            40%, 80% { transform: translateX(5px) scale(1.1); }
+        }
+        
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+            #more-challenging-btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .game-container {
+                padding: 10px;
+            }
+            .shape {
+                font-size: 24px;
+            }
+            .shape-icon {
+                font-size: 20px;
+            }
+            .number-option {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            .result-emoji {
+                font-size: 80px;
+            }
+            .result-text {
+                font-size: 28px;
+            }
+            .operator {
+                font-size: 32px;
+            }
+            .timer {
+                font-size: 24px;
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="more-challenging-btn">More Challenging</button>
+    <div class="timer">10:00</div>
+    
+    <div class="game-container">
+        <div class="shapes-container">
+            <div class="shape-group" id="mixed-shapes-group"></div> {/* Changed: Single group for mixed shapes */}
+        </div>
+        
+        <div class="math-container">
+            <div class="math-row">
+                <div class="shape-icon" id="icon-1"></div>
+                <div class="number-options" id="options-1"></div>
+            </div>
+            <div class="math-row">
+                <div class="operator">+</div>
+            </div>
+            <div class="math-row">
+                <div class="shape-icon" id="icon-2"></div>
+                <div class="number-options" id="options-2"></div>
+            </div>
+            <div class="math-row">
+                <div class="operator">=</div>
+            </div>
+            <div class="math-row">
+                <div class="number-options" id="options-sum"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="result" id="result">
+        <div class="result-emoji" id="result-emoji"></div>
+        <div class="result-text" id="result-text"></div>
+    </div>
+    
+    <script>
+        // Game configuration
+        const shapeTypes = ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'];
+        const maxShapes = 5;
+        const INITIAL_TIMER_DURATION = 10;
+        const MIN_TIMER_DURATION = 2;
+        let currentTimerDuration = INITIAL_TIMER_DURATION;
+        
+        // Game state
+        let currentShape1;
+        let currentShape2;
+        let count1;
+        let count2;
+        let sumCount;
+        let selectedNumbers = [null, null, null];
+        let timerInterval;
+        let timeLeft;
+        let centisecondsLeft;
+        
+        // DOM elements
+        const mixedShapesGroup = document.getElementById('mixed-shapes-group'); // Changed
+        const icon1 = document.getElementById('icon-1');
+        const icon2 = document.getElementById('icon-2');
+        const options1 = document.getElementById('options-1');
+        const options2 = document.getElementById('options-2');
+        const optionsSum = document.getElementById('options-sum');
+        const resultDiv = document.getElementById('result');
+        const resultEmoji = document.getElementById('result-emoji');
+        const resultText = document.getElementById('result-text');
+        const timerDisplay = document.querySelector('.timer');
+        const moreChallengingBtn = document.getElementById('more-challenging-btn');
+        
+        function initGame() {
+            selectedNumbers = [null, null, null];
+            clearShapesAndOptions();
+            
+            const shapeIndex1 = Math.floor(Math.random() * shapeTypes.length);
+            let shapeIndex2 = Math.floor(Math.random() * shapeTypes.length);
+            while (shapeIndex2 === shapeIndex1) {
+                shapeIndex2 = Math.floor(Math.random() * shapeTypes.length);
+            }
+            
+            currentShape1 = shapeTypes[shapeIndex1];
+            currentShape2 = shapeTypes[shapeIndex2];
+            
+            count1 = Math.floor(Math.random() * maxShapes) + 1;
+            count2 = Math.floor(Math.random() * maxShapes) + 1;
+            sumCount = count1 + count2;
+            
+            displayMixedShapes(mixedShapesGroup, currentShape1, count1, currentShape2, count2); // Changed
+            
+            icon1.textContent = currentShape1;
+            icon2.textContent = currentShape2;
+            
+            generateNumberOptions(options1, count1);
+            generateNumberOptions(options2, count2);
+            generateNumberOptions(optionsSum, sumCount);
+            
+            startTimer();
+        }
+
+        // New function to display mixed shapes
+        function displayMixedShapes(container, shape1, num1, shape2, num2) {
+            container.innerHTML = ''; // Clear previous shapes
+            const allShapeElements = [];
+
+            for (let i = 0; i < num1; i++) {
+                const shapeElem = document.createElement('div');
+                shapeElem.className = 'shape';
+                shapeElem.textContent = shape1;
+                allShapeElements.push(shapeElem);
+            }
+
+            for (let i = 0; i < num2; i++) {
+                const shapeElem = document.createElement('div');
+                shapeElem.className = 'shape';
+                shapeElem.textContent = shape2;
+                allShapeElements.push(shapeElem);
+            }
+
+            shuffleArray(allShapeElements); // Shuffle the DOM elements
+
+            allShapeElements.forEach(shapeElem => {
+                container.appendChild(shapeElem);
+            });
+        }
+        
+        function clearShapesAndOptions() {
+            mixedShapesGroup.innerHTML = ''; // Changed
+            options1.innerHTML = '';
+            options2.innerHTML = '';
+            optionsSum.innerHTML = '';
+        }
+        
+        function generateNumberOptions(container, correctNumber) {
+            container.innerHTML = '';
+            const numbers = [correctNumber];
+            const maxPossibleOption = maxShapes * 2;
+
+            while (numbers.length < 3) {
+                let randomNum;
+                if (Math.random() > 0.5) {
+                     randomNum = Math.floor(Math.random() * maxPossibleOption) + 1;
+                } else {
+                     randomNum = Math.floor(Math.random() * Math.min(10, maxPossibleOption)) + 1;
+                }
+
+                if (!numbers.includes(randomNum) && randomNum > 0) {
+                    numbers.push(randomNum);
+                }
+            }
+            
+            shuffleArray(numbers);
+            
+            for (let i = 0; i < numbers.length; i++) {
+                const optionElem = document.createElement('div');
+                optionElem.className = 'number-option';
+                optionElem.textContent = numbers[i];
+                
+                let rowIndex;
+                if (container === options1) rowIndex = 0;
+                else if (container === options2) rowIndex = 1;
+                else rowIndex = 2;
+                
+                optionElem.addEventListener('click', function() {
+                    selectNumber(this, numbers[i], rowIndex, container);
+                });
+                
+                container.appendChild(optionElem);
+            }
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function selectNumber(element, number, rowIndex, container) {
+            const siblings = container.getElementsByClassName('number-option');
+            for (let i = 0; i < siblings.length; i++) {
+                siblings[i].classList.remove('selected', 'wrong');
+            }
+            element.classList.add('selected');
+            selectedNumbers[rowIndex] = number;
+            
+            if (selectedNumbers.every(num => num !== null)) {
+                checkAnswer();
+            }
+        }
+        
+        function checkAnswer() {
+            clearInterval(timerInterval); 
+
+            const isFirstCorrect = selectedNumbers[0] === count1;
+            const isSecondCorrect = selectedNumbers[1] === count2;
+            const isSumCorrect = selectedNumbers[2] === sumCount;
+            
+            if (isFirstCorrect && isSecondCorrect && isSumCorrect) {
+                showResult(true);
+                setTimeout(() => {
+                    resultDiv.classList.remove('show');
+                    initGame(); 
+                }, 1500); 
+            } else {
+                showResult(false);
+                
+                if (!isFirstCorrect && selectedNumbers[0] !== null) markWrongOption(options1, selectedNumbers[0]);
+                if (!isSecondCorrect && selectedNumbers[1] !== null) markWrongOption(options2, selectedNumbers[1]);
+                if (!isSumCorrect && selectedNumbers[2] !== null) markWrongOption(optionsSum, selectedNumbers[2]);
+
+                setTimeout(() => {
+                    resultDiv.classList.remove('show');
+                    resetSelectionsForRetry(); 
+                }, 1500); 
+            }
+        }
+
+        function markWrongOption(container, selectedValue) {
+            const options = container.getElementsByClassName('number-option');
+            for(let option of options) {
+                if (parseInt(option.textContent) === selectedValue && option.classList.contains('selected')) {
+                    option.classList.add('wrong'); 
+                    break;
+                }
+            }
+        }
+        
+        function resetSelectionsForRetry() {
+            selectedNumbers = [null, null, null];
+            const allOptions = document.getElementsByClassName('number-option');
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.remove('selected', 'wrong');
+            }
+            startTimer();
+        }
+        
+        function showResult(isSuccess, isTimeout = false) {
+            resultDiv.classList.remove('show');
+            if (isTimeout) {
+                resultEmoji.textContent = '⏱️⌛';
+                resultText.textContent = 'Time is up!';
+                resultText.style.color = '#e74c3c';
+            } else if (isSuccess) {
+                resultEmoji.textContent = '😄🌸';
+                resultText.textContent = 'Good Job Kris!';
+                resultText.style.color = '#2ecc71';
+            } else {
+                resultEmoji.textContent = '😢🌵';
+                resultText.textContent = 'Try Again!';
+                resultText.style.color = '#e74c3c';
+            }
+            requestAnimationFrame(() => {
+                 resultDiv.classList.add('show');
+            });
+        }
+        
+        function startTimer() {
+            timeLeft = currentTimerDuration;
+            centisecondsLeft = 0; 
+            updateTimerDisplay();
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                centisecondsLeft -= 10;
+                
+                if (centisecondsLeft < 0) {
+                    centisecondsLeft = 90;
+                    timeLeft--;
+                }
+                
+                updateTimerDisplay();
+                
+                if (timeLeft < 0) { 
+                    timeLeft = 0; centisecondsLeft = 0; 
+                    updateTimerDisplay(); 
+                    clearInterval(timerInterval);
+                    showResult(false, true);
+                    setTimeout(() => {
+                        resultDiv.classList.remove('show');
+                        initGame(); 
+                    }, 2000); 
+                }
+            }, 100); 
+        }
+        
+        function updateTimerDisplay() {
+            const displaySeconds = String(Math.max(0, timeLeft)).padStart(2, '0');
+            const displayCentiseconds = String(Math.max(0, centisecondsLeft)).padStart(2, '0');
+            timerDisplay.textContent = `${displaySeconds}:${displayCentiseconds}`;
+        }
+
+        moreChallengingBtn.addEventListener('click', () => {
+            if (currentTimerDuration > MIN_TIMER_DURATION) {
+                currentTimerDuration--;
+            } else {
+                moreChallengingBtn.textContent = `Min Time (${MIN_TIMER_DURATION}s)!`;
+                setTimeout(() => { moreChallengingBtn.textContent = 'More Challenging'; }, 1000);
+            }
+            clearInterval(timerInterval); 
+            initGame(); 
+        });
+        
+        window.onload = initGame;
+    </script>
+</body>
+</html>
