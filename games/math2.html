@@ -75,8 +75,10 @@
         }
         
         .operator {
-            font-size: 30px;
+            font-size: 40px;
             margin: 5px 0;
+            font-weight: bold;
+            color: #2c3e50;
         }
         
         .number-options {
@@ -152,11 +154,15 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: bold;
             color: #e74c3c;
             background-color: rgba(255, 255, 255, 0.7);
             padding: 5px 15px;
             border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+            font-family: monospace;
         }
         
         @keyframes shake {
@@ -165,7 +171,7 @@
             40%, 80% { transform: translateX(5px); }
         }
         
-        @media (max-width: 500px) {
+                    @media (max-width: 500px) {
             .game-container {
                 padding: 10px;
             }
@@ -191,11 +197,20 @@
             .result-text {
                 font-size: 28px;
             }
+            
+            .operator {
+                font-size: 32px;
+            }
+            
+            .timer {
+                font-size: 24px;
+                min-width: 70px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="timer">3</div>
+    <div class="timer">10:00</div>
     
     <div class="game-container">
         <div class="shapes-container">
@@ -239,10 +254,10 @@
     </div>
     
     <script>
-        // Game configuration
+        // Game configuration - You can modify these variables
         const shapeTypes = ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'];
         const maxShapes = 5;
-        const timerDuration = 3; // seconds
+        const timerDuration = 10; // seconds - change this value to increase/decrease the timer
         
         // Game state
         let currentShape1;
@@ -449,14 +464,21 @@
         // Start the countdown timer
         function startTimer() {
             timeLeft = timerDuration;
-            timerDisplay.textContent = timeLeft;
+            let milliseconds = 0;
+            updateTimerDisplay(timeLeft, milliseconds);
             
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = timeLeft;
+                milliseconds -= 10;
                 
-                if (timeLeft <= 0) {
+                if (milliseconds < 0) {
+                    milliseconds = 99;
+                    timeLeft--;
+                }
+                
+                updateTimerDisplay(timeLeft, milliseconds);
+                
+                if (timeLeft <= 0 && milliseconds <= 0) {
                     clearInterval(timerInterval);
                     // Time's up - show failure and reset
                     showResult(false);
@@ -465,7 +487,15 @@
                         initGame();
                     }, 1000);
                 }
-            }, 1000);
+            }, 100);
+        }
+        
+        // Update timer display with format MM:SS
+        function updateTimerDisplay(seconds, milliseconds) {
+            const displaySeconds = seconds.toString().padStart(2, '0');
+            const displayMilliseconds = Math.floor(milliseconds / 10).toString().padStart(2, '0');
+            timerDisplay.textContent = `${displaySeconds}:${displayMilliseconds}`;
+        }
         }
         
         // Start the game when page loads
