@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超级算术小英雄</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        accent: '#FF4D4F',
+                        dark: '#1D2129',
+                        light: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        comic: ['"Comic Sans MS"', '"Marker Felt"', 'Arial', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'spin-slow': 'spin 8s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .text-shadow-lg {
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            }
+            .transition-transform-special {
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            .card-hover {
+                @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+            }
+            .btn-pop {
+                @apply active:scale-95 transition-transform duration-200;
+            }
+            .number-glow {
+                text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-comic">
+    <!-- 导航栏 -->
+    <nav class="bg-primary/90 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-bolt text-yellow-300 text-2xl animate-pulse"></i>
+                <h1 class="text-xl md:text-2xl font-bold tracking-wide">超级算术小英雄</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center">
+                    <i class="fa-solid fa-star text-yellow-300 mr-1"></i>
+                    <span id="score-display" class="font-bold">分数: 0</span>
+                </div>
+                <button id="help-btn" class="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all">
+                    <i class="fa-solid fa-question text-white"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 游戏主容器 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 欢迎屏幕 -->
+        <section id="welcome-screen" class="flex flex-col items-center justify-center min-h-[70vh]">
+            <div class="text-center mb-8">
+                <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-primary mb-4 text-shadow-lg">
+                    准备好成为数学小英雄了吗？
+                </h2>
+                <p class="text-dark/80 text-lg max-w-2xl mx-auto mb-6">
+                    加入超人和变形金刚的队伍，通过解决数学问题来拯救世界！答对越多问题，获得的能量就越多！
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 mt-8">
+                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-plus text-primary text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">加法挑战</h3>
+                        <p class="text-center text-dark/70">10以内的加法题目</p>
+                    </div>
+                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-minus text-accent text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">减法挑战</h3>
+                        <p class="text-center text-dark/70">10以内的减法题目</p>
+                    </div>
+                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-random text-secondary text-3xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">混合挑战</h3>
+                        <p class="text-center text-dark/70">加法和减法混合</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative w-full max-w-md">
+                <div class="absolute -top-10 -left-10 w-20 h-20 md:w-32 md:h-32 animate-float">
+                    <img src="https://picsum.photos/seed/superman/100/100" alt="超人" class="w-full h-full object-contain">
+                </div>
+                <div class="absolute -top-5 -right-5 w-16 h-16 md:w-24 md:h-24 animate-float" style="animation-delay: 1s;">
+                    <img src="https://picsum.photos/seed/transformer/100/100" alt="变形金刚" class="w-full h-full object-contain">
+                </div>
+                <button id="start-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-full text-xl shadow-lg btn-pop">
+                    开始冒险 <i class="fa-solid fa-rocket ml-2 animate-bounce-slow"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 游戏屏幕 -->
+        <section id="game-screen" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center">
+                        <div class="bg-primary/10 rounded-full p-2 mr-3">
+                            <i class="fa-solid fa-shield text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-dark/60 text-sm">当前关卡</p>
+                            <p id="level-display" class="font-bold">1</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 rounded-full p-2 mr-3">
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-dark/60 text-sm">分数</p>
+                            <p id="game-score-display" class="font-bold">0</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="bg-red-100 rounded-full p-2 mr-3">
+                            <i class="fa-solid fa-heart text-red-500"></i>
+                        </div>
+                        <div>
+                            <p class="text-dark/60 text-sm">生命值</p>
+                            <p id="lives-display" class="font-bold">3</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center my-12">
+                    <div class="relative">
+                        <div class="bg-primary/5 rounded-2xl p-8 md:p-10 border-2 border-primary/20 shadow-lg">
+                            <div class="text-center mb-8">
+                                <p class="text-dark/70 mb-2">快回答，小英雄！</p>
+                                <div id="math-question" class="text-[clamp(2.5rem,8vw,4rem)] font-bold text-primary mb-6 number-glow">
+                                    3 + 5 = ?
+                                </div>
+                                <div class="flex flex-wrap justify-center gap-4 mt-6">
+                                    <input type="number" id="answer-input" 
+                                        class="w-full md:w-64 px-6 py-4 rounded-xl border-2 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-center text-2xl font-bold"
+                                        placeholder="输入答案">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -top-6 -right-6 w-12 h-12 bg-secondary rounded-full flex items-center justify-center shadow-lg animate-pulse-fast">
+                            <i class="fa-solid fa-bolt text-white"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="submit-answer" class="bg-secondary hover:bg-secondary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center btn-pop">
+                        <i class="fa-solid fa-check mr-2"></i> 提交答案
+                    </button>
+                </div>
+            </div>
+
+            <!-- 游戏角色展示 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-4 flex items-center card-hover">
+                    <div class="w-20 h-20 rounded-full overflow-hidden mr-4">
+                        <img src="https://picsum.photos/seed/superman1/100/100" alt="超人1" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">超人克拉克</h3>
+                        <p class="text-dark/70 text-sm">答对5题即可解锁</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div id="superman-progress" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-4 flex items-center card-hover">
+                    <div class="w-20 h-20 rounded-full overflow-hidden mr-4">
+                        <img src="https://picsum.photos/seed/transformer1/100/100" alt="变形金刚1" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">大黄蜂</h3>
+                        <p class="text-dark/70 text-sm">答对10题即可解锁</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div id="bumblebee-progress" class="bg-secondary h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-4 flex items-center card-hover">
+                    <div class="w-20 h-20 rounded-full overflow-hidden mr-4">
+                        <img src="https://picsum.photos/seed/hero/100/100" alt="超级英雄" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">钢铁侠</h3>
+                        <p class="text-dark/70 text-sm">答对20题即可解锁</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div id="ironman-progress" class="bg-accent h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 正确答案反馈 -->
+        <section id="correct-feedback" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all scale-95 opacity-0" id="correct-modal">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-check text-green-500 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-green-500 mb-2">太棒了！</h3>
+                <p class="text-dark/70 mb-6">你的答案完全正确，获得20分！</p>
+                <div class="flex justify-center mb-6">
+                    <div class="text-4xl font-bold text-yellow-500 animate-pulse-fast">+20</div>
+                </div>
+                <button id="next-question" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg btn-pop">
+                    下一题 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 错误答案反馈 -->
+        <section id="wrong-feedback" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all scale-95 opacity-0" id="wrong-modal">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-times text-red-500 text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-red-500 mb-2">再试一次！</h3>
+                <p class="text-dark/70 mb-4">正确答案是 <span id="correct-answer-display" class="font-bold">8</span></p>
+                <p class="text-dark/60 mb-6">别灰心，你可以做得更好！</p>
+                <button id="try-again" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg btn-pop">
+                    继续挑战 <i class="fa-solid fa-redo ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 游戏结束屏幕 -->
+        <section id="game-over-screen" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all scale-95 opacity-0" id="game-over-modal">
+                <div class="w-24 h-24 bg-gradient-to-br from-primary to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-spin-slow">
+                    <i class="fa-solid fa-trophy text-yellow-300 text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-primary mb-2">游戏结束！</h3>
+                <p class="text-dark/70 mb-2">你完成了挑战</p>
+                <div class="text-4xl font-bold text-primary mb-6">
+                    得分: <span id="final-score">0</span>
+                </div>
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-dark/70">正确题数</span>
+                        <span id="correct-count" class="font-bold">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-dark/70">错误题数</span>
+                        <span id="wrong-count" class="font-bold">0</span>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button id="play-again" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-full shadow-lg btn-pop">
+                        再玩一次 <i class="fa-solid fa-refresh ml-1"></i>
+                    </button>
+                    <button id="back-to-menu" class="bg-gray-200 hover:bg-gray-300 text-dark font-bold py-3 px-6 rounded-full shadow-lg btn-pop">
+                        返回菜单 <i class="fa-solid fa-home ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 帮助模态框 -->
+        <section id="help-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full transform transition-all scale-95 opacity-0" id="help-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-primary">游戏帮助</h3>
+                    <button id="close-help" class="text-dark/50 hover:text-dark">
+                        <i class="fa-solid fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 flex items-center">
+                            <i class="fa-solid fa-gamepad text-primary mr-2"></i> 游戏规则
+                        </h4>
+                        <p class="text-dark/70">
+                            你需要回答10以内的加法和减法数学题。每答对一题获得20分，答错一题扣5分。你有3条生命值，连续答对5题可以获得额外生命值。
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 flex items-center">
+                            <i class="fa-solid fa-star text-yellow-500 mr-2"></i> 角色解锁
+                        </h4>
+                        <p class="text-dark/70">
+                            答对5题解锁超人克拉克，答对10题解锁大黄蜂，答对20题解锁钢铁侠。解锁角色可以获得额外能力！
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 flex items-center">
+                            <i class="fa-solid fa-level-up-alt text-secondary mr-2"></i> 关卡提升
+                        </h4>
+                        <p class="text-dark/70">
+                            每答对3题提升一个关卡，关卡越高，题目越有挑战性！
+                        </p>
+                    </div>
+                </div>
+                <button id="got-it" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-full shadow-lg btn-pop">
+                    明白了 <i class="fa-solid fa-check ml-1"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">超级算术小英雄 &copy; 2025</p>
+            <p class="text-white/70 text-sm">让每个孩子都成为数学小天才！</p>
+        </div>
+    </footer>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            score: 0,
+            level: 1,
+            lives: 3,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            currentQuestion: {
+                num1: 0,
+                num2: 0,
+                operation: '+',
+                answer: 0
+            },
+            gameMode: 'mixed', // 'addition', 'subtraction', 'mixed'
+            streak: 0, // 连续答对次数
+            charactersUnlocked: {
+                superman: false,
+                bumblebee: false,
+                ironman: false
+            }
+        };
+
+        // DOM 元素
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const correctFeedback = document.getElementById('correct-feedback');
+        const wrongFeedback = document.getElementById('wrong-feedback');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const helpModal = document.getElementById('help-modal');
+        
+        const startBtn = document.getElementById('start-btn');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const tryAgainBtn = document.getElementById('try-again');
+        const playAgainBtn = document.getElementById('play-again');
+        const backToMenuBtn = document.getElementById('back-to-menu');
+        const helpBtn = document.getElementById('help-btn');
+        const closeHelpBtn = document.getElementById('close-help');
+        const gotItBtn = document.getElementById('got-it');
+        
+        const mathQuestionEl = document.getElementById('math-question');
+        const answerInput = document.getElementById('answer-input');
+        const scoreDisplay = document.getElementById('score-display');
+        const gameScoreDisplay = document.getElementById('game-score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const correctAnswerDisplay = document.getElementById('correct-answer-display');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const correctCountDisplay = document.getElementById('correct-count');
+        const wrongCountDisplay = document.getElementById('wrong-count');
+        
+        const supermanProgress = document.getElementById('superman-progress');
+        const bumblebeeProgress = document.getElementById('bumblebee-progress');
+        const ironmanProgress = document.getElementById('ironman-progress');
+
+        // 生成随机数学题
+        function generateQuestion() {
+            const maxNumber = 5 + gameState.level; // 随着关卡增加，数字范围增大
+            
+            // 根据游戏模式确定运算类型
+            let operation = gameState.gameMode;
+            if (gameState.gameMode === 'mixed') {
+                operation = Math.random() < 0.5 ? '+' : '-';
+            }
+            
+            let num1, num2, answer;
+            
+            if (operation === '+') {
+                // 加法
+                num1 = Math.floor(Math.random() * maxNumber) + 1;
+                num2 = Math.floor(Math.random() * (maxNumber - num1 + 1)) + 1;
+                answer = num1 + num2;
+            } else {
+                // 减法
+                num1 = Math.floor(Math.random() * maxNumber) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1;
+                answer = num1 - num2;
+            }
+            
+            gameState.currentQuestion = {
+                num1,
+                num2,
+                operation,
+                answer
+            };
+            
+            mathQuestionEl.textContent = `${num1} ${operation} ${num2} = ?`;
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value, 10);
+            
+            if (isNaN(userAnswer)) {
+                // 闪烁输入框提示错误
+                answerInput.classList.add('border-red-500');
+                setTimeout(() => {
+                    answerInput.classList.remove('border-red-500');
+                }, 1000);
+                return;
+            }
+            
+            if (userAnswer === gameState.currentQuestion.answer) {
+                // 答案正确
+                gameState.score += 20;
+                gameState.correctAnswers++;
+                gameState.streak++;
+                
+                // 每连续答对5题增加一条生命
+                if (gameState.streak > 0 && gameState.streak % 5 === 0 && gameState.lives < 5) {
+                    gameState.lives++;
+                    showToast('连续答对5题！额外获得1条生命！', 'green');
+                }
+                
+                // 每答对3题提升一个关卡
+                if (gameState.correctAnswers % 3 === 0) {
+                    gameState.level++;
+                    showToast(`恭喜升级到关卡 ${gameState.level}！`, 'blue');
+                }
+                
+                updateGameStats();
+                showCorrectFeedback();
+            } else {
+                // 答案错误
+                gameState.score = Math.max(0, gameState.score - 5);
+                gameState.wrongAnswers++;
+                gameState.streak = 0; // 连续答对中断
+                gameState.lives--;
+                
+                updateGameStats();
+                showWrongFeedback();
+            }
+            
+            // 更新角色进度
+            updateCharacterProgress();
+            
+            // 检查游戏是否结束
+            if (gameState.lives <= 0) {
+                setTimeout(showGameOver, 1500);
+            }
+        }
+
+        // 更新游戏统计信息
+        function updateGameStats() {
+            scoreDisplay.textContent = `分数: ${gameState.score}`;
+            gameScoreDisplay.textContent = gameState.score;
+            levelDisplay.textContent = gameState.level;
+            livesDisplay.textContent = gameState.lives;
+            
+            // 角色解锁逻辑
+            if (gameState.correctAnswers >= 5) {
+                gameState.charactersUnlocked.superman = true;
+            }
+            if (gameState.correctAnswers >= 10) {
+                gameState.charactersUnlocked.bumblebee = true;
+            }
+            if (gameState.correctAnswers >= 20) {
+                gameState.charactersUnlocked.ironman = true;
+            }
+        }
+
+        // 更新角色进度条
+        function updateCharacterProgress() {
+            const supermanPercent = Math.min(100, (gameState.correctAnswers / 5) * 100);
+            const bumblebeePercent = Math.min(100, (gameState.correctAnswers / 10) * 100);
+            const ironmanPercent = Math.min(100, (gameState.correctAnswers / 20) * 100);
+            
+            supermanProgress.style.width = `${supermanPercent}%`;
+            bumblebeeProgress.style.width = `${bumblebeePercent}%`;
+            ironmanProgress.style.width = `${ironmanPercent}%`;
+            
+            // 如果角色已解锁，改变文本
+            if (gameState.charactersUnlocked.superman) {
+                supermanProgress.parentElement.previousElementSibling.textContent = '已解锁！';
+                supermanProgress.parentElement.previousElementSibling.classList.add('text-green-500', 'font-bold');
+            }
+            if (gameState.charactersUnlocked.bumblebee) {
+                bumblebeeProgress.parentElement.previousElementSibling.textContent = '已解锁！';
+                bumblebeeProgress.parentElement.previousElementSibling.classList.add('text-green-500', 'font-bold');
+            }
+            if (gameState.charactersUnlocked.ironman) {
+                ironmanProgress.parentElement.previousElementSibling.textContent = '已解锁！';
+                ironmanProgress.parentElement.previousElementSibling.classList.add('text-green-500', 'font-bold');
+            }
+        }
+
+        // 显示正确反馈
+        function showCorrectFeedback() {
+            correctAnswerDisplay.textContent = gameState.currentQuestion.answer;
+            correctFeedback.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('correct-modal').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('correct-modal').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // 隐藏正确反馈
+        function hideCorrectFeedback() {
+            document.getElementById('correct-modal').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('correct-modal').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                correctFeedback.classList.add('hidden');
+                generateQuestion();
+            }, 300);
+        }
+
+        // 显示错误反馈
+        function showWrongFeedback() {
+            correctAnswerDisplay.textContent = gameState.currentQuestion.answer;
+            wrongFeedback.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('wrong-modal').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('wrong-modal').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // 隐藏错误反馈
+        function hideWrongFeedback() {
+            document.getElementById('wrong-modal').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('wrong-modal').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                wrongFeedback.classList.add('hidden');
+                if (gameState.lives > 0) {
+                    generateQuestion();
+                }
+            }, 300);
+        }
+
+        // 显示游戏结束
+        function showGameOver() {
+            finalScoreDisplay.textContent = gameState.score;
+            correctCountDisplay.textContent = gameState.correctAnswers;
+            wrongCountDisplay.textContent = gameState.wrongAnswers;
+            
+            gameOverScreen.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('game-over-modal').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('game-over-modal').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // 隐藏游戏结束
+        function hideGameOver() {
+            document.getElementById('game-over-modal').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('game-over-modal').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                gameOverScreen.classList.add('hidden');
+            }, 300);
+        }
+
+        // 显示帮助模态框
+        function showHelpModal() {
+            helpModal.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('help-content').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('help-content').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // 隐藏帮助模态框
+        function hideHelpModal() {
+            document.getElementById('help-content').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('help-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                helpModal.classList.add('hidden');
+            }, 300);
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'blue') {
+            // 创建toast元素
+            const toast = document.createElement('div');
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 bg-${type}-500 text-white px-6 py-3 rounded-full shadow-lg z-50 opacity-0 transition-opacity duration-300`;
+            toast.textContent = message;
+            
+            // 添加到body
+            document.body.appendChild(toast);
+            
+            // 显示toast
+            setTimeout(() => {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+            }, 10);
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // 开始游戏
+        function startGame(mode = 'mixed') {
+            // 重置游戏状态
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.lives = 3;
+            gameState.correctAnswers = 0;
+            gameState.wrongAnswers = 0;
+            gameState.streak = 0;
+            gameState.gameMode = mode;
+            
+            // 更新显示
+            updateGameStats();
+            updateCharacterProgress();
+            
+            // 切换屏幕
+            welcomeScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            // 生成第一个问题
+            generateQuestion();
+        }
+
+        // 返回主菜单
+        function backToMainMenu() {
+            gameScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+        }
+
+        // 事件监听
+        startBtn.addEventListener('click', () => startGame());
+        submitAnswerBtn.addEventListener('click', checkAnswer);
+        nextQuestionBtn.addEventListener('click', hideCorrectFeedback);
+        tryAgainBtn.addEventListener('click', hideWrongFeedback);
+        playAgainBtn.addEventListener('click', () => {
+            hideGameOver();
+            startGame();
+        });
+        backToMenuBtn.addEventListener('click', () => {
+            hideGameOver();
+            backToMainMenu();
+        });
+        helpBtn.addEventListener('click', showHelpModal);
+        closeHelpBtn.addEventListener('click', hideHelpModal);
+        gotItBtn.addEventListener('click', hideHelpModal);
+        
+        // 输入框按回车提交答案
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // 为难度选择添加事件
+        document.querySelectorAll('.card-hover').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (card.querySelector('h3').textContent.includes('加法')) {
+                    startGame('addition');
+                } else if (card.querySelector('h3').textContent.includes('减法')) {
+                    startGame('subtraction');
+                } else {
+                    startGame('mixed');
+                }
+            });
+        });
+
+        // 初始化游戏
+        updateCharacterProgress();
+    </script>
+</body>
+</html>
+    
