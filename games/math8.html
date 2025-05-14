@@ -3,83 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Alien Jump Subtraction!</title>
+    <title>Alien Countdown Jumps!</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
-            background-color: #0c0e30; /* Dark space blue */
+            background-color: #0a0a23; /* Very dark blue, almost black */
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Center game on page */
+            justify-content: center;
             min-height: 100vh;
-            overflow: hidden; /* Prevent scrollbars if content slightly overflows */
+            overflow: hidden;
             touch-action: manipulation;
-            color: #e0e0e0; /* Light text for dark background */
+            color: #f0f0f0; /* Light grey text */
         }
 
         #game-container {
-            background: rgba(20, 20, 70, 0.8); /* Translucent darker blue */
-            border: 3px solid #00bcd4; /* Cyan border */
+            background: linear-gradient(145deg, #1f1f3d, #1a1a33); /* Slightly lighter dark blue gradient */
+            border: 3px solid #7f00ff; /* Purple border */
             padding: 20px;
             border-radius: 25px;
-            box-shadow: 0 5px 20px rgba(0,188,212,0.5); /* Cyan glow */
-            max-width: 550px;
+            box-shadow: 0 0 25px rgba(127, 0, 255, 0.6); /* Purple glow */
+            max-width: 500px; /* Adjusted for simpler layout */
             width: 95%;
             text-align: center;
-            position: relative; /* For potential absolute positioned elements inside */
+            position: relative;
         }
 
         .mission-info {
-            font-size: 1.4em;
+            font-size: 1.3em; /* Slightly smaller */
             margin-bottom: 15px;
-            background-color: rgba(255,255,255,0.1);
-            padding:10px 15px;
+            background-color: rgba(255,255,255,0.05);
+            padding:10px;
             border-radius: 10px;
-            border: 1px solid rgba(0,188,212,0.3);
+            border: 1px solid rgba(127, 0, 255,0.3);
         }
 
         #number-path-container {
             margin-top: 10px;
             margin-bottom: 20px;
-            background-color: rgba(0,0,0,0.3);
+            background-color: rgba(0,0,0,0.4);
             padding: 8px;
             border-radius: 8px;
             overflow-x: auto;
             white-space: nowrap;
-            border: 1px solid rgba(0,188,212,0.2);
+            border: 1px solid rgba(127, 0, 255,0.2);
             scrollbar-width: thin;
-            scrollbar-color: #00bcd4 #0c0e30;
+            scrollbar-color: #7f00ff #0a0a23;
         }
         #number-path-container::-webkit-scrollbar { height: 8px; }
-        #number-path-container::-webkit-scrollbar-track { background: #0c0e30; border-radius: 4px;}
-        #number-path-container::-webkit-scrollbar-thumb { background-color: #00bcd4; border-radius: 4px; border: 2px solid #0c0e30;}
+        #number-path-container::-webkit-scrollbar-track { background: #0a0a23; border-radius: 4px;}
+        #number-path-container::-webkit-scrollbar-thumb { background-color: #7f00ff; border-radius: 4px; border: 2px solid #0a0a23;}
 
 
         .path-segment {
             display: inline-block;
-            padding: 5px 10px;
-            margin: 0 3px;
-            background-color: #2a2c52; /* Darker segment */
-            color: #b0b0d0; /* Lighter text on segment */
+            padding: 5px 8px; /* Slightly smaller padding */
+            margin: 0 2px;
+            background-color: #30304d;
+            color: #c0c0e0;
             border-radius: 5px;
-            font-size: 1em;
+            font-size: 0.9em; /* Slightly smaller font */
             font-weight: bold;
             transition: transform 0.2s, background-color 0.2s;
         }
         .path-segment.current {
-            background-color: #ffeb3b; /* Yellow for current */
-            color: #333;
+            background-color: #ffdf00; /* Gold for current */
+            color: #222;
             transform: scale(1.1);
-            box-shadow: 0 0 10px #ffeb3b;
+            box-shadow: 0 0 10px #ffdf00;
         }
         .path-segment.target {
-            background-color: #00e676; /* Bright Green for target */
+            background-color: #00ff99; /* Mint Green for target */
             color: #111;
             transform: scale(1.1);
-            box-shadow: 0 0 10px #00e676;
+            box-shadow: 0 0 10px #00ff99;
         }
 
         .alien-status {
@@ -88,56 +88,45 @@
             align-items: center;
             margin-bottom: 20px;
             padding: 10px;
-            background-color: rgba(0,0,0,0.2);
+            background-color: rgba(0,0,0,0.3);
             border-radius: 10px;
         }
         .alien-icon {
-            font-size: 4em; /* Larger icons */
-            animation: float 3s infinite ease-in-out;
+            font-size: 3.5em; /* Adjusted size */
+            animation: float 2.5s infinite ease-in-out;
         }
-        @keyframes float {
-            0%, 100% {transform: translateY(0) rotate(-4deg);}
-            50% {transform: translateY(-12px) rotate(4deg);}
+        @keyframes float { /* Simpler float */
+            0%, 100% {transform: translateY(0);}
+            50% {transform: translateY(-10px);}
         }
         .position-text, .target-text {
-            font-size: 1.3em;
+            font-size: 1.2em; /* Adjusted size */
             font-weight: bold;
             padding: 5px;
         }
-        .position-text { color: #ffeb3b; } /* Yellow text */
-        .target-text { color: #00e676; } /* Green text */
+        .position-text { color: #ffdf00; }
+        .target-text { color: #00ff99; }
 
-        #fuel-info {
-            background-color: #f44336; /* Red for subtraction fuel */
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 25px;
-            display: inline-block;
-            box-shadow: 0 0 15px #f44336;
-            border: 2px solid white;
-        }
+        /* Fuel info is removed */
 
         .question-text{
-            font-size: 1.6em;
-            margin-bottom: 15px;
+            font-size: 1.5em; /* Adjusted size */
+            margin-bottom: 20px;
             font-weight: bold;
         }
 
         #jump-options {
-            display: grid; /* Using grid for better alignment */
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* Adjusted minmax */
+            gap: 12px; /* Adjusted gap */
             width: 100%;
         }
         .jump-option {
-            background-color: #009688; /* Teal */
+            background-color: #6200ea; /* Deep purple */
             color: white;
-            padding: 18px;
-            border-radius: 12px;
-            font-size: 1.6em;
+            padding: 16px; /* Adjusted padding */
+            border-radius: 10px;
+            font-size: 1.5em; /* Adjusted font size */
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
@@ -145,23 +134,22 @@
         }
         .jump-option:hover {
             transform: translateY(-3px) scale(1.03);
-            background-color: #00796b; /* Darker Teal */
-            box-shadow: 0 4px 15px rgba(0, 150, 136, 0.5);
-            border-color: #4db6ac;
+            background-color: #7c4dff; /* Lighter deep purple */
+            box-shadow: 0 4px 15px rgba(98, 0, 234, 0.5);
+            border-color: #b388ff;
         }
         .jump-option:active {
             transform: translateY(1px);
         }
 
-        /* Result Popup (Modal) */
         #result-popup {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            display: none; /* Hidden by default */
+            background-color: rgba(0, 0, 0, 0.9); /* Darker overlay */
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -174,13 +162,13 @@
             opacity: 1;
         }
         .result-content {
-            background-color: #1a237e; /* Dark blue modal */
-            padding: 30px 40px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #311b92, #4527a0); /* Darker purple gradient for modal */
+            padding: 25px 35px; /* Adjusted padding */
+            border-radius: 18px;
             text-align: center;
             color: white;
-            box-shadow: 0 0 30px rgba(0,188,212,0.7);
-            border: 2px solid #00bcd4;
+            box-shadow: 0 0 30px rgba(127, 0, 255,0.8);
+            border: 2px solid #7f00ff;
             transform: scale(0.7);
             opacity: 0;
             animation: popup-appear 0.4s 0.1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -192,94 +180,81 @@
             }
         }
         .result-emoji {
-            font-size: 5em; /* Slightly smaller for modal */
+            font-size: 4.5em; /* Adjusted size */
             margin-bottom: 15px;
         }
         .result-text {
-            font-size: 2em;
+            font-size: 1.8em; /* Adjusted size */
             font-weight: bold;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         #next-button {
-            background-color: #ffc107; /* Amber */
+            background-color: #fdd835; /* Yellow */
             color: #333;
-            padding: 12px 25px;
+            padding: 10px 22px; /* Adjusted padding */
             border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
+            border-radius: 8px;
+            font-size: 1.1em; /* Adjusted font size */
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.2s;
         }
         #next-button:hover {
-            background-color: #ffca28; /* Lighter Amber */
+            background-color: #ffee58; /* Lighter Yellow */
             transform: scale(1.05);
         }
         
-        /* Scoreboard (optional, if you want to track score within this page) */
         #score-board {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(0,0,0,0.5);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            color: #00bcd4;
-            border: 1px solid #00bcd4;
+            top: 10px; /* Closer to edge */
+            right: 10px;
+            background-color: rgba(0,0,0,0.6);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 1em;
+            color: #b388ff; /* Light purple for score */
+            border: 1px solid #7f00ff;
         }
 
-        /* Media Queries */
-        @media (max-width: 600px) {
-            .mission-info { font-size: 1.2em; }
+        @media (max-width: 450px) {
+            #game-container { padding: 15px; max-width: 100%;}
+            .mission-info { font-size: 1.1em; padding: 8px;}
             .alien-icon { font-size: 3em; }
-            .position-text, .target-text { font-size: 1.1em; }
-            #fuel-info { font-size: 1.5em; padding: 8px 15px; }
-            .question-text { font-size: 1.3em; }
-            .jump-option { font-size: 1.3em; padding: 15px; }
-            .path-segment { font-size: 0.9em; padding: 4px 8px;}
-            .result-emoji { font-size: 4em; }
-            .result-text { font-size: 1.5em; }
-            #next-button { font-size: 1em; padding: 10px 20px;}
-        }
-         @media (max-width: 400px) {
-            #game-container { padding: 15px; }
-            .mission-info { font-size: 1em; padding: 8px 10px;}
-            .alien-icon { font-size: 2.5em; }
             .position-text, .target-text { font-size: 1em; }
-            #fuel-info { font-size: 1.2em; }
-            .question-text { font-size: 1.1em; }
-            .jump-option { font-size: 1.1em; padding: 12px; }
-            .path-segment { font-size: 0.8em; padding: 3px 6px;}
+            .question-text { font-size: 1.2em; }
+            .jump-option { font-size: 1.2em; padding: 14px; }
+            .path-segment { font-size: 0.8em; padding: 4px 6px;}
+            .result-emoji { font-size: 3.5em; }
+            .result-text { font-size: 1.3em; }
+            #next-button { font-size: 1em; padding: 8px 18px;}
         }
-
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="score-board">Score: 0</div> <!-- Optional Score -->
+        <div id="score-board">Score: 0</div>
         <div class="mission-info">
-            Help the Alien reach the Planet by jumping backwards!
+            Help the Alien reach the Planet by jumping back one step at a time!
             <div id="number-path-container">
-                <!-- Number path segments will be generated here -->
+                <!-- Number path segments -->
             </div>
         </div>
 
         <div class="alien-status">
-            <span class="alien-icon">👽</span>
+            <span class="alien-icon">🚀</span> <!-- Changed icon for variety -->
             <div>
-                <div id="current-pos" class="position-text">Alien at: 15</div>
-                <div id="target-pos" class="target-text">Target Planet: 9</div>
+                <div id="current-pos" class="position-text">Alien at: 10</div>
+                <div id="target-pos" class="target-text">Target Planet: 7</div>
             </div>
-            <span class="alien-icon">🪐</span>
+            <span class="alien-icon">🌍</span> <!-- Changed icon for variety -->
         </div>
 
-        <div id="fuel-info">Each Jump: -2</div>
+        <!-- Fuel info is removed -->
         <div class="question-text">How many jumps to the planet?</div>
 
         <div id="jump-options">
-            <!-- Jump options (e.g., 1 Jump, 2 Jumps) will be generated here -->
+            <!-- Jump options (e.g., 1 Jump, 2 Jumps) -->
         </div>
     </div>
 
@@ -287,7 +262,7 @@
         <div class="result-content">
             <div id="result-emoji" class="result-emoji">🎉</div>
             <div id="result-text" class="result-text">Correct!</div>
-            <button id="next-button">Next Mission</button>
+            <button id="next-button">Next Trip</button>
         </div>
     </div>
 
@@ -295,15 +270,13 @@
         // Game State
         let currentPosition = 0;
         let targetPosition = 0;
-        let jumpValue = 0; // Always positive, operation is fixed to subtraction
-        let correctJumps = 0;
-        const maxNumberPathValue = 20; // Max value on the number path
-        let score = 0; // Simple score for this standalone game
+        let correctJumps = 0; // This will be (currentPosition - targetPosition)
+        const maxNumberPathValue = 15; // Max value on the number path, can be adjusted
+        let score = 0;
 
         // DOM Elements
         const currentPosDisplay = document.getElementById('current-pos');
         const targetPosDisplay = document.getElementById('target-pos');
-        const fuelInfoDisplay = document.getElementById('fuel-info');
         const jumpOptionsContainer = document.getElementById('jump-options');
         const numberPathContainer = document.getElementById('number-path-container');
         
@@ -312,7 +285,6 @@
         const resultTextDisplay = document.getElementById('result-text');
         const nextButton = document.getElementById('next-button');
         const scoreBoardDisplay = document.getElementById('score-board');
-
 
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -331,28 +303,21 @@
 
         function renderNumberPath() {
             numberPathContainer.innerHTML = '';
-            // Determine a sensible range for the path based on current and target
-            const displayMin = Math.max(0, Math.min(currentPosition, targetPosition) - 3);
-            const displayMax = Math.min(maxNumberPathValue, Math.max(currentPosition, targetPosition) + 3);
+            const displayMin = Math.max(0, targetPosition - 2); // Show a bit before target
+            const displayMax = Math.min(maxNumberPathValue, currentPosition + 2); // Show a bit after current
 
             for (let i = displayMin; i <= displayMax; i++) {
                 const segment = document.createElement('span');
                 segment.classList.add('path-segment');
                 segment.textContent = i;
-                if (i === currentPosition) {
-                    segment.classList.add('current');
-                }
-                if (i === targetPosition) {
-                    segment.classList.add('target');
-                }
+                if (i === currentPosition) segment.classList.add('current');
+                if (i === targetPosition) segment.classList.add('target');
                 numberPathContainer.appendChild(segment);
             }
-             // Scroll to current position if path is long
             const currentSegmentEl = numberPathContainer.querySelector('.current');
             if (currentSegmentEl) {
                 const containerRect = numberPathContainer.getBoundingClientRect();
                 const segmentRect = currentSegmentEl.getBoundingClientRect();
-                // Check if current segment is out of view
                 if (segmentRect.left < containerRect.left || segmentRect.right > containerRect.right) {
                      numberPathContainer.scrollLeft = currentSegmentEl.offsetLeft - numberPathContainer.offsetLeft - (containerRect.width / 2) + (segmentRect.width / 2);
                 }
@@ -360,38 +325,19 @@
         }
 
         function setupNewProblem() {
-            jumpValue = getRandomInt(1, 4); // Alien jumps back by 1 to 4 units
+            // Alien starts further and jumps back to the target. Each jump is -1.
+            // Determine the number of jumps for this problem (this IS the answer)
+            correctJumps = getRandomInt(2, 8); // Alien will need to make 2 to 8 jumps
             
-            // Determine the number of jumps for this problem
-            let numJumpsForProblem = getRandomInt(2, 5); // Problem will involve 2 to 5 jumps
-            correctJumps = numJumpsForProblem;
+            // Target position can be anywhere from 0 upwards
+            targetPosition = getRandomInt(0, maxNumberPathValue - correctJumps); 
+            // Current position is target + number of jumps
+            currentPosition = targetPosition + correctJumps;
 
-            // Calculate current and target positions
-            // Alien starts further and jumps back to the target
-            targetPosition = getRandomInt(0, maxNumberPathValue - (numJumpsForProblem * jumpValue));
-            currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
-
-            // Ensure currentPosition doesn't exceed max path value significantly
-            if (currentPosition > maxNumberPathValue) {
-                // If current position is too high due to calculation, adjust target and current down.
-                const overflow = currentPosition - maxNumberPathValue;
-                currentPosition -= overflow;
-                targetPosition -= overflow;
-                if (targetPosition < 0) { // if target became negative, reset problem logic carefully
-                    // This case should be rare if maxNumberPathValue is large enough
-                    // For simplicity, let's try to regenerate if this happens, or just clamp target to 0
-                     targetPosition = getRandomInt(0, jumpValue); // a low target
-                     currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
-                     if(currentPosition > maxNumberPathValue) numJumpsForProblem = Math.floor((maxNumberPathValue - targetPosition)/jumpValue); // recalculate jumps
-                     correctJumps = numJumpsForProblem;
-                     currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
-                }
-            }
-
-
+            // Update display
             currentPosDisplay.textContent = `Alien at: ${currentPosition}`;
             targetPosDisplay.textContent = `Target Planet: ${targetPosition}`;
-            fuelInfoDisplay.textContent = `Each Jump: -${jumpValue}`;
+            // No fuel info display needed as jump is always -1
 
             renderNumberPath();
             displayJumpOptions();
@@ -402,24 +348,24 @@
             let options = [correctJumps];
 
             // Generate distractor options (different number of jumps)
-            while (options.length < 4) { // Aim for 4 options
-                let distractorJumps = correctJumps + getRandomInt(-2, 2);
-                if (distractorJumps > 0 && distractorJumps <= 6 && distractorJumps !== correctJumps && !options.includes(distractorJumps)) {
+            while (options.length < 4) { // Aim for 3-4 options
+                let distractorJumps = correctJumps + getRandomInt(-3, 3); // Wider range for distractors
+                if (distractorJumps > 0 && distractorJumps <= maxNumberPathValue && distractorJumps !== correctJumps && !options.includes(distractorJumps)) {
                     options.push(distractorJumps);
-                } else { // Fallback to ensure variety if stuck
-                    let randomOpt = getRandomInt(1, 6);
-                    if (!options.includes(randomOpt)) {
+                } else { // Fallback
+                    let randomOpt = getRandomInt(1, Math.max(5, correctJumps + 2)); // Ensure some plausible options
+                    if (randomOpt > 0 && !options.includes(randomOpt)) {
                         options.push(randomOpt);
                     }
                 }
-                options = Array.from(new Set(options)); // Keep unique
+                options = Array.from(new Set(options));
             }
             shuffleArray(options);
 
             options.forEach(numJumps => {
                 const button = document.createElement('button');
                 button.classList.add('jump-option');
-                button.textContent = `${numJumps} Jump${numJumps > 1 ? 's' : ''}`;
+                button.textContent = `${numJumps}`; // Just the number of jumps
                 button.dataset.jumps = numJumps;
                 button.addEventListener('click', handleAnswer);
                 jumpOptionsContainer.appendChild(button);
@@ -431,15 +377,14 @@
             const isCorrect = selectedJumps === correctJumps;
 
             if (isCorrect) {
-                resultEmojiDisplay.textContent = '🎉🌌';
-                resultTextDisplay.textContent = 'Fantastic! Alien Landed!';
-                resultTextDisplay.style.color = '#00e676'; // Green
+                resultEmojiDisplay.textContent = '🌟🛰️'; // Star and satellite
+                resultTextDisplay.textContent = 'Perfect Landing!';
+                resultTextDisplay.style.color = '#00ff99'; // Mint Green
                 score++;
             } else {
-                resultEmojiDisplay.textContent = '😥🌠';
-                resultTextDisplay.textContent = `Oops! That was ${selectedJumps} jump(s). Try again!`;
-                resultTextDisplay.style.color = '#ff8a80'; // Light Red
-                // Correct answer was correctJumps
+                resultEmojiDisplay.textContent = '😵💫'; // Dizzy face and stars
+                resultTextDisplay.textContent = `Not quite! That was ${selectedJumps} jumps.`;
+                resultTextDisplay.style.color = '#ff7043'; // Coral Red
             }
             updateScoreBoard();
             resultPopup.classList.add('show');
@@ -447,7 +392,6 @@
 
         nextButton.addEventListener('click', () => {
             resultPopup.classList.remove('show');
-            // Add a small delay before setting up the next problem to allow the popup to fade
             setTimeout(setupNewProblem, 300); 
         });
 
