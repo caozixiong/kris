@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>First Grade Math Games</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto; /* Allow scrolling */
+            touch-action: manipulation;
+        }
+
+        #game-selector-area {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #game-selector-area button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #game-selector-area button:hover, #game-selector-area button.active {
+            background-color: #45a049;
+        }
+        
+        #game-selector-area button.active {
+            box-shadow: 0 0 0 3px #8BC34A;
+        }
+
+        #score-area {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px; /* Match game container width */
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 10px;
+        }
+        #score-area span {
+            background-color: rgba(255,255,255,0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .game-host-container {
+            width: 100%;
+            display: flex; /* To help center content like game-container */
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Styles from math2.html (shared by math3.html) */
+        .game23-more-challenging-btn { /* Renamed to avoid ID conflict if multiple on page, and use class */
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #ffc107; /* A friendly yellow */
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+        }
+
+        .game23-more-challenging-btn:hover, .game23-more-challenging-btn:active {
+            background-color: #e0a800;
+        }
+        
+        .game23-game-container { /* Class for game containers of game2 and game3 */
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            position: relative; /* For timer positioning */
+        }
+        
+        .game23-shapes-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+        
+        .game23-shape-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 45%; /* For game2 */
+            padding: 10px;
+            border: 2px dashed #70a1ff;
+            border-radius: 10px;
+        }
+        /* Game3 specific override for shape-group width */
+        #game3-host .game23-shape-group {
+            width: 90%; /* For game3, as it's a single mixed group */
+            max-width: 100%;
+            justify-content: center;
+        }
+         /* For game3, the shapes-container should center its single child */
+        #game3-host .game23-shapes-container {
+            justify-content: center;
+        }
+        
+        .game23-shape {
+            margin: 5px;
+            font-size: 30px;
+        }
+        
+        .game23-math-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .game23-math-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 5px 0;
+            justify-content: center;
+        }
+        
+        .game23-shape-icon {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+        
+        .game23-operator {
+            font-size: 40px;
+            margin: 5px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .game23-number-options {
+            display: flex;
+            justify-content: space-around;
+            width: 60%;
+        }
+        
+        .game23-number-option {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #70a1ff;
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .game23-number-option:hover, .game23-number-option:active {
+            transform: scale(1.1);
+            background-color: #1e90ff;
+        }
+        
+        .game23-number-option.selected {
+            background-color: #27ae60;
+            transform: scale(1.1);
+        }
+        
+        .game23-number-option.wrong {
+            background-color: #e74c3c;
+            animation: game23-shake 0.5s;
+        }
+        
+        .game23-result { /* Pop-up result */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 100; /* Higher than game content */
+            font-size: 50px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .game23-result.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .game23-result-emoji {
+            font-size: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .game23-result-text {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .game23-timer { /* Timer display for game2/3 */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            min-width: 90px; /* Adjusted for SS:CC format */
+            text-align: center;
+            font-family: sans-serif;
+        }
+        
+        @keyframes game23-shake { /* Renamed to avoid conflict if other games have shake */
+            0%, 100% { transform: translateX(0) scale(1.1); }
+            20%, 60% { transform: translateX(-5px) scale(1.1); }
+            40%, 80% { transform: translateX(5px) scale(1.1); }
+        }
+
+        /* Media queries for game2/3 styles */
+        @media (max-width: 500px) {
+            /* body padding handled by global body style */
+            .game23-more-challenging-btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .game23-game-container {
+                padding: 10px;
+            }
+            .game23-shape {
+                font-size: 24px;
+            }
+            .game23-shape-icon {
+                font-size: 20px;
+            }
+            .game23-number-option {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            .game23-result-emoji {
+                font-size: 80px;
+            }
+            .game23-result-text {
+                font-size: 28px;
+            }
+            .game23-operator {
+                font-size: 32px;
+            }
+            .game23-timer {
+                font-size: 24px;
+                min-width: 80px;
+            }
+        }
+
+        /* Styles from math4.html */
+        #game4-host #game4-main-container { /* ID for game4's specific game container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 95%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        #game4-host #pins-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            min-height: 100px;
+            width: 100%;
+        }
+
+        #game4-host .pin {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 50%;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        #game4-host .pin.hit {
+            background-color: black;
+        }
+
+        #game4-host #bowling-ball {
+            width: 40px;
+            height: 40px;
+            background-color: #d9534f;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 180px; /* Relative to game4-main-container */
+            left: calc(50% - 20px);
+            z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform: translateY(0);
+            visibility: hidden;
+        }
+
+        #game4-host #equation-area {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            min-height: 1.2em;
+        }
+
+        #game4-host #options-area {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #game4-host .option-button {
+            font-size: 1.8em;
+            padding: 15px 20px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0 5px;
+            flex-grow: 1;
+            transition: background-color 0.2s;
+        }
+
+        #game4-host .option-button:hover {
+            background-color: #4cae4c;
+        }
+
+        #game4-host #start-button {
+            font-size: 1.8em;
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #game4-host #start-button:hover {
+            background-color: #0056b3;
+        }
+        
+        #game4-host #start-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #game4-host .game4-feedback-area { /* Changed to class to be safe */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Higher than game content */
+            text-align: center;
+            color: white;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+        }
+        
+        #game4-host .game4-feedback-area.visible {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        #game4-host #feedback-icon {
+            font-size: 5em;
+        }
+
+        #game4-host #feedback-text {
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        #game4-host .game4-countdown-display { /* Changed to class */
+            position: fixed; /* This might need adjustment based on where it should appear */
+            /* Position it relative to game4-main-container or viewport? */
+            /* Let's try relative to viewport first */
+            top: 70px; /* Below score area */
+            right: 20px;
+            font-size: 2em;
+            color: #aaa;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 90; /* Below feedback, above game content */
+            display: none;
+        }
+
+        /* Game Over Overlay Styles */
+        #game-over-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 2em;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0s 0.5s;
+        }
+        #game-over-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease;
+        }
+        #game-over-overlay button {
+            font-size: 0.8em;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-selector-area">
+        <button id="select-game2">Game 2</button>
+        <button id="select-game3">Game 3</button>
+        <button id="select-game4">Game 4</button>
+    </div>
+
+    <div id="score-area">
+        <span id="remaining-tries-display">Tries: 50</span>
+        <span id="current-score-display">Score: 0/50</span>
+    </div>
+
+    <div id="game-content-area">
+        <!-- Game 2 Host -->
+        <div id="game2-host" class="game-host-container" style="display: none;">
+            <button class="game23-more-challenging-btn" id="game2-more-challenging-btn">More Challenging</button>
+            <div class="game23-game-container">
+                <div class="game23-timer" id="game2-timer">10:00</div>
+                <div class="game23-shapes-container">
+                    <div class="game23-shape-group" id="game2-shape-group-1"></div>
+                    <div class="game23-shape-group" id="game2-shape-group-2"></div>
+                </div>
+                <div class="game23-math-container">
+                    <div class="game23-math-row">
+                        <div class="game23-shape-icon" id="game2-icon-1"></div>
+                        <div class="game23-number-options" id="game2-options-1"></div>
+                    </div>
+                    <div class="game23-math-row"><div class="game23-operator">+</div></div>
+                    <div class="game23-math-row">
+                        <div class="game23-shape-icon" id="game2-icon-2"></div>
+                        <div class="game23-number-options" id="game2-options-2"></div>
+                    </div>
+                    <div class="game23-math-row"><div class="game23-operator">=</div></div>
+                    <div class="game23-math-row">
+                        <div class="game23-number-options" id="game2-options-sum"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="game23-result" id="game2-result">
+                <div class="game23-result-emoji" id="game2-result-emoji"></div>
+                <div class="game23-result-text" id="game2-result-text"></div>
+            </div>
+        </div>
+
+        <!-- Game 3 Host -->
+        <div id="game3-host" class="game-host-container" style="display: none;">
+            <button class="game23-more-challenging-btn" id="game3-more-challenging-btn">More Challenging</button>
+            <div class="game23-game-container">
+                 <div class="game23-timer" id="game3-timer">10:00</div>
+                <div class="game23-shapes-container">
+                    <div class="game23-shape-group" id="game3-mixed-shapes-group"></div>
+                </div>
+                <div class="game23-math-container">
+                    <div class="game23-math-row">
+                        <div class="game23-shape-icon" id="game3-icon-1"></div>
+                        <div class="game23-number-options" id="game3-options-1"></div>
+                    </div>
+                    <div class="game23-math-row"><div class="game23-operator">+</div></div>
+                    <div class="game23-math-row">
+                        <div class="game23-shape-icon" id="game3-icon-2"></div>
+                        <div class="game23-number-options" id="game3-options-2"></div>
+                    </div>
+                    <div class="game23-math-row"><div class="game23-operator">=</div></div>
+                    <div class="game23-math-row">
+                        <div class="game23-number-options" id="game3-options-sum"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="game23-result" id="game3-result">
+                <div class="game23-result-emoji" id="game3-result-emoji"></div>
+                <div class="game23-result-text" id="game3-result-text"></div>
+            </div>
+        </div>
+
+        <!-- Game 4 Host -->
+        <div id="game4-host" class="game-host-container" style="display: none;">
+            <div id="game4-main-container">
+                <div id="pins-area"></div>
+                <div id="bowling-ball"></div>
+                <div id="equation-area">
+                    <span id="n-value">N</span>
+                    <span> - </span>
+                    <span id="m-value"></span>
+                    <span> = </span>
+                    <span id="q-mark">?</span>
+                </div>
+                <div id="options-area"></div>
+                <button id="start-button">开始</button>
+            </div>
+            <div class="game4-feedback-area" id="game4-feedback-area-popup"> <!-- Gave it an ID for easier selection -->
+                <div id="feedback-icon"></div>
+                <div id="feedback-text"></div>
+            </div>
+            <div class="game4-countdown-display" id="game4-countdown-display-element">3</div> <!-- Gave it an ID -->
+        </div>
+    </div>
+
+    <div id="game-over-overlay">
+        <div id="game-over-message">Game Over!</div>
+        <div id="final-score-display">Your score: 0/50</div>
+        <button id="restart-all-button">Play Again</button>
+    </div>
+
+    <script>
+        // --- Global Score and State ---
+        const TOTAL_ALLOWED_TRIES = 50;
+        let remainingTries = TOTAL_ALLOWED_TRIES;
+        let currentScore = 0;
+        let activeGame = null; // Store the active game object
+        let gamePausedForFeedback = false; // Prevents interaction while feedback modals are up
+
+        const remainingTriesDisplay = document.getElementById('remaining-tries-display');
+        const currentScoreDisplay = document.getElementById('current-score-display');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        const restartAllButton = document.getElementById('restart-all-button');
+
+        const gameSelectorButtons = {
+            game2: document.getElementById('select-game2'),
+            game3: document.getElementById('select-game3'),
+            game4: document.getElementById('select-game4'),
+        };
+
+        // --- Utility Functions ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // --- Score Management ---
+        function updateScoreDisplay() {
+            remainingTriesDisplay.textContent = `Tries: ${remainingTries}`;
+            currentScoreDisplay.textContent = `Score: ${currentScore}/${TOTAL_ALLOWED_TRIES}`;
+        }
+
+        function recordAttempt(isCorrect) {
+            if (remainingTries <= 0) return; // Game already over by tries
+
+            remainingTries--;
+            if (isCorrect) {
+                currentScore++;
+            }
+            updateScoreDisplay();
+            checkGameOver();
+            return !isGameOver(); // Return true if game can continue
+        }
+        
+        function isGameOver() {
+            return remainingTries <= 0 || currentScore >= TOTAL_ALLOWED_TRIES;
+        }
+
+        function checkGameOver() {
+            if (isGameOver()) {
+                if (activeGame && activeGame.cleanup) {
+                     activeGame.cleanup(); // Stop any timers in the current game
+                }
+                gameOverMessage.textContent = currentScore >= TOTAL_ALLOWED_TRIES ? 'Congratulations! You reached 50 points!' : 'Game Over!';
+                finalScoreDisplay.textContent = `Your score: ${currentScore}/${TOTAL_ALLOWED_TRIES}`;
+                gameOverOverlay.classList.add('show');
+                // Disable game selector buttons
+                Object.values(gameSelectorButtons).forEach(btn => btn.disabled = true);
+                return true;
+            }
+            return false;
+        }
+        
+        function resetGlobalScoreAndRestartApp() {
+            remainingTries = TOTAL_ALLOWED_TRIES;
+            currentScore = 0;
+            updateScoreDisplay();
+            gameOverOverlay.classList.remove('show');
+            gamePausedForFeedback = false;
+            // Re-enable game selector buttons
+            Object.values(gameSelectorButtons).forEach(btn => btn.disabled = false);
+            if (activeGame) { // Restart the currently active game or a default one
+                switchGame(activeGame.id);
+            } else {
+                switchGame('game2'); // Default to game2
+            }
+        }
+
+        restartAllButton.addEventListener('click', resetGlobalScoreAndRestartApp);
+
+        // --- Game Switching ---
+        function switchGame(gameId) {
+            if (gamePausedForFeedback || isGameOver()) return;
+
+            if (activeGame && activeGame.cleanup) {
+                activeGame.cleanup();
+            }
+
+            document.getElementById('game2-host').style.display = 'none';
+            document.getElementById('game3-host').style.display = 'none';
+            document.getElementById('game4-host').style.display = 'none';
+
+            Object.values(gameSelectorButtons).forEach(btn => btn.classList.remove('active'));
+
+            let gameToStart;
+            switch (gameId) {
+                case 'game2':
+                    gameToStart = game2;
+                    document.getElementById('game2-host').style.display = 'flex';
+                    gameSelectorButtons.game2.classList.add('active');
+                    break;
+                case 'game3':
+                    gameToStart = game3;
+                    document.getElementById('game3-host').style.display = 'flex';
+                    gameSelectorButtons.game3.classList.add('active');
+                    break;
+                case 'game4':
+                    gameToStart = game4;
+                    document.getElementById('game4-host').style.display = 'flex';
+                    gameSelectorButtons.game4.classList.add('active');
+                    break;
+            }
+
+            activeGame = gameToStart;
+            if (activeGame && activeGame.init) {
+                activeGame.init();
+            }
+        }
+        
+        // --- Game 2 (Adapted from math2.html) ---
+        const game2 = {
+            id: 'game2',
+            hostElement: document.getElementById('game2-host'),
+            config: {
+                shapeTypes: ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'],
+                maxShapes: 5,
+                INITIAL_TIMER_DURATION: 10, // seconds
+                MIN_TIMER_DURATION: 2,
+            },
+            state: {
+                currentShape1: '', currentShape2: '',
+                count1: 0, count2: 0, sumCount: 0,
+                selectedNumbers: [null, null, null],
+                timerInterval: null, timeLeft: 0, centisecondsLeft: 0,
+                currentTimerDuration: 0 // Will be set from config.INITIAL_TIMER_DURATION
+            },
+            elements: {},
+
+            init: function() {
+                this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION;
+                this.elements.shapeGroup1 = this.hostElement.querySelector('#game2-shape-group-1');
+                this.elements.shapeGroup2 = this.hostElement.querySelector('#game2-shape-group-2');
+                this.elements.icon1 = this.hostElement.querySelector('#game2-icon-1');
+                this.elements.icon2 = this.hostElement.querySelector('#game2-icon-2');
+                this.elements.options1 = this.hostElement.querySelector('#game2-options-1');
+                this.elements.options2 = this.hostElement.querySelector('#game2-options-2');
+                this.elements.optionsSum = this.hostElement.querySelector('#game2-options-sum');
+                this.elements.resultDiv = this.hostElement.querySelector('#game2-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game2-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game2-result-text');
+                this.elements.timerDisplay = this.hostElement.querySelector('#game2-timer');
+                this.elements.moreChallengingBtn = this.hostElement.querySelector('#game2-more-challenging-btn');
+                
+                this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging); // Remove old if any
+                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
+                
+                this.startGameCycle();
+            },
+            handleMoreChallenging: function() {
+                if (isGameOver()) return;
+                if (this.state.currentTimerDuration > this.config.MIN_TIMER_DURATION) {
+                    this.state.currentTimerDuration--;
+                } else {
+                    this.elements.moreChallengingBtn.textContent = `Min Time (${this.config.MIN_TIMER_DURATION}s)!`;
+                    setTimeout(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000);
+                }
+                this.cleanupTimer();
+                this.startGameCycle();
+            },
+            startGameCycle: function() { // Renamed from initGame
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.selectedNumbers = [null, null, null];
+                this.clearShapesAndOptions();
+                
+                const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                while (shapeIndex2 === shapeIndex1) {
+                    shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                }
+                
+                this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
+                this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
+                
+                this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1;
+                this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1;
+                this.state.sumCount = this.state.count1 + this.state.count2;
+                
+                this.displayShapes(this.elements.shapeGroup1, this.state.currentShape1, this.state.count1);
+                this.displayShapes(this.elements.shapeGroup2, this.state.currentShape2, this.state.count2);
+                
+                this.elements.icon1.textContent = this.state.currentShape1;
+                this.elements.icon2.textContent = this.state.currentShape2;
+                
+                this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
+                this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
+                this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
+                
+                this.startTimer();
+            },
+            displayShapes: function(container, shapeType, count) {
+                container.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const shapeElem = document.createElement('div');
+                    shapeElem.className = 'game23-shape';
+                    shapeElem.textContent = shapeType;
+                    container.appendChild(shapeElem);
+                }
+            },
+            clearShapesAndOptions: function() {
+                this.elements.shapeGroup1.innerHTML = '';
+                this.elements.shapeGroup2.innerHTML = '';
+                this.elements.options1.innerHTML = '';
+                this.elements.options2.innerHTML = '';
+                this.elements.optionsSum.innerHTML = '';
+            },
+            generateNumberOptions: function(container, correctNumber, rowIndex) {
+                container.innerHTML = '';
+                const numbers = [correctNumber];
+                const maxPossibleOption = this.config.maxShapes * 2;
+
+                while (numbers.length < 3) {
+                    let randomNum = Math.floor(Math.random() * Math.min(10, maxPossibleOption)) + 1;
+                    if (Math.random() > 0.5) {
+                        randomNum = Math.floor(Math.random() * maxPossibleOption) + 1;
+                    }
+                    if (!numbers.includes(randomNum) && randomNum > 0) {
+                        numbers.push(randomNum);
+                    }
+                }
+                shuffleArray(numbers);
+                
+                numbers.forEach(num => {
+                    const optionElem = document.createElement('div');
+                    optionElem.className = 'game23-number-option';
+                    optionElem.textContent = num;
+                    optionElem.addEventListener('click', () => {
+                        if (gamePausedForFeedback || isGameOver()) return;
+                        this.selectNumber(optionElem, num, rowIndex, container);
+                    });
+                    container.appendChild(optionElem);
+                });
+            },
+            selectNumber: function(element, number, rowIndex, container) {
+                const siblings = container.getElementsByClassName('game23-number-option');
+                for (let i = 0; i < siblings.length; i++) {
+                    siblings[i].classList.remove('selected', 'wrong');
+                }
+                element.classList.add('selected');
+                this.state.selectedNumbers[rowIndex] = number;
+                
+                if (this.state.selectedNumbers.every(num => num !== null)) {
+                    this.checkAnswer();
+                }
+            },
+            checkAnswer: function() {
+                if (gamePausedForFeedback) return;
+                this.cleanupTimer(); 
+                gamePausedForFeedback = true;
+
+                const isFirstCorrect = this.state.selectedNumbers[0] === this.state.count1;
+                const isSecondCorrect = this.state.selectedNumbers[1] === this.state.count2;
+                const isSumCorrect = this.state.selectedNumbers[2] === this.state.sumCount;
+                const allCorrect = isFirstCorrect && isSecondCorrect && isSumCorrect;
+
+                const canContinue = recordAttempt(allCorrect);
+
+                if (allCorrect) {
+                    this.showResult(true);
+                    setTimeout(() => {
+                        this.elements.resultDiv.classList.remove('show');
+                        if (canContinue && !isGameOver()) this.startGameCycle();
+                        else gamePausedForFeedback = false; // if game over, don't restart
+                    }, 1500);
+                } else {
+                    this.showResult(false);
+                    if (!isFirstCorrect && this.state.selectedNumbers[0] !== null) this.markWrongOption(this.elements.options1, this.state.selectedNumbers[0]);
+                    if (!isSecondCorrect && this.state.selectedNumbers[1] !== null) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]);
+                    if (!isSumCorrect && this.state.selectedNumbers[2] !== null) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]);
+
+                    setTimeout(() => {
+                        this.elements.resultDiv.classList.remove('show');
+                        if (canContinue && !isGameOver()) this.resetSelectionsForRetry();
+                        else gamePausedForFeedback = false;
+                    }, 1500);
+                }
+            },
+            markWrongOption: function(container, selectedValue) {
+                const options = container.getElementsByClassName('game23-number-option');
+                for(let option of options) {
+                    if (parseInt(option.textContent) === selectedValue && option.classList.contains('selected')) {
+                        option.classList.add('wrong'); 
+                        break;
+                    }
+                }
+            },
+            resetSelectionsForRetry: function() {
+                gamePausedForFeedback = false;
+                this.state.selectedNumbers = [null, null, null];
+                const allOptions = this.hostElement.getElementsByClassName('game23-number-option');
+                for (let i = 0; i < allOptions.length; i++) {
+                    allOptions[i].classList.remove('selected', 'wrong');
+                }
+                if (!isGameOver()) this.startTimer();
+            },
+            showResult: function(isSuccess, isTimeout = false) {
+                this.elements.resultDiv.classList.remove('show'); // Ensure it's hidden before trying to show
+                if (isTimeout) {
+                    this.elements.resultEmoji.textContent = '⏱️⌛';
+                    this.elements.resultText.textContent = 'Time is up!';
+                    this.elements.resultText.style.color = '#e74c3c';
+                } else if (isSuccess) {
+                    this.elements.resultEmoji.textContent = '😄🌸';
+                    this.elements.resultText.textContent = 'Good Job Kris!';
+                    this.elements.resultText.style.color = '#2ecc71';
+                } else {
+                    this.elements.resultEmoji.textContent = '😢🌵';
+                    this.elements.resultText.textContent = 'Try Again!';
+                    this.elements.resultText.style.color = '#e74c3c';
+                }
+                requestAnimationFrame(() => { // Delay showing slightly
+                     this.elements.resultDiv.classList.add('show');
+                });
+            },
+            startTimer: function() {
+                if (isGameOver()) return;
+                this.state.timeLeft = this.state.currentTimerDuration;
+                this.state.centisecondsLeft = 0; 
+                this.updateTimerDisplay();
+                
+                this.cleanupTimer();
+                this.state.timerInterval = setInterval(() => {
+                    this.state.centisecondsLeft -= 10;
+                    if (this.state.centisecondsLeft < 0) {
+                        this.state.centisecondsLeft = 90;
+                        this.state.timeLeft--;
+                    }
+                    this.updateTimerDisplay();
+                    
+                    if (this.state.timeLeft < 0) { 
+                        this.cleanupTimer();
+                        gamePausedForFeedback = true;
+                        const canContinue = recordAttempt(false); // Timeout is an incorrect attempt
+                        this.showResult(false, true);
+                        setTimeout(() => {
+                            this.elements.resultDiv.classList.remove('show');
+                            if (canContinue && !isGameOver()) this.startGameCycle();
+                            else gamePausedForFeedback = false;
+                        }, 2000); 
+                    }
+                }, 100);
+            },
+            updateTimerDisplay: function() {
+                const displaySeconds = String(Math.max(0, this.state.timeLeft)).padStart(2, '0');
+                const displayCentiseconds = String(Math.max(0, this.state.centisecondsLeft)).padStart(2, '0');
+                this.elements.timerDisplay.textContent = `${displaySeconds}:${displayCentiseconds}`;
+            },
+            cleanupTimer: function() {
+                 if (this.state.timerInterval) clearInterval(this.state.timerInterval);
+                 this.state.timerInterval = null;
+            },
+            cleanup: function() { // Called when switching games
+                this.cleanupTimer();
+                if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show');
+                gamePausedForFeedback = false;
+            }
+        };
+
+        // --- Game 3 (Adapted from math3.html - very similar to Game 2) ---
+        const game3 = {
+            // Most properties and methods are identical to game2, with different element IDs and one different function
+            ...game2, // Spread game2 to inherit its methods and properties
+            id: 'game3',
+            hostElement: document.getElementById('game3-host'),
+            elements: {}, // Will be populated in init
+            
+            init: function() { // Override init
+                this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION; // Reset from game2's state
+                this.elements.mixedShapesGroup = this.hostElement.querySelector('#game3-mixed-shapes-group');
+                // Other elements are similar to game2 but need to be queried from game3-host
+                this.elements.icon1 = this.hostElement.querySelector('#game3-icon-1');
+                this.elements.icon2 = this.hostElement.querySelector('#game3-icon-2');
+                this.elements.options1 = this.hostElement.querySelector('#game3-options-1');
+                this.elements.options2 = this.hostElement.querySelector('#game3-options-2');
+                this.elements.optionsSum = this.hostElement.querySelector('#game3-options-sum');
+                this.elements.resultDiv = this.hostElement.querySelector('#game3-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game3-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game3-result-text');
+                this.elements.timerDisplay = this.hostElement.querySelector('#game3-timer');
+                this.elements.moreChallengingBtn = this.hostElement.querySelector('#game3-more-challenging-btn');
+
+                this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging);
+                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
+
+                this.startGameCycle();
+            },
+            startGameCycle: function() { // Override startGameCycle for different shape display
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.selectedNumbers = [null, null, null];
+                this.clearShapesAndOptions(); // Uses game3's elements.mixedShapesGroup now
+                
+                const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                while (shapeIndex2 === shapeIndex1) {
+                    shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
+                }
+                
+                this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
+                this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
+                
+                this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1;
+                this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1;
+                this.state.sumCount = this.state.count1 + this.state.count2;
+                
+                // This is the main difference for game3's setup
+                this.displayMixedShapes(this.elements.mixedShapesGroup, this.state.currentShape1, this.state.count1, this.state.currentShape2, this.state.count2);
+                
+                this.elements.icon1.textContent = this.state.currentShape1;
+                this.elements.icon2.textContent = this.state.currentShape2;
+                
+                this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
+                this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
+                this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
+                
+                this.startTimer();
+            },
+            displayMixedShapes: function(container, shape1, num1, shape2, num2) { // Specific to Game 3
+                container.innerHTML = ''; 
+                const allShapeElements = [];
+                for (let i = 0; i < num1; i++) {
+                    const shapeElem = document.createElement('div');
+                    shapeElem.className = 'game23-shape';
+                    shapeElem.textContent = shape1;
+                    allShapeElements.push(shapeElem);
+                }
+                for (let i = 0; i < num2; i++) {
+                    const shapeElem = document.createElement('div');
+                    shapeElem.className = 'game23-shape';
+                    shapeElem.textContent = shape2;
+                    allShapeElements.push(shapeElem);
+                }
+                shuffleArray(allShapeElements); 
+                allShapeElements.forEach(shapeElem => container.appendChild(shapeElem));
+            },
+            clearShapesAndOptions: function() { // Override for game3
+                this.elements.mixedShapesGroup.innerHTML = ''; 
+                this.elements.options1.innerHTML = '';
+                this.elements.options2.innerHTML = '';
+                this.elements.optionsSum.innerHTML = '';
+            }
+        };
+        
+        // --- Game 4 (Adapted from math4.html) ---
+        const game4 = {
+            id: 'game4',
+            hostElement: document.getElementById('game4-host'),
+            state: {
+                N: 0, M: 0, correctAnswer: 0,
+                currentPins: [],
+                countdownTimerId: null,
+                gameActive: false // Specific to game4's internal flow (ball rolling, feedback)
+            },
+            elements: {},
+
+            init: function() {
+                this.elements.pinsArea = this.hostElement.querySelector('#pins-area');
+                this.elements.bowlingBall = this.hostElement.querySelector('#bowling-ball');
+                this.elements.nValueSpan = this.hostElement.querySelector('#n-value');
+                this.elements.mValueSpan = this.hostElement.querySelector('#m-value');
+                this.elements.qMarkSpan = this.hostElement.querySelector('#q-mark');
+                this.elements.optionsArea = this.hostElement.querySelector('#options-area');
+                this.elements.startButton = this.hostElement.querySelector('#start-button');
+                this.elements.feedbackArea = this.hostElement.querySelector('#game4-feedback-area-popup');
+                this.elements.feedbackIcon = this.hostElement.querySelector('#feedback-icon');
+                this.elements.feedbackText = this.hostElement.querySelector('#feedback-text');
+                this.elements.countdownDisplay = this.hostElement.querySelector('#game4-countdown-display-element');
+
+                this.elements.startButton.removeEventListener('click', this.handleStartClick);
+                this.elements.startButton.removeEventListener('touchstart', this.handleStartTouch);
+                this.elements.startButton.addEventListener('click', this.handleStartClick.bind(this));
+                this.elements.startButton.addEventListener('touchstart', this.handleStartTouch.bind(this), { passive: false });
+                
+                this.setupRound();
+            },
+            handleStartClick: function() { if (!this.elements.startButton.disabled) this.rollBall(); },
+            handleStartTouch: function(e) { e.preventDefault(); if (!this.elements.startButton.disabled) this.rollBall(); },
+
+            getRandomInt: function(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+            setupRound: function() {
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.gameActive = false;
+                this.elements.startButton.disabled = true;
+                this.elements.startButton.style.display = 'block';
+                this.elements.optionsArea.innerHTML = '';
+                this.elements.mValueSpan.textContent = '';
+                this.elements.qMarkSpan.textContent = '?';
+                this.elements.feedbackArea.classList.remove('visible');
+                this.elements.bowlingBall.style.visibility = 'hidden';
+                this.elements.bowlingBall.style.transform = 'translateY(0px)';
+
+                this.state.N = this.getRandomInt(5, 10);
+                this.elements.nValueSpan.textContent = this.state.N;
+
+                this.elements.pinsArea.innerHTML = '';
+                this.state.currentPins = [];
+                for (let i = 0; i < this.state.N; i++) {
+                    const pin = document.createElement('div');
+                    pin.classList.add('pin');
+                    this.elements.pinsArea.appendChild(pin);
+                    this.state.currentPins.push(pin);
+                }
+                this.startCountdown();
+            },
+            startCountdown: function() {
+                let count = 3;
+                this.elements.countdownDisplay.textContent = count;
+                this.elements.countdownDisplay.style.display = 'block';
+
+                if (this.state.countdownTimerId) clearInterval(this.state.countdownTimerId);
+
+                this.state.countdownTimerId = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        this.elements.countdownDisplay.textContent = count;
+                    } else {
+                        clearInterval(this.state.countdownTimerId);
+                        this.state.countdownTimerId = null;
+                        this.elements.countdownDisplay.style.display = 'none';
+                        if(!isGameOver()) this.elements.startButton.disabled = false;
+                    }
+                }, 1000);
+            },
+            rollBall: function() {
+                if (this.state.gameActive || isGameOver()) return;
+                this.state.gameActive = true; // game4 internal active state
+                gamePausedForFeedback = true; // global pause state
+                this.elements.startButton.style.display = 'none';
+                this.elements.bowlingBall.style.visibility = 'visible';
+                
+                const pinsAreaRect = this.elements.pinsArea.getBoundingClientRect();
+                const ballRect = this.elements.bowlingBall.getBoundingClientRect();
+                const gameContainerRect = this.hostElement.querySelector('#game4-main-container').getBoundingClientRect();
+                const travelDistance = ballRect.top - (pinsAreaRect.top + pinsAreaRect.height / 2) + gameContainerRect.top;
+                this.elements.bowlingBall.style.transform = `translateY(-${travelDistance + 20}px)`;
+
+                setTimeout(() => {
+                    this.knockPins();
+                }, 800);
+            },
+            knockPins: function() {
+                this.state.M = this.getRandomInt(1, this.state.N);
+                this.elements.mValueSpan.textContent = this.state.M;
+                this.elements.qMarkSpan.textContent = '?';
+
+                this.state.currentPins.forEach(pin => pin.classList.remove('hit'));
+                let hitIndices = [];
+                while(hitIndices.length < this.state.M) {
+                    let randomIndex = this.getRandomInt(0, this.state.N - 1);
+                    if (!hitIndices.includes(randomIndex)) hitIndices.push(randomIndex);
+                }
+                hitIndices.forEach(index => this.state.currentPins[index].classList.add('hit'));
+
+                this.state.correctAnswer = this.state.N - this.state.M;
+                this.displayOptions();
+                this.state.gameActive = false; // Ready for option selection
+                gamePausedForFeedback = false; // Allow option selection
+            },
+            displayOptions: function() {
+                this.elements.optionsArea.innerHTML = '';
+                let options = [this.state.correctAnswer];
+                while (options.length < 3) {
+                    let distractor = this.getRandomInt(0, this.state.N); // Answers are between 0 and N
+                    if (!options.includes(distractor)) options.push(distractor);
+                }
+                shuffleArray(options);
+
+                options.forEach(opt => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-button');
+                    button.textContent = opt;
+                    const handleOptionClick = () => {
+                        if (this.state.gameActive || gamePausedForFeedback || isGameOver()) return;
+                        this.checkAnswer(opt);
+                    };
+                    button.addEventListener('click', handleOptionClick);
+                    button.addEventListener('touchstart', (e) => { e.preventDefault(); handleOptionClick(); }, { passive: false });
+                    this.elements.optionsArea.appendChild(button);
+                });
+            },
+            checkAnswer: function(selectedAnswer) {
+                this.state.gameActive = true; // game4 internal processing
+                gamePausedForFeedback = true; // Global feedback shown
+
+                const isCorrect = selectedAnswer === this.state.correctAnswer;
+                const canContinue = recordAttempt(isCorrect);
+
+                if (isCorrect) {
+                    this.elements.feedbackIcon.textContent = '😊🌸';
+                    this.elements.feedbackText.textContent = 'Good Job Kris!';
+                    this.elements.feedbackArea.classList.add('visible');
+                    setTimeout(() => {
+                        this.elements.feedbackArea.classList.remove('visible');
+                        if (canContinue && !isGameOver()) this.setupRound();
+                        else { this.state.gameActive = false; gamePausedForFeedback = false; }
+                    }, 1500);
+                } else {
+                    this.elements.feedbackIcon.textContent = '😢🌵';
+                    this.elements.feedbackText.textContent = '再试一次!';
+                    this.elements.feedbackArea.classList.add('visible');
+                    setTimeout(() => {
+                        this.elements.feedbackArea.classList.remove('visible');
+                        // Allow retry on the same problem, options are still there
+                        this.state.gameActive = false; 
+                        gamePausedForFeedback = false; // Re-enable option clicks
+                        if (isGameOver()) { // if game over due to tries, disable options
+                             this.elements.optionsArea.innerHTML = '<p style="color:red; font-size:0.8em;">No more tries!</p>';
+                        }
+                    }, 2000);
+                }
+            },
+            cleanup: function() {
+                if (this.state.countdownTimerId) clearInterval(this.state.countdownTimerId);
+                this.state.countdownTimerId = null;
+                if (this.elements.feedbackArea) this.elements.feedbackArea.classList.remove('visible');
+                if (this.elements.countdownDisplay) this.elements.countdownDisplay.style.display = 'none';
+                if (this.elements.startButton) this.elements.startButton.disabled = true; // Disable start button
+                this.state.gameActive = false;
+                gamePausedForFeedback = false;
+            }
+        };
+
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateScoreDisplay();
+            gameSelectorButtons.game2.addEventListener('click', () => switchGame('game2'));
+            gameSelectorButtons.game3.addEventListener('click', () => switchGame('game3'));
+            gameSelectorButtons.game4.addEventListener('click', () => switchGame('game4'));
+            
+            switchGame('game2'); // Load Game 2 by default
+        });
+
+    </script>
+</body>
+</html>
