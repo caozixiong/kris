@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Alien Jump Subtraction!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+            background-color: #0c0e30; /* Dark space blue */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center game on page */
+            min-height: 100vh;
+            overflow: hidden; /* Prevent scrollbars if content slightly overflows */
+            touch-action: manipulation;
+            color: #e0e0e0; /* Light text for dark background */
+        }
+
+        #game-container {
+            background: rgba(20, 20, 70, 0.8); /* Translucent darker blue */
+            border: 3px solid #00bcd4; /* Cyan border */
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 5px 20px rgba(0,188,212,0.5); /* Cyan glow */
+            max-width: 550px;
+            width: 95%;
+            text-align: center;
+            position: relative; /* For potential absolute positioned elements inside */
+        }
+
+        .mission-info {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            background-color: rgba(255,255,255,0.1);
+            padding:10px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,188,212,0.3);
+        }
+
+        #number-path-container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            background-color: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border: 1px solid rgba(0,188,212,0.2);
+            scrollbar-width: thin;
+            scrollbar-color: #00bcd4 #0c0e30;
+        }
+        #number-path-container::-webkit-scrollbar { height: 8px; }
+        #number-path-container::-webkit-scrollbar-track { background: #0c0e30; border-radius: 4px;}
+        #number-path-container::-webkit-scrollbar-thumb { background-color: #00bcd4; border-radius: 4px; border: 2px solid #0c0e30;}
+
+
+        .path-segment {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 0 3px;
+            background-color: #2a2c52; /* Darker segment */
+            color: #b0b0d0; /* Lighter text on segment */
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .path-segment.current {
+            background-color: #ffeb3b; /* Yellow for current */
+            color: #333;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #ffeb3b;
+        }
+        .path-segment.target {
+            background-color: #00e676; /* Bright Green for target */
+            color: #111;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #00e676;
+        }
+
+        .alien-status {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .alien-icon {
+            font-size: 4em; /* Larger icons */
+            animation: float 3s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% {transform: translateY(0) rotate(-4deg);}
+            50% {transform: translateY(-12px) rotate(4deg);}
+        }
+        .position-text, .target-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 5px;
+        }
+        .position-text { color: #ffeb3b; } /* Yellow text */
+        .target-text { color: #00e676; } /* Green text */
+
+        #fuel-info {
+            background-color: #f44336; /* Red for subtraction fuel */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            display: inline-block;
+            box-shadow: 0 0 15px #f44336;
+            border: 2px solid white;
+        }
+
+        .question-text{
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        #jump-options {
+            display: grid; /* Using grid for better alignment */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+        .jump-option {
+            background-color: #009688; /* Teal */
+            color: white;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.6em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+        .jump-option:hover {
+            transform: translateY(-3px) scale(1.03);
+            background-color: #00796b; /* Darker Teal */
+            box-shadow: 0 4px 15px rgba(0, 150, 136, 0.5);
+            border-color: #4db6ac;
+        }
+        .jump-option:active {
+            transform: translateY(1px);
+        }
+
+        /* Result Popup (Modal) */
+        #result-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #result-popup.show {
+            display: flex;
+            opacity: 1;
+        }
+        .result-content {
+            background-color: #1a237e; /* Dark blue modal */
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 0 30px rgba(0,188,212,0.7);
+            border: 2px solid #00bcd4;
+            transform: scale(0.7);
+            opacity: 0;
+            animation: popup-appear 0.4s 0.1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popup-appear {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .result-emoji {
+            font-size: 5em; /* Slightly smaller for modal */
+            margin-bottom: 15px;
+        }
+        .result-text {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        #next-button {
+            background-color: #ffc107; /* Amber */
+            color: #333;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        #next-button:hover {
+            background-color: #ffca28; /* Lighter Amber */
+            transform: scale(1.05);
+        }
+        
+        /* Scoreboard (optional, if you want to track score within this page) */
+        #score-board {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            color: #00bcd4;
+            border: 1px solid #00bcd4;
+        }
+
+        /* Media Queries */
+        @media (max-width: 600px) {
+            .mission-info { font-size: 1.2em; }
+            .alien-icon { font-size: 3em; }
+            .position-text, .target-text { font-size: 1.1em; }
+            #fuel-info { font-size: 1.5em; padding: 8px 15px; }
+            .question-text { font-size: 1.3em; }
+            .jump-option { font-size: 1.3em; padding: 15px; }
+            .path-segment { font-size: 0.9em; padding: 4px 8px;}
+            .result-emoji { font-size: 4em; }
+            .result-text { font-size: 1.5em; }
+            #next-button { font-size: 1em; padding: 10px 20px;}
+        }
+         @media (max-width: 400px) {
+            #game-container { padding: 15px; }
+            .mission-info { font-size: 1em; padding: 8px 10px;}
+            .alien-icon { font-size: 2.5em; }
+            .position-text, .target-text { font-size: 1em; }
+            #fuel-info { font-size: 1.2em; }
+            .question-text { font-size: 1.1em; }
+            .jump-option { font-size: 1.1em; padding: 12px; }
+            .path-segment { font-size: 0.8em; padding: 3px 6px;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="score-board">Score: 0</div> <!-- Optional Score -->
+        <div class="mission-info">
+            Help the Alien reach the Planet by jumping backwards!
+            <div id="number-path-container">
+                <!-- Number path segments will be generated here -->
+            </div>
+        </div>
+
+        <div class="alien-status">
+            <span class="alien-icon">👽</span>
+            <div>
+                <div id="current-pos" class="position-text">Alien at: 15</div>
+                <div id="target-pos" class="target-text">Target Planet: 9</div>
+            </div>
+            <span class="alien-icon">🪐</span>
+        </div>
+
+        <div id="fuel-info">Each Jump: -2</div>
+        <div class="question-text">How many jumps to the planet?</div>
+
+        <div id="jump-options">
+            <!-- Jump options (e.g., 1 Jump, 2 Jumps) will be generated here -->
+        </div>
+    </div>
+
+    <div id="result-popup">
+        <div class="result-content">
+            <div id="result-emoji" class="result-emoji">🎉</div>
+            <div id="result-text" class="result-text">Correct!</div>
+            <button id="next-button">Next Mission</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let currentPosition = 0;
+        let targetPosition = 0;
+        let jumpValue = 0; // Always positive, operation is fixed to subtraction
+        let correctJumps = 0;
+        const maxNumberPathValue = 20; // Max value on the number path
+        let score = 0; // Simple score for this standalone game
+
+        // DOM Elements
+        const currentPosDisplay = document.getElementById('current-pos');
+        const targetPosDisplay = document.getElementById('target-pos');
+        const fuelInfoDisplay = document.getElementById('fuel-info');
+        const jumpOptionsContainer = document.getElementById('jump-options');
+        const numberPathContainer = document.getElementById('number-path-container');
+        
+        const resultPopup = document.getElementById('result-popup');
+        const resultEmojiDisplay = document.getElementById('result-emoji');
+        const resultTextDisplay = document.getElementById('result-text');
+        const nextButton = document.getElementById('next-button');
+        const scoreBoardDisplay = document.getElementById('score-board');
+
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function updateScoreBoard() {
+            scoreBoardDisplay.textContent = `Score: ${score}`;
+        }
+
+        function renderNumberPath() {
+            numberPathContainer.innerHTML = '';
+            // Determine a sensible range for the path based on current and target
+            const displayMin = Math.max(0, Math.min(currentPosition, targetPosition) - 3);
+            const displayMax = Math.min(maxNumberPathValue, Math.max(currentPosition, targetPosition) + 3);
+
+            for (let i = displayMin; i <= displayMax; i++) {
+                const segment = document.createElement('span');
+                segment.classList.add('path-segment');
+                segment.textContent = i;
+                if (i === currentPosition) {
+                    segment.classList.add('current');
+                }
+                if (i === targetPosition) {
+                    segment.classList.add('target');
+                }
+                numberPathContainer.appendChild(segment);
+            }
+             // Scroll to current position if path is long
+            const currentSegmentEl = numberPathContainer.querySelector('.current');
+            if (currentSegmentEl) {
+                const containerRect = numberPathContainer.getBoundingClientRect();
+                const segmentRect = currentSegmentEl.getBoundingClientRect();
+                // Check if current segment is out of view
+                if (segmentRect.left < containerRect.left || segmentRect.right > containerRect.right) {
+                     numberPathContainer.scrollLeft = currentSegmentEl.offsetLeft - numberPathContainer.offsetLeft - (containerRect.width / 2) + (segmentRect.width / 2);
+                }
+            }
+        }
+
+        function setupNewProblem() {
+            jumpValue = getRandomInt(1, 4); // Alien jumps back by 1 to 4 units
+            
+            // Determine the number of jumps for this problem
+            let numJumpsForProblem = getRandomInt(2, 5); // Problem will involve 2 to 5 jumps
+            correctJumps = numJumpsForProblem;
+
+            // Calculate current and target positions
+            // Alien starts further and jumps back to the target
+            targetPosition = getRandomInt(0, maxNumberPathValue - (numJumpsForProblem * jumpValue));
+            currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
+
+            // Ensure currentPosition doesn't exceed max path value significantly
+            if (currentPosition > maxNumberPathValue) {
+                // If current position is too high due to calculation, adjust target and current down.
+                const overflow = currentPosition - maxNumberPathValue;
+                currentPosition -= overflow;
+                targetPosition -= overflow;
+                if (targetPosition < 0) { // if target became negative, reset problem logic carefully
+                    // This case should be rare if maxNumberPathValue is large enough
+                    // For simplicity, let's try to regenerate if this happens, or just clamp target to 0
+                     targetPosition = getRandomInt(0, jumpValue); // a low target
+                     currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
+                     if(currentPosition > maxNumberPathValue) numJumpsForProblem = Math.floor((maxNumberPathValue - targetPosition)/jumpValue); // recalculate jumps
+                     correctJumps = numJumpsForProblem;
+                     currentPosition = targetPosition + (numJumpsForProblem * jumpValue);
+                }
+            }
+
+
+            currentPosDisplay.textContent = `Alien at: ${currentPosition}`;
+            targetPosDisplay.textContent = `Target Planet: ${targetPosition}`;
+            fuelInfoDisplay.textContent = `Each Jump: -${jumpValue}`;
+
+            renderNumberPath();
+            displayJumpOptions();
+        }
+
+        function displayJumpOptions() {
+            jumpOptionsContainer.innerHTML = '';
+            let options = [correctJumps];
+
+            // Generate distractor options (different number of jumps)
+            while (options.length < 4) { // Aim for 4 options
+                let distractorJumps = correctJumps + getRandomInt(-2, 2);
+                if (distractorJumps > 0 && distractorJumps <= 6 && distractorJumps !== correctJumps && !options.includes(distractorJumps)) {
+                    options.push(distractorJumps);
+                } else { // Fallback to ensure variety if stuck
+                    let randomOpt = getRandomInt(1, 6);
+                    if (!options.includes(randomOpt)) {
+                        options.push(randomOpt);
+                    }
+                }
+                options = Array.from(new Set(options)); // Keep unique
+            }
+            shuffleArray(options);
+
+            options.forEach(numJumps => {
+                const button = document.createElement('button');
+                button.classList.add('jump-option');
+                button.textContent = `${numJumps} Jump${numJumps > 1 ? 's' : ''}`;
+                button.dataset.jumps = numJumps;
+                button.addEventListener('click', handleAnswer);
+                jumpOptionsContainer.appendChild(button);
+            });
+        }
+
+        function handleAnswer(event) {
+            const selectedJumps = parseInt(event.target.dataset.jumps);
+            const isCorrect = selectedJumps === correctJumps;
+
+            if (isCorrect) {
+                resultEmojiDisplay.textContent = '🎉🌌';
+                resultTextDisplay.textContent = 'Fantastic! Alien Landed!';
+                resultTextDisplay.style.color = '#00e676'; // Green
+                score++;
+            } else {
+                resultEmojiDisplay.textContent = '😥🌠';
+                resultTextDisplay.textContent = `Oops! That was ${selectedJumps} jump(s). Try again!`;
+                resultTextDisplay.style.color = '#ff8a80'; // Light Red
+                // Correct answer was correctJumps
+            }
+            updateScoreBoard();
+            resultPopup.classList.add('show');
+        }
+
+        nextButton.addEventListener('click', () => {
+            resultPopup.classList.remove('show');
+            // Add a small delay before setting up the next problem to allow the popup to fade
+            setTimeout(setupNewProblem, 300); 
+        });
+
+        // Initial Game Setup
+        updateScoreBoard();
+        setupNewProblem();
+
+    </script>
+</body>
+</html>
