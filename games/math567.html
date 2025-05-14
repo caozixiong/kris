@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>First Grade Math Adventures</title>
+    <style>
+        /* Global Styles from previous combined file - slightly adapted */
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif; /* More playful font */
+            background-color: #e0f7fa; /* Light cyan background */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto;
+            touch-action: manipulation;
+        }
+
+        #game-selector-area {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #game-selector-area button {
+            padding: 10px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #select-game2, #select-game5 { background-color: #ff7043; } /* Coral */
+        #select-game3, #select-game6 { background-color: #7e57c2; } /* Deep Purple */
+        #select-game4, #select-game7 { background-color: #5c6bc0; } /* Indigo */
+
+        #game-selector-area button:hover {
+            transform: translateY(-2px);
+        }
+        #game-selector-area button.active {
+            box-shadow: 0 0 0 3px #fff, 0 0 0 6px #4CAF50; /* Inner white, outer green highlight */
+            transform: translateY(1px);
+        }
+
+        #score-area {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 550px; /* Slightly wider for potentially wider new games */
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 10px;
+        }
+        #score-area span {
+            background-color: rgba(255,255,255,0.85);
+            padding: 8px 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .game-host-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* --- Styles for Game 2 & 3 (Shapes Math) --- */
+        .game23-more-challenging-btn { margin-bottom: 10px; padding: 10px 15px; font-size: 16px; background-color: #ffc107; color: black; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.2s; }
+        .game23-more-challenging-btn:hover, .game23-more-challenging-btn:active { background-color: #e0a800; }
+        .game23-game-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; background-color: white; border-radius: 20px; padding: 15px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); position: relative; }
+        .game23-shapes-container { display: flex; justify-content: space-around; width: 100%; margin-bottom: 20px; min-height: 120px; }
+        .game23-shape-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; width: 45%; padding: 10px; border: 2px dashed #70a1ff; border-radius: 10px; }
+        #game3-host .game23-shape-group { width: 90%; max-width: 100%; justify-content: center; }
+        #game3-host .game23-shapes-container { justify-content: center; }
+        .game23-shape { margin: 5px; font-size: 30px; }
+        .game23-math-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .game23-math-row { display: flex; align-items: center; width: 100%; margin: 5px 0; justify-content: center; }
+        .game23-shape-icon { font-size: 24px; margin: 0 10px; }
+        .game23-operator { font-size: 40px; margin: 5px 0; font-weight: bold; color: #2c3e50; }
+        .game23-number-options { display: flex; justify-content: space-around; width: 60%; }
+        .game23-number-option { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; background-color: #70a1ff; color: white; border-radius: 50%; font-size: 20px; cursor: pointer; user-select: none; transition: transform 0.2s, background-color 0.2s; }
+        .game23-number-option:hover, .game23-number-option:active { transform: scale(1.1); background-color: #1e90ff; }
+        .game23-number-option.selected { background-color: #27ae60; transform: scale(1.1); }
+        .game23-number-option.wrong { background-color: #e74c3c; animation: game-shake 0.5s; }
+        .game-result-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(255, 255, 255, 0.95); z-index: 100; font-size: 50px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .game-result-popup.show { opacity: 1; pointer-events: auto; }
+        .game-result-emoji { font-size: 100px; margin-bottom: 20px; animation: emoji-pop 0.5s ease-out; }
+        .game-result-text { font-size: 32px; font-weight: bold; text-align: center; }
+        .game23-timer { position: absolute; top: 10px; right: 10px; font-size: 28px; font-weight: bold; color: #e74c3c; background-color: rgba(255, 255, 255, 0.7); padding: 5px 15px; border-radius: 20px; min-width: 90px; text-align: center; font-family: sans-serif; }
+        @keyframes game-shake { 0%, 100% { transform: translateX(0) scale(1.1); } 20%, 60% { transform: translateX(-5px) scale(1.1); } 40%, 80% { transform: translateX(5px) scale(1.1); } }
+        @keyframes emoji-pop { 0% {transform: scale(0.5); opacity:0;} 70% {transform: scale(1.1); opacity:1;} 100% {transform: scale(1); opacity:1;} }
+
+        /* --- Styles for Game 4 (Bowling Math) --- */
+        #game4-host #game4-main-container { display: flex; flex-direction: column; align-items: center; position: relative; width: 95%; max-width: 400px; background-color: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        #game4-host #pins-area { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 20px; min-height: 100px; width: 100%; }
+        #game4-host .pin { width: 30px; height: 30px; background-color: white; border: 2px solid black; border-radius: 50%; margin: 5px; display: flex; justify-content: center; align-items: center; font-size: 0.8em; color: transparent; transition: background-color 0.3s ease; }
+        #game4-host .pin.hit { background-color: black; }
+        #game4-host #bowling-ball { width: 40px; height: 40px; background-color: #d9534f; border-radius: 50%; position: absolute; bottom: 180px; left: calc(50% - 20px); z-index: 10; transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1); transform: translateY(0); visibility: hidden; }
+        #game4-host #equation-area { font-size: 2.5em; margin-bottom: 20px; font-weight: bold; min-height: 1.2em; }
+        #game4-host #options-area { display: flex; justify-content: space-around; width: 100%; margin-bottom: 20px; }
+        #game4-host .option-button { font-size: 1.8em; padding: 15px 20px; background-color: #5cb85c; color: white; border: none; border-radius: 10px; cursor: pointer; margin: 0 5px; flex-grow: 1; transition: background-color 0.2s; }
+        #game4-host .option-button:hover { background-color: #4cae4c; }
+        #game4-host #start-button { font-size: 1.8em; padding: 15px 30px; background-color: #007bff; color: white; border: none; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; }
+        #game4-host #start-button:hover { background-color: #0056b3; }
+        #game4-host #start-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #game4-host .game4-countdown-display { position: fixed; top: 70px; right: 20px; font-size: 2em; color: #aaa; background-color: rgba(255, 255, 255, 0.8); padding: 5px 10px; border-radius: 5px; z-index: 90; display: none; }
+
+        /* --- Styles for NEW Game 5 (Magic Potion) --- */
+        #game5-host .game-container { background: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(to bottom, #4a00e0, #8e2de2); padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; max-width: 450px; width: 95%; text-align: center;}
+        #game5-host .problem-area { font-size: 2.5em; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; }
+        #game5-host .ingredient { background-color: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 10px; margin: 0 10px; }
+        #game5-host .cauldron-icon { font-size: 3em; margin-right: 15px; animation: bubble 2s infinite ease-in-out; }
+        @keyframes bubble { 0%, 100% {transform: scale(1);} 50% {transform: scale(1.1);} }
+        #game5-host .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; width: 100%; }
+        #game5-host .potion-option { background-color: #ff4081; /* Pink */ color: white; padding: 20px; border-radius: 15px; font-size: 1.8em; cursor: pointer; transition: transform 0.2s, background-color 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #game5-host .potion-option:hover { transform: scale(1.05); background-color: #f50057; }
+
+        /* --- Styles for NEW Game 6 (Space Alien Rescue) --- */
+        #game6-host .game-container { background: url('https://www.transparenttextures.com/patterns/starring.png'), #1a237e; /* Dark blue space */ padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; max-width: 500px; width: 95%; text-align: center; }
+        #game6-host .alien-area { margin-bottom: 20px; display: flex; flex-direction: column; align-items: center;}
+        #game6-host .alien-icon { font-size: 4em; margin-bottom: 10px; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+        #game6-host .number-path-info { font-size: 1.5em; margin-bottom: 10px; }
+        #game6-host .fuel-crystal { background-color: #00e676; /* Bright Green */ color: #1b5e20; padding: 10px 20px; border-radius: 20px; font-size: 2em; font-weight: bold; margin-bottom: 20px; display: inline-block; box-shadow: 0 0 15px #00e676; }
+        #game6-host .planet-options { display: flex; justify-content: space-around; width: 100%; }
+        #game6-host .planet-option { background-color: #ff9800; /* Orange */ color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.8em; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        #game6-host .planet-option:hover { transform: scale(1.1); box-shadow: 0 0 20px #ffeb3b; /* Yellow glow */ }
+
+        /* --- Styles for NEW Game 7 (Fruit Stand Fun) --- */
+        #game7-host .game-container { background-color: #fff9c4; /* Light Yellow */ border: 5px solid #f57f17; /* Orange border */ padding: 20px; border-radius: 15px; max-width: 480px; width: 95%; text-align: center; }
+        #game7-host .fruits-display { display: flex; justify-content: space-around; align-items: center; margin-bottom: 25px; }
+        #game7-host .fruit-item { text-align: center; }
+        #game7-host .fruit-icon { font-size: 4em; margin-bottom: 5px; }
+        #game7-host .fruit-price { font-size: 1.5em; font-weight: bold; color: #d32f2f; /* Red price */ background-color: #fffde7; padding: 5px 10px; border-radius: 8px;}
+        #game7-host .question-text { font-size: 1.8em; margin-bottom: 20px; color: #3e2723; /* Brown text */ }
+        #game7-host .cost-options { display: flex; justify-content: space-around; width: 100%; }
+        #game7-host .cost-option { background-color: #4caf50; /* Green */ color: white; padding: 15px; border-radius: 10px; font-size: 1.7em; cursor: pointer; transition: transform 0.2s, background-color 0.2s; min-width: 60px; text-align: center; }
+        #game7-host .cost-option:hover { transform: scale(1.05); background-color: #388e3c; }
+
+
+        /* Game Over Overlay Styles */
+        #game-over-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-size: 2em; text-align: center; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0s 0.5s; }
+        #game-over-overlay.show { opacity: 1; visibility: visible; transition: opacity 0.5s ease; }
+        #game-over-overlay button { font-size: 0.8em; padding: 10px 20px; margin-top: 20px; background-color: #ffc107; color: black; border: none; border-radius: 8px; cursor: pointer; }
+        
+        /* General Media Queries (from game2/3) */
+        @media (max-width: 500px) {
+            body { padding: 10px; }
+            .game23-more-challenging-btn { font-size: 14px; padding: 8px 12px; }
+            .game23-game-container { padding: 10px; }
+            .game23-shape { font-size: 24px; }
+            .game23-shape-icon { font-size: 20px; }
+            .game23-number-option { width: 35px; height: 35px; font-size: 18px; }
+            .game-result-emoji { font-size: 80px; }
+            .game-result-text { font-size: 28px; }
+            .game23-operator { font-size: 32px; }
+            .game23-timer { font-size: 24px; min-width: 80px; }
+            /* Adjustments for new games on small screens */
+            #game5-host .problem-area { font-size: 2em; }
+            #game5-host .potion-option { font-size: 1.5em; padding: 15px; }
+            #game6-host .alien-icon { font-size: 3em; }
+            #game6-host .fuel-crystal { font-size: 1.5em; }
+            #game6-host .planet-option { width: 60px; height: 60px; font-size: 1.5em; }
+            #game7-host .fruit-icon { font-size: 3em; }
+            #game7-host .question-text { font-size: 1.5em;}
+            #game7-host .cost-option { font-size: 1.4em; padding: 12px;}
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game-selector-area">
+        <button id="select-game2">Shapes Math 1</button>
+        <button id="select-game3">Shapes Math 2</button>
+        <button id="select-game4">Bowling Subtraction</button>
+        <button id="select-game5">Potion Mixing</button>
+        <button id="select-game6">Alien Rescue</button>
+        <button id="select-game7">Fruit Stand</button>
+    </div>
+
+    <div id="score-area">
+        <span id="remaining-tries-display">Tries: 50</span>
+        <span id="current-score-display">Score: 0/50</span>
+    </div>
+
+    <div id="game-content-area">
+        <!-- Game 2 Host (Shapes) -->
+        <div id="game2-host" class="game-host-container" style="display: none;">
+            <button class="game23-more-challenging-btn" id="game2-more-challenging-btn">More Challenging</button>
+            <div class="game23-game-container">
+                <div class="game23-timer" id="game2-timer">10:00</div>
+                <div class="game23-shapes-container">
+                    <div class="game23-shape-group" id="game2-shape-group-1"></div>
+                    <div class="game23-shape-group" id="game2-shape-group-2"></div>
+                </div>
+                <div class="game23-math-container">
+                    <div class="game23-math-row"><div class="game23-shape-icon" id="game2-icon-1"></div><div class="game23-number-options" id="game2-options-1"></div></div>
+                    <div class="game23-math-row"><div class="game23-operator">+</div></div>
+                    <div class="game23-math-row"><div class="game23-shape-icon" id="game2-icon-2"></div><div class="game23-number-options" id="game2-options-2"></div></div>
+                    <div class="game23-math-row"><div class="game23-operator">=</div></div>
+                    <div class="game23-math-row"><div class="game23-number-options" id="game2-options-sum"></div></div>
+                </div>
+            </div>
+            <div class="game-result-popup" id="game2-result">
+                <div class="game-result-emoji" id="game2-result-emoji"></div><div class="game-result-text" id="game2-result-text"></div>
+            </div>
+        </div>
+
+        <!-- Game 3 Host (Mixed Shapes) -->
+        <div id="game3-host" class="game-host-container" style="display: none;">
+            <button class="game23-more-challenging-btn" id="game3-more-challenging-btn">More Challenging</button>
+            <div class="game23-game-container">
+                 <div class="game23-timer" id="game3-timer">10:00</div>
+                <div class="game23-shapes-container"><div class="game23-shape-group" id="game3-mixed-shapes-group"></div></div>
+                <div class="game23-math-container">
+                    <div class="game23-math-row"><div class="game23-shape-icon" id="game3-icon-1"></div><div class="game23-number-options" id="game3-options-1"></div></div>
+                    <div class="game23-math-row"><div class="game23-operator">+</div></div>
+                    <div class="game23-math-row"><div class="game23-shape-icon" id="game3-icon-2"></div><div class="game23-number-options" id="game3-options-2"></div></div>
+                    <div class="game23-math-row"><div class="game23-operator">=</div></div>
+                    <div class="game23-math-row"><div class="game23-number-options" id="game3-options-sum"></div></div>
+                </div>
+            </div>
+            <div class="game-result-popup" id="game3-result">
+                <div class="game-result-emoji" id="game3-result-emoji"></div><div class="game-result-text" id="game3-result-text"></div>
+            </div>
+        </div>
+
+        <!-- Game 4 Host (Bowling) -->
+        <div id="game4-host" class="game-host-container" style="display: none;">
+            <div id="game4-main-container">
+                <div id="pins-area"></div><div id="bowling-ball"></div>
+                <div id="equation-area"><span id="n-value">N</span><span> - </span><span id="m-value"></span><span> = </span><span id="q-mark">?</span></div>
+                <div id="options-area"></div><button id="start-button">开始</button>
+            </div>
+            <div class="game-result-popup" id="game4-feedback-area-popup"> <!-- Re-used game-result-popup for consistency -->
+                <div class="game-result-emoji" id="feedback-icon"></div><div class="game-result-text" id="feedback-text"></div>
+            </div>
+            <div class="game4-countdown-display" id="game4-countdown-display-element">3</div>
+        </div>
+
+        <!-- Game 5 Host (Magic Potion) -->
+        <div id="game5-host" class="game-host-container" style="display: none;">
+            <div class="game-container">
+                <div class="problem-area">
+                    <span class="cauldron-icon">🧪</span>
+                    <span id="game5-ingredient1" class="ingredient">3</span>
+                    <span> + </span>
+                    <span id="game5-ingredient2" class="ingredient">4</span>
+                    <span> = ?</span>
+                </div>
+                <div id="game5-options-grid" class="options-grid">
+                    <!-- Potion options will be generated here -->
+                </div>
+            </div>
+            <div class="game-result-popup" id="game5-result">
+                <div class="game-result-emoji" id="game5-result-emoji"></div>
+                <div class="game-result-text" id="game5-result-text"></div>
+            </div>
+        </div>
+
+        <!-- Game 6 Host (Space Alien Rescue) -->
+        <div id="game6-host" class="game-host-container" style="display: none;">
+            <div class="game-container">
+                <div class="alien-area">
+                    <div class="alien-icon">👽</div>
+                    <div id="game6-number-path-info" class="number-path-info">Alien at: 5</div>
+                    <div id="game6-fuel-crystal" class="fuel-crystal">+3</div>
+                </div>
+                <div id="game6-planet-options" class="planet-options">
+                    <!-- Planet options will be generated here -->
+                </div>
+            </div>
+            <div class="game-result-popup" id="game6-result">
+                <div class="game-result-emoji" id="game6-result-emoji"></div>
+                <div class="game-result-text" id="game6-result-text"></div>
+            </div>
+        </div>
+        
+        <!-- Game 7 Host (Fruit Stand Fun) -->
+        <div id="game7-host" class="game-host-container" style="display: none;">
+            <div class="game-container">
+                <div class="fruits-display">
+                    <div class="fruit-item">
+                        <div id="game7-fruit1-icon" class="fruit-icon">🍎</div>
+                        <div id="game7-fruit1-price" class="fruit-price">2</div>
+                    </div>
+                    <div style="font-size: 2.5em; color: #3e2723;">+</div>
+                    <div class="fruit-item">
+                        <div id="game7-fruit2-icon" class="fruit-icon">🍌</div>
+                        <div id="game7-fruit2-price" class="fruit-price">3</div>
+                    </div>
+                </div>
+                <div class="question-text">Total Cost = ?</div>
+                <div id="game7-cost-options" class="cost-options">
+                    <!-- Cost options will be generated here -->
+                </div>
+            </div>
+            <div class="game-result-popup" id="game7-result">
+                <div class="game-result-emoji" id="game7-result-emoji"></div>
+                <div class="game-result-text" id="game7-result-text"></div>
+            </div>
+        </div>
+
+    </div> <!-- End game-content-area -->
+
+    <div id="game-over-overlay">
+        <div id="game-over-message">Game Over!</div>
+        <div id="final-score-display">Your score: 0/50</div>
+        <button id="restart-all-button">Play Again</button>
+    </div>
+
+    <script>
+        // --- Global Score and State (Identical to previous) ---
+        const TOTAL_ALLOWED_TRIES = 50;
+        let remainingTries = TOTAL_ALLOWED_TRIES;
+        let currentScore = 0;
+        let activeGame = null;
+        let gamePausedForFeedback = false;
+
+        const remainingTriesDisplay = document.getElementById('remaining-tries-display');
+        const currentScoreDisplay = document.getElementById('current-score-display');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        const restartAllButton = document.getElementById('restart-all-button');
+
+        const gameSelectorButtons = {
+            game2: document.getElementById('select-game2'),
+            game3: document.getElementById('select-game3'),
+            game4: document.getElementById('select-game4'),
+            game5: document.getElementById('select-game5'), // New
+            game6: document.getElementById('select-game6'), // New
+            game7: document.getElementById('select-game7'), // New
+        };
+
+        // --- Utility Functions (Identical) ---
+        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]; } }
+        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; } // Added for new games
+
+        // --- Score Management (Identical) ---
+        function updateScoreDisplay() { remainingTriesDisplay.textContent = `Tries: ${remainingTries}`; currentScoreDisplay.textContent = `Score: ${currentScore}/${TOTAL_ALLOWED_TRIES}`; }
+        function recordAttempt(isCorrect) { if (remainingTries <= 0) return false; remainingTries--; if (isCorrect) { currentScore++; } updateScoreDisplay(); checkGameOver(); return !isGameOver(); }
+        function isGameOver() { return remainingTries <= 0 || currentScore >= TOTAL_ALLOWED_TRIES; }
+        function checkGameOver() { if (isGameOver()) { if (activeGame && activeGame.cleanup) { activeGame.cleanup(); } gameOverMessage.textContent = currentScore >= TOTAL_ALLOWED_TRIES ? '🎉 Awesome! You reached 50! 🎉' : 'Game Over! Try again?'; finalScoreDisplay.textContent = `Your score: ${currentScore}/${TOTAL_ALLOWED_TRIES}`; gameOverOverlay.classList.add('show'); Object.values(gameSelectorButtons).forEach(btn => btn.disabled = true); return true; } return false; }
+        function resetGlobalScoreAndRestartApp() { remainingTries = TOTAL_ALLOWED_TRIES; currentScore = 0; updateScoreDisplay(); gameOverOverlay.classList.remove('show'); gamePausedForFeedback = false; Object.values(gameSelectorButtons).forEach(btn => btn.disabled = false); if (activeGame) { switchGame(activeGame.id); } else { switchGame('game2'); } }
+        restartAllButton.addEventListener('click', resetGlobalScoreAndRestartApp);
+
+        // --- Game Switching (Updated for new games) ---
+        function switchGame(gameId) {
+            if (gamePausedForFeedback || isGameOver()) return;
+            if (activeGame && activeGame.cleanup) { activeGame.cleanup(); }
+
+            // Hide all game hosts
+            document.querySelectorAll('.game-host-container').forEach(host => host.style.display = 'none');
+            Object.values(gameSelectorButtons).forEach(btn => btn.classList.remove('active'));
+
+            let gameToStart;
+            switch (gameId) {
+                case 'game2': gameToStart = game2; break;
+                case 'game3': gameToStart = game3; break;
+                case 'game4': gameToStart = game4; break;
+                case 'game5': gameToStart = game5; break; // New
+                case 'game6': gameToStart = game6; break; // New
+                case 'game7': gameToStart = game7; break; // New
+            }
+
+            if (gameToStart) {
+                document.getElementById(`${gameId}-host`).style.display = 'flex';
+                gameSelectorButtons[gameId].classList.add('active');
+                activeGame = gameToStart;
+                if (activeGame.init) activeGame.init();
+            }
+        }
+        
+        // --- Helper to show result for new games (and potentially refactor for old ones) ---
+        function showGameResult(gameElements, isSuccess, isTimeout = false) {
+            gamePausedForFeedback = true;
+            gameElements.resultDiv.classList.remove('show');
+            if (isTimeout) { // Though new games don't have timers yet
+                gameElements.resultEmoji.textContent = '⏱️';
+                gameElements.resultText.textContent = 'Time is up!';
+                gameElements.resultText.style.color = '#e74c3c';
+            } else if (isSuccess) {
+                const goodEmojis = ['😄🌸', '🎉✨', '👍💖', '🌟😊', '🥳🎈'];
+                gameElements.resultEmoji.textContent = goodEmojis[getRandomInt(0, goodEmojis.length-1)];
+                gameElements.resultText.textContent = 'Super Job!';
+                gameElements.resultText.style.color = '#27ae60'; // Green
+            } else {
+                const tryAgainEmojis = ['😢🌵', '😟💧', '🤔💨', '😬🌪️'];
+                gameElements.resultEmoji.textContent = tryAgainEmojis[getRandomInt(0, tryAgainEmojis.length-1)];
+                gameElements.resultText.textContent = 'Try Again!';
+                gameElements.resultText.style.color = '#e74c3c'; // Red
+            }
+            requestAnimationFrame(() => { gameElements.resultDiv.classList.add('show'); });
+        }
+
+        // --- Game 2, 3, 4 (Mostly Identical to previous, minor tweaks for consistency) ---
+        // ... (Game 2, 3, 4 JS code from previous example would go here, ensuring they use the global result popup styling and the `gamePausedForFeedback` flag correctly. For brevity, I'm omitting their full JS here but they should work as before if pasted in.)
+        // IMPORTANT: Modify game2, game3, game4 `showResult` to use the global `gamePausedForFeedback = true;` and set `gamePausedForFeedback = false;` when the result popup is hidden and the game is ready for interaction or next round. Also, use the new .game-result-popup class for their result divs if not already.
+
+        // --- Game 2 (Adapted from math2.html) ---
+        const game2 = {
+            id: 'game2', hostElement: document.getElementById('game2-host'),
+            config: { shapeTypes: ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'], maxShapes: 5, INITIAL_TIMER_DURATION: 10, MIN_TIMER_DURATION: 2, },
+            state: { currentShape1: '', currentShape2: '', count1: 0, count2: 0, sumCount: 0, selectedNumbers: [null, null, null], timerInterval: null, timeLeft: 0, centisecondsLeft: 0, currentTimerDuration: 0 },
+            elements: {},
+            init: function() { /* ... (same as before, query elements) ... */ 
+                this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION;
+                this.elements.shapeGroup1 = this.hostElement.querySelector('#game2-shape-group-1');
+                this.elements.shapeGroup2 = this.hostElement.querySelector('#game2-shape-group-2');
+                this.elements.icon1 = this.hostElement.querySelector('#game2-icon-1');
+                this.elements.icon2 = this.hostElement.querySelector('#game2-icon-2');
+                this.elements.options1 = this.hostElement.querySelector('#game2-options-1');
+                this.elements.options2 = this.hostElement.querySelector('#game2-options-2');
+                this.elements.optionsSum = this.hostElement.querySelector('#game2-options-sum');
+                this.elements.resultDiv = this.hostElement.querySelector('#game2-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game2-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game2-result-text');
+                this.elements.timerDisplay = this.hostElement.querySelector('#game2-timer');
+                this.elements.moreChallengingBtn = this.hostElement.querySelector('#game2-more-challenging-btn');
+                this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging);
+                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
+                this.startGameCycle();
+            },
+            handleMoreChallenging: function() { /* ... (same as before) ... */ if (isGameOver()) return; if (this.state.currentTimerDuration > this.config.MIN_TIMER_DURATION) { this.state.currentTimerDuration--; } else { this.elements.moreChallengingBtn.textContent = `Min Time (${this.config.MIN_TIMER_DURATION}s)!`; setTimeout(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000); } this.cleanupTimer(); this.startGameCycle(); },
+            startGameCycle: function() { /* ... (same as before) ... */ if (isGameOver()) return; gamePausedForFeedback = false; this.state.selectedNumbers = [null, null, null]; this.clearShapesAndOptions(); const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length); let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); while (shapeIndex2 === shapeIndex1) { shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); } this.state.currentShape1 = this.config.shapeTypes[shapeIndex1]; this.state.currentShape2 = this.config.shapeTypes[shapeIndex2]; this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.sumCount = this.state.count1 + this.state.count2; this.displayShapes(this.elements.shapeGroup1, this.state.currentShape1, this.state.count1); this.displayShapes(this.elements.shapeGroup2, this.state.currentShape2, this.state.count2); this.elements.icon1.textContent = this.state.currentShape1; this.elements.icon2.textContent = this.state.currentShape2; this.generateNumberOptions(this.elements.options1, this.state.count1, 0); this.generateNumberOptions(this.elements.options2, this.state.count2, 1); this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2); this.startTimer(); },
+            displayShapes: function(container, shapeType, count) { /* ... (same as before) ... */ container.innerHTML = ''; for (let i = 0; i < count; i++) { const shapeElem = document.createElement('div'); shapeElem.className = 'game23-shape'; shapeElem.textContent = shapeType; container.appendChild(shapeElem); } },
+            clearShapesAndOptions: function() { /* ... (same as before) ... */ this.elements.shapeGroup1.innerHTML = ''; this.elements.shapeGroup2.innerHTML = ''; this.elements.options1.innerHTML = ''; this.elements.options2.innerHTML = ''; this.elements.optionsSum.innerHTML = ''; },
+            generateNumberOptions: function(container, correctNumber, rowIndex) { /* ... (same as before, ensure it uses this.selectNumber.bind(this)) ... */ container.innerHTML = ''; const numbers = [correctNumber]; const maxPossibleOption = this.config.maxShapes * 2; while (numbers.length < 3) { let randomNum = Math.floor(Math.random() * Math.min(10, maxPossibleOption)) + 1; if (Math.random() > 0.5) { randomNum = Math.floor(Math.random() * maxPossibleOption) + 1; } if (!numbers.includes(randomNum) && randomNum > 0) { numbers.push(randomNum); } } shuffleArray(numbers); numbers.forEach(num => { const optionElem = document.createElement('div'); optionElem.className = 'game23-number-option'; optionElem.textContent = num; optionElem.addEventListener('click', () => { if (gamePausedForFeedback || isGameOver()) return; this.selectNumber(optionElem, num, rowIndex, container); }); container.appendChild(optionElem); }); },
+            selectNumber: function(element, number, rowIndex, container) { /* ... (same as before) ... */ const siblings = container.getElementsByClassName('game23-number-option'); for (let i = 0; i < siblings.length; i++) { siblings[i].classList.remove('selected', 'wrong'); } element.classList.add('selected'); this.state.selectedNumbers[rowIndex] = number; if (this.state.selectedNumbers.every(num => num !== null)) { this.checkAnswer(); } },
+            checkAnswer: function() { /* ... (use gamePausedForFeedback, call global recordAttempt) ... */ if (gamePausedForFeedback) return; this.cleanupTimer(); gamePausedForFeedback = true; const isFirstCorrect = this.state.selectedNumbers[0] === this.state.count1; const isSecondCorrect = this.state.selectedNumbers[1] === this.state.count2; const isSumCorrect = this.state.selectedNumbers[2] === this.state.sumCount; const allCorrect = isFirstCorrect && isSecondCorrect && isSumCorrect; const canContinue = recordAttempt(allCorrect); if (allCorrect) { showGameResult(this.elements, true); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 1500); } else { showGameResult(this.elements, false); if (!isFirstCorrect && this.state.selectedNumbers[0] !== null) this.markWrongOption(this.elements.options1, this.state.selectedNumbers[0]); if (!isSecondCorrect && this.state.selectedNumbers[1] !== null) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]); if (!isSumCorrect && this.state.selectedNumbers[2] !== null) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.resetSelectionsForRetry(); else gamePausedForFeedback = false; }, 1500); } },
+            markWrongOption: function(container, selectedValue) { /* ... (same as before) ... */ const options = container.getElementsByClassName('game23-number-option'); for(let option of options) { if (parseInt(option.textContent) === selectedValue && option.classList.contains('selected')) { option.classList.add('wrong'); break; } } },
+            resetSelectionsForRetry: function() { /* ... (same as before, ensure gamePausedForFeedback = false) ... */ gamePausedForFeedback = false; this.state.selectedNumbers = [null, null, null]; const allOptions = this.hostElement.getElementsByClassName('game23-number-option'); for (let i = 0; i < allOptions.length; i++) { allOptions[i].classList.remove('selected', 'wrong'); } if (!isGameOver()) this.startTimer(); },
+            startTimer: function() { /* ... (use gamePausedForFeedback, call global recordAttempt for timeout) ... */ if (isGameOver()) return; this.state.timeLeft = this.state.currentTimerDuration; this.state.centisecondsLeft = 0; this.updateTimerDisplay(); this.cleanupTimer(); this.state.timerInterval = setInterval(() => { this.state.centisecondsLeft -= 10; if (this.state.centisecondsLeft < 0) { this.state.centisecondsLeft = 90; this.state.timeLeft--; } this.updateTimerDisplay(); if (this.state.timeLeft < 0) { this.cleanupTimer(); gamePausedForFeedback = true; const canContinue = recordAttempt(false); showGameResult(this.elements, false, true); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 2000); } }, 100); },
+            updateTimerDisplay: function() { /* ... (same as before) ... */ const displaySeconds = String(Math.max(0, this.state.timeLeft)).padStart(2, '0'); const displayCentiseconds = String(Math.max(0, this.state.centisecondsLeft)).padStart(2, '0'); this.elements.timerDisplay.textContent = `${displaySeconds}:${displayCentiseconds}`; },
+            cleanupTimer: function() { if (this.state.timerInterval) clearInterval(this.state.timerInterval); this.state.timerInterval = null; },
+            cleanup: function() { this.cleanupTimer(); if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show'); gamePausedForFeedback = false; }
+        };
+        // --- Game 3 (Similar adaptation as Game 2, mostly copy-paste and change IDs/specific functions) ---
+        const game3 = { ...game2, id: 'game3', hostElement: document.getElementById('game3-host'), elements: {},
+            init: function() { /* ... (copy from game2.init, adjust element IDs to game3-*) ... */ this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION; this.elements.mixedShapesGroup = this.hostElement.querySelector('#game3-mixed-shapes-group'); this.elements.icon1 = this.hostElement.querySelector('#game3-icon-1'); this.elements.icon2 = this.hostElement.querySelector('#game3-icon-2'); this.elements.options1 = this.hostElement.querySelector('#game3-options-1'); this.elements.options2 = this.hostElement.querySelector('#game3-options-2'); this.elements.optionsSum = this.hostElement.querySelector('#game3-options-sum'); this.elements.resultDiv = this.hostElement.querySelector('#game3-result'); this.elements.resultEmoji = this.hostElement.querySelector('#game3-result-emoji'); this.elements.resultText = this.hostElement.querySelector('#game3-result-text'); this.elements.timerDisplay = this.hostElement.querySelector('#game3-timer'); this.elements.moreChallengingBtn = this.hostElement.querySelector('#game3-more-challenging-btn'); this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging); this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this)); this.startGameCycle(); },
+            startGameCycle: function() { /* ... (copy from game2.startGameCycle, but use this.displayMixedShapes) ... */ if (isGameOver()) return; gamePausedForFeedback = false; this.state.selectedNumbers = [null, null, null]; this.clearShapesAndOptions(); const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length); let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); while (shapeIndex2 === shapeIndex1) { shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); } this.state.currentShape1 = this.config.shapeTypes[shapeIndex1]; this.state.currentShape2 = this.config.shapeTypes[shapeIndex2]; this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.sumCount = this.state.count1 + this.state.count2; this.displayMixedShapes(this.elements.mixedShapesGroup, this.state.currentShape1, this.state.count1, this.state.currentShape2, this.state.count2); this.elements.icon1.textContent = this.state.currentShape1; this.elements.icon2.textContent = this.state.currentShape2; this.generateNumberOptions(this.elements.options1, this.state.count1, 0); this.generateNumberOptions(this.elements.options2, this.state.count2, 1); this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2); this.startTimer(); },
+            displayMixedShapes: function(container, shape1, num1, shape2, num2) { /* ... (unique to game3) ... */ container.innerHTML = ''; const allShapeElements = []; for (let i = 0; i < num1; i++) { const shapeElem = document.createElement('div'); shapeElem.className = 'game23-shape'; shapeElem.textContent = shape1; allShapeElements.push(shapeElem); } for (let i = 0; i < num2; i++) { const shapeElem = document.createElement('div'); shapeElem.className = 'game23-shape'; shapeElem.textContent = shape2; allShapeElements.push(shapeElem); } shuffleArray(allShapeElements); allShapeElements.forEach(shapeElem => container.appendChild(shapeElem)); },
+            clearShapesAndOptions: function() { /* ... (unique to game3) ... */ this.elements.mixedShapesGroup.innerHTML = ''; this.elements.options1.innerHTML = ''; this.elements.options2.innerHTML = ''; this.elements.optionsSum.innerHTML = ''; }
+        };
+        // --- Game 4 (Bowling) ---
+        const game4 = { id: 'game4', hostElement: document.getElementById('game4-host'),
+            state: { N: 0, M: 0, correctAnswer: 0, currentPins: [], countdownTimerId: null, gameActive: false },
+            elements: {},
+            init: function() { /* ... (query elements, e.g., this.elements.pinsArea = this.hostElement.querySelector('#pins-area'); etc.) ... */ this.elements.pinsArea = this.hostElement.querySelector('#pins-area'); this.elements.bowlingBall = this.hostElement.querySelector('#bowling-ball'); this.elements.nValueSpan = this.hostElement.querySelector('#n-value'); this.elements.mValueSpan = this.hostElement.querySelector('#m-value'); this.elements.qMarkSpan = this.hostElement.querySelector('#q-mark'); this.elements.optionsArea = this.hostElement.querySelector('#options-area'); this.elements.startButton = this.hostElement.querySelector('#start-button'); this.elements.feedbackArea = this.hostElement.querySelector('#game4-feedback-area-popup'); this.elements.feedbackIcon = this.hostElement.querySelector('#feedback-icon'); this.elements.feedbackText = this.hostElement.querySelector('#feedback-text'); this.elements.countdownDisplay = this.hostElement.querySelector('#game4-countdown-display-element'); this.elements.startButton.removeEventListener('click', this.handleStartClick); this.elements.startButton.removeEventListener('touchstart', this.handleStartTouch); this.elements.startButton.addEventListener('click', this.handleStartClick.bind(this)); this.elements.startButton.addEventListener('touchstart', this.handleStartTouch.bind(this), { passive: false }); this.setupRound(); },
+            handleStartClick: function() { if (!this.elements.startButton.disabled) this.rollBall(); },
+            handleStartTouch: function(e) { e.preventDefault(); if (!this.elements.startButton.disabled) this.rollBall(); },
+            setupRound: function() { /* ... (same logic, ensure use of gamePausedForFeedback = false at start, and check !isGameOver()) ... */ if (isGameOver()) return; gamePausedForFeedback = false; this.state.gameActive = false; this.elements.startButton.disabled = true; this.elements.startButton.style.display = 'block'; this.elements.optionsArea.innerHTML = ''; this.elements.mValueSpan.textContent = ''; this.elements.qMarkSpan.textContent = '?'; this.elements.feedbackArea.classList.remove('show'); this.elements.bowlingBall.style.visibility = 'hidden'; this.elements.bowlingBall.style.transform = 'translateY(0px)'; this.state.N = getRandomInt(5, 10); this.elements.nValueSpan.textContent = this.state.N; this.elements.pinsArea.innerHTML = ''; this.state.currentPins = []; for (let i = 0; i < this.state.N; i++) { const pin = document.createElement('div'); pin.classList.add('pin'); this.elements.pinsArea.appendChild(pin); this.state.currentPins.push(pin); } this.startCountdown(); },
+            startCountdown: function() { /* ... (same logic, ensure if(!isGameOver()) this.elements.startButton.disabled = false;) ... */ let count = 3; this.elements.countdownDisplay.textContent = count; this.elements.countdownDisplay.style.display = 'block'; if (this.state.countdownTimerId) clearInterval(this.state.countdownTimerId); this.state.countdownTimerId = setInterval(() => { count--; if (count > 0) { this.elements.countdownDisplay.textContent = count; } else { clearInterval(this.state.countdownTimerId); this.state.countdownTimerId = null; this.elements.countdownDisplay.style.display = 'none'; if(!isGameOver()) this.elements.startButton.disabled = false; } }, 1000); },
+            rollBall: function() { /* ... (same logic, gamePausedForFeedback = true when ball rolling) ... */ if (this.state.gameActive || isGameOver()) return; this.state.gameActive = true; gamePausedForFeedback = true; this.elements.startButton.style.display = 'none'; this.elements.bowlingBall.style.visibility = 'visible'; const pinsAreaRect = this.elements.pinsArea.getBoundingClientRect(); const ballRect = this.elements.bowlingBall.getBoundingClientRect(); const gameContainerRect = this.hostElement.querySelector('#game4-main-container').getBoundingClientRect(); const travelDistance = ballRect.top - (pinsAreaRect.top + pinsAreaRect.height / 2) + gameContainerRect.top; this.elements.bowlingBall.style.transform = `translateY(-${travelDistance + 20}px)`; setTimeout(() => { this.knockPins(); }, 800); },
+            knockPins: function() { /* ... (same logic, gamePausedForFeedback = false when options displayed) ... */ this.state.M = getRandomInt(1, this.state.N); this.elements.mValueSpan.textContent = this.state.M; this.elements.qMarkSpan.textContent = '?'; this.state.currentPins.forEach(pin => pin.classList.remove('hit')); let hitIndices = []; while(hitIndices.length < this.state.M) { let randomIndex = getRandomInt(0, this.state.N - 1); if (!hitIndices.includes(randomIndex)) hitIndices.push(randomIndex); } hitIndices.forEach(index => this.state.currentPins[index].classList.add('hit')); this.state.correctAnswer = this.state.N - this.state.M; this.displayOptions(); this.state.gameActive = false; gamePausedForFeedback = false; },
+            displayOptions: function() { /* ... (same logic) ... */ this.elements.optionsArea.innerHTML = ''; let options = [this.state.correctAnswer]; while (options.length < 3) { let distractor = getRandomInt(0, this.state.N); if (!options.includes(distractor)) options.push(distractor); } shuffleArray(options); options.forEach(opt => { const button = document.createElement('button'); button.classList.add('option-button'); button.textContent = opt; const handleOptionClick = () => { if (this.state.gameActive || gamePausedForFeedback || isGameOver()) return; this.checkAnswer(opt); }; button.addEventListener('click', handleOptionClick); button.addEventListener('touchstart', (e) => { e.preventDefault(); handleOptionClick(); }, { passive: false }); this.elements.optionsArea.appendChild(button); }); },
+            checkAnswer: function(selectedAnswer) { /* ... (use gamePausedForFeedback = true for result, call global recordAttempt) ... */ this.state.gameActive = true; gamePausedForFeedback = true; const isCorrect = selectedAnswer === this.state.correctAnswer; const canContinue = recordAttempt(isCorrect); if (isCorrect) { showGameResult(this.elements, true); setTimeout(() => { this.elements.feedbackArea.classList.remove('show'); if (canContinue) this.setupRound(); else { this.state.gameActive = false; gamePausedForFeedback = false; } }, 1500); } else { showGameResult(this.elements, false); setTimeout(() => { this.elements.feedbackArea.classList.remove('show'); this.state.gameActive = false; gamePausedForFeedback = false; if (isGameOver()) { this.elements.optionsArea.innerHTML = '<p style="color:red; font-size:0.8em;">No more tries!</p>'; } }, 2000); } },
+            cleanup: function() { /* ... (same logic) ... */ if (this.state.countdownTimerId) clearInterval(this.state.countdownTimerId); this.state.countdownTimerId = null; if (this.elements.feedbackArea) this.elements.feedbackArea.classList.remove('visible'); if (this.elements.countdownDisplay) this.elements.countdownDisplay.style.display = 'none'; if (this.elements.startButton) this.elements.startButton.disabled = true; this.state.gameActive = false; gamePausedForFeedback = false; }
+        };
+
+        // --- Game 5: Magic Potion Mixing ---
+        const game5 = {
+            id: 'game5',
+            hostElement: document.getElementById('game5-host'),
+            state: { ing1: 0, ing2: 0, correctAnswer: 0 },
+            elements: {},
+            init: function() {
+                this.elements.ingredient1 = this.hostElement.querySelector('#game5-ingredient1');
+                this.elements.ingredient2 = this.hostElement.querySelector('#game5-ingredient2');
+                this.elements.optionsGrid = this.hostElement.querySelector('#game5-options-grid');
+                this.elements.resultDiv = this.hostElement.querySelector('#game5-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game5-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game5-result-text');
+                this.startGameCycle();
+            },
+            startGameCycle: function() {
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.ing1 = getRandomInt(1, 9); // Single digit ingredients
+                this.state.ing2 = getRandomInt(1, 9);
+                this.state.correctAnswer = this.state.ing1 + this.state.ing2;
+
+                this.elements.ingredient1.textContent = this.state.ing1;
+                this.elements.ingredient2.textContent = this.state.ing2;
+
+                this.displayOptions();
+            },
+            displayOptions: function() {
+                this.elements.optionsGrid.innerHTML = '';
+                let options = [this.state.correctAnswer];
+                // Generate 2-3 distractor options
+                while (options.length < getRandomInt(3,4)) { // Vary number of options a bit
+                    let distractor = this.state.correctAnswer + getRandomInt(-3, 3);
+                    if (distractor !== this.state.correctAnswer && distractor > 0 && distractor < 20 && !options.includes(distractor)) {
+                        options.push(distractor);
+                    } else { // Fallback for unique distractors
+                        distractor = getRandomInt(1,19);
+                         if (distractor !== this.state.correctAnswer && !options.includes(distractor)) options.push(distractor);
+                    }
+                }
+                shuffleArray(options);
+
+                options.forEach(opt => {
+                    const button = document.createElement('div');
+                    button.classList.add('potion-option');
+                    button.textContent = opt;
+                    button.addEventListener('click', () => this.checkAnswer(opt));
+                    this.elements.optionsGrid.appendChild(button);
+                });
+            },
+            checkAnswer: function(selectedAnswer) {
+                if (gamePausedForFeedback || isGameOver()) return;
+                gamePausedForFeedback = true;
+                const isCorrect = selectedAnswer === this.state.correctAnswer;
+                const canContinue = recordAttempt(isCorrect);
+                
+                showGameResult(this.elements, isCorrect);
+
+                setTimeout(() => {
+                    this.elements.resultDiv.classList.remove('show');
+                    if (canContinue) this.startGameCycle();
+                    else gamePausedForFeedback = false; // Game over or no more tries
+                }, 1500);
+            },
+            cleanup: function() {
+                if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show');
+                gamePausedForFeedback = false;
+            }
+        };
+
+        // --- Game 6: Space Alien Rescue ---
+        const game6 = {
+            id: 'game6',
+            hostElement: document.getElementById('game6-host'),
+            state: { startNum: 0, operationVal: 0, operationType: '+', correctAnswer: 0 },
+            elements: {},
+            init: function() {
+                this.elements.numberPathInfo = this.hostElement.querySelector('#game6-number-path-info');
+                this.elements.fuelCrystal = this.hostElement.querySelector('#game6-fuel-crystal');
+                this.elements.planetOptions = this.hostElement.querySelector('#game6-planet-options');
+                this.elements.resultDiv = this.hostElement.querySelector('#game6-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game6-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game6-result-text');
+                this.startGameCycle();
+            },
+            startGameCycle: function() {
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.startNum = getRandomInt(3, 15);
+                this.state.operationType = Math.random() < 0.5 ? '+' : '-';
+                this.state.operationVal = getRandomInt(1, 5);
+
+                if (this.state.operationType === '-' && this.state.startNum - this.state.operationVal < 0) {
+                    // Ensure result is not negative, adjust startNum or operationVal if needed
+                    this.state.startNum = this.state.operationVal + getRandomInt(0,5) ; // e.g. if opVal is 3, startNum will be 3-8
+                }
+                this.state.correctAnswer = (this.state.operationType === '+') ? 
+                                           this.state.startNum + this.state.operationVal : 
+                                           this.state.startNum - this.state.operationVal;
+
+                this.elements.numberPathInfo.textContent = `Alien at: ${this.state.startNum}`;
+                this.elements.fuelCrystal.textContent = `${this.state.operationType}${this.state.operationVal}`;
+                this.displayOptions();
+            },
+            displayOptions: function() {
+                this.elements.planetOptions.innerHTML = '';
+                let options = [this.state.correctAnswer];
+                while (options.length < 3) {
+                    let distractor = this.state.correctAnswer + getRandomInt(-3, 3);
+                     if (distractor >= 0 && distractor !== this.state.correctAnswer && !options.includes(distractor)) {
+                        options.push(distractor);
+                    } else { // Fallback
+                        distractor = getRandomInt(Math.max(0, this.state.correctAnswer - 5), this.state.correctAnswer + 5);
+                         if (distractor >= 0 && distractor !== this.state.correctAnswer && !options.includes(distractor)) options.push(distractor);
+                    }
+                }
+                shuffleArray(options);
+                options.forEach(opt => {
+                    const button = document.createElement('div');
+                    button.classList.add('planet-option');
+                    button.textContent = opt;
+                    button.addEventListener('click', () => this.checkAnswer(opt));
+                    this.elements.planetOptions.appendChild(button);
+                });
+            },
+            checkAnswer: function(selectedAnswer) {
+                 if (gamePausedForFeedback || isGameOver()) return;
+                gamePausedForFeedback = true;
+                const isCorrect = selectedAnswer === this.state.correctAnswer;
+                const canContinue = recordAttempt(isCorrect);
+                
+                showGameResult(this.elements, isCorrect);
+
+                setTimeout(() => {
+                    this.elements.resultDiv.classList.remove('show');
+                    if (canContinue) this.startGameCycle();
+                    else gamePausedForFeedback = false;
+                }, 1500);
+            },
+            cleanup: function() {
+                if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show');
+                gamePausedForFeedback = false;
+            }
+        };
+
+        // --- Game 7: Fruit Stand Fun ---
+        const game7 = {
+            id: 'game7',
+            hostElement: document.getElementById('game7-host'),
+            state: { price1: 0, price2: 0, correctAnswer: 0,
+                     fruitEmojis: ['🍎','🍌','🍓','🍇','🍉','🍊','🍍','🥝','🍑','🍒'] },
+            elements: {},
+            init: function() {
+                this.elements.fruit1Icon = this.hostElement.querySelector('#game7-fruit1-icon');
+                this.elements.fruit1Price = this.hostElement.querySelector('#game7-fruit1-price');
+                this.elements.fruit2Icon = this.hostElement.querySelector('#game7-fruit2-icon');
+                this.elements.fruit2Price = this.hostElement.querySelector('#game7-fruit2-price');
+                this.elements.costOptions = this.hostElement.querySelector('#game7-cost-options');
+                this.elements.resultDiv = this.hostElement.querySelector('#game7-result');
+                this.elements.resultEmoji = this.hostElement.querySelector('#game7-result-emoji');
+                this.elements.resultText = this.hostElement.querySelector('#game7-result-text');
+                this.startGameCycle();
+            },
+            startGameCycle: function() {
+                if (isGameOver()) return;
+                gamePausedForFeedback = false;
+                this.state.price1 = getRandomInt(1, 5); // Simple prices
+                this.state.price2 = getRandomInt(1, 5);
+                this.state.correctAnswer = this.state.price1 + this.state.price2;
+
+                let fruitIdx1 = getRandomInt(0, this.state.fruitEmojis.length - 1);
+                let fruitIdx2 = getRandomInt(0, this.state.fruitEmojis.length - 1);
+                while (fruitIdx2 === fruitIdx1) { // Ensure different fruits
+                    fruitIdx2 = getRandomInt(0, this.state.fruitEmojis.length - 1);
+                }
+
+                this.elements.fruit1Icon.textContent = this.state.fruitEmojis[fruitIdx1];
+                this.elements.fruit1Price.textContent = this.state.price1;
+                this.elements.fruit2Icon.textContent = this.state.fruitEmojis[fruitIdx2];
+                this.elements.fruit2Price.textContent = this.state.price2;
+                this.displayOptions();
+            },
+            displayOptions: function() {
+                this.elements.costOptions.innerHTML = '';
+                let options = [this.state.correctAnswer];
+                while (options.length < 3) {
+                    let distractor = this.state.correctAnswer + getRandomInt(-2, 2);
+                    if (distractor > 0 && distractor !== this.state.correctAnswer && !options.includes(distractor)) {
+                        options.push(distractor);
+                    } else {
+                        distractor = getRandomInt(1, 10);
+                         if (distractor > 0 && distractor !== this.state.correctAnswer && !options.includes(distractor)) options.push(distractor);
+                    }
+                }
+                shuffleArray(options);
+                options.forEach(opt => {
+                    const button = document.createElement('div');
+                    button.classList.add('cost-option');
+                    button.textContent = opt;
+                    button.addEventListener('click', () => this.checkAnswer(opt));
+                    this.elements.costOptions.appendChild(button);
+                });
+            },
+            checkAnswer: function(selectedAnswer) {
+                if (gamePausedForFeedback || isGameOver()) return;
+                gamePausedForFeedback = true;
+                const isCorrect = selectedAnswer === this.state.correctAnswer;
+                const canContinue = recordAttempt(isCorrect);
+                
+                showGameResult(this.elements, isCorrect);
+
+                setTimeout(() => {
+                    this.elements.resultDiv.classList.remove('show');
+                    if (canContinue) this.startGameCycle();
+                    else gamePausedForFeedback = false;
+                }, 1500);
+            },
+            cleanup: function() {
+                if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show');
+                gamePausedForFeedback = false;
+            }
+        };
+
+
+        // --- App Initialization (Updated for new games) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateScoreDisplay();
+            Object.keys(gameSelectorButtons).forEach(gameKey => {
+                gameSelectorButtons[gameKey].addEventListener('click', () => switchGame(gameKey));
+            });
+            switchGame('game5'); // Load a new game by default
+        });
+
+    </script>
+</body>
+</html>
