@@ -21,5 +21,6 @@
 
 ## Games
 
+* [Shape Sorter Math](./shape_sorter_math.html) - Drag colorful shapes to match the number!
 * [Addition Game](./addition_game.html) - 一个简单的在线加法练习游戏，帮助提高计算速度和准确性。
 * [Vocabulary Quiz](./vocabulary_quiz.html) - 一个在线词汇测试小工具，通过选择题的方式帮助用户学习和巩固单词。
