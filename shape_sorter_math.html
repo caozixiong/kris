@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shape Sorter Math</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #87CEEB; /* Sky Blue */
+            overflow: hidden; /* Prevent scrollbars from appearing during animations */
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            max-height: 600px;
+            background-color: #f0f8ff; /* AliceBlue */
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .target-section {
+            background-color: #ffd700; /* Gold */
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        #target-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .sorting-machine-area {
+            width: 200px;
+            height: 200px;
+            background-color: #A9A9A9; /* DarkGray */
+            border: 5px dashed #696969; /* DimGray */
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            position: relative; /* For feedback elements */
+            overflow: hidden; /* For animations */
+        }
+
+        .sorting-machine-area.accepting {
+            border-color: #32CD32; /* LimeGreen */
+        }
+        .sorting-machine-area.rejecting {
+            animation: shake 0.3s;
+            border-color: #FF0000; /* Red */
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .shapes-display-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px;
+            background-color: #add8e6; /* LightBlue */
+            border-radius: 10px;
+            width: 100%;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+
+        .shape {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            cursor: grab;
+            user-select: none; /* Prevent text selection during drag */
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+        }
+        .shape.dragging {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: grabbing;
+            opacity: 0.7;
+        }
+
+        .circle {
+            background-color: #FF6347; /* Tomato */
+            border-radius: 50%;
+        }
+
+        .square {
+            background-color: #4682B4; /* SteelBlue */
+            border-radius: 5px;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 60px solid #32CD32; /* LimeGreen */
+            background-color: transparent !important; /* Override shape's default bg */
+            position: relative;
+        }
+        .triangle span { /* Number inside triangle */
+            position: absolute;
+            top: 30px; /* Adjust based on triangle size */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333; /* Darker color for visibility on green */
+        }
+
+
+        #feedback-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px; /* Big smiling face or X */
+            display: none; /* Hidden by default */
+            animation: pop-in-out 1.5s;
+        }
+
+        @keyframes pop-in-out {
+            0%, 100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            25% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .machine-content {
+            font-size: 20px;
+            color: white;
+        }
+        .machine-sum {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        #reset-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #ffc107; /* Amber */
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #reset-button:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="target-section">
+        <span id="target-number">5</span>
+    </div>
+
+    <div class="sorting-machine-area" id="sorting-machine">
+        <div class="machine-content">Drop here! <span id="current-sum-display">Sum: 0</span></div>
+    </div>
+
+    <div id="feedback-message"></div>
+
+    <div class="shapes-display-area" id="shapes-area">
+        <!-- Shapes will be dynamically generated here -->
+    </div>
+
+    <button id="reset-button" title="New Problem">&#x21bb;</button> <!-- Unicode for reload arrow -->
+</div>
+
+<script>
+    const targetNumberDisplay = document.getElementById('target-number');
+    const sortingMachine = document.getElementById('sorting-machine');
+    const shapesArea = document.getElementById('shapes-area');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const currentSumDisplay = document.getElementById('current-sum-display');
+    const resetButton = document.getElementById('reset-button');
+
+    let targetNumber;
+    let currentSumInMachine = 0;
+    let draggableShapes = [];
+    let shapesInMachine = []; // To store references to shapes in the machine
+
+    const shapeTypes = [
+        { type: 'circle', color: '#FF6347' }, // Tomato
+        { type: 'square', color: '#4682B4' }, // SteelBlue
+        { type: 'triangle', color: '#32CD32' }  // LimeGreen
+    ];
+    const shapeNumbers = [1, 2, 3]; // Numbers that can appear in shapes
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateNewProblem() {
+        targetNumber = getRandomInt(3, 7); // Target for 6-year-olds
+        targetNumberDisplay.textContent = targetNumber;
+        currentSumInMachine = 0;
+        updateSumDisplay();
+        shapesInMachine = [];
+        clearShapesFromMachineDisplay();
+        generateShapes();
+        feedbackMessage.style.display = 'none';
+        sortingMachine.classList.remove('rejecting', 'accepting');
+    }
+
+    function generateShapes() {
+        shapesArea.innerHTML = ''; // Clear existing shapes
+        draggableShapes = [];
+        const availableNumbers = [];
+
+        // Ensure enough numbers to form the target sum in multiple ways (simplified for now)
+        // This logic can be improved to guarantee solvability.
+        // For now, just generate a variety of shapes.
+        for (let i = 0; i < 8; i++) { // Generate 8 shapes
+            const shapeInfo = shapeTypes[getRandomInt(0, shapeTypes.length - 1)];
+            const number = shapeNumbers[getRandomInt(0, shapeNumbers.length - 1)];
+            availableNumbers.push(number);
+
+            const shapeDiv = document.createElement('div');
+            shapeDiv.classList.add('shape', shapeInfo.type);
+            shapeDiv.style.backgroundColor = shapeInfo.type === 'triangle' ? 'transparent' : shapeInfo.color;
+            shapeDiv.dataset.value = number;
+            shapeDiv.draggable = true;
+            shapeDiv.id = `shape-${i}`;
+
+            const numberSpan = document.createElement('span');
+            numberSpan.textContent = number;
+            if (shapeInfo.type === 'triangle') {
+                // Triangle styling is complex, number is positioned absolutely by CSS
+                shapeDiv.style.borderBottomColor = shapeInfo.color;
+            }
+            shapeDiv.appendChild(numberSpan);
+
+            shapesArea.appendChild(shapeDiv);
+            draggableShapes.push(shapeDiv);
+        }
+        addDragListeners();
+    }
+    
+    function clearShapesFromMachineDisplay() {
+        // If shapes were visually added to the machine, clear them here.
+        // For now, we are just using a sum display.
+        // This could be extended to show mini versions of dropped shapes.
+    }
+
+
+    function addDragListeners() {
+        draggableShapes.forEach(shape => {
+            shape.addEventListener('dragstart', handleDragStart);
+            shape.addEventListener('dragend', handleDragEnd);
+        });
+    }
+
+    function handleDragStart(e) {
+        e.dataTransfer.setData('text/plain', e.target.id);
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => { // Timeout to allow browser to render drag image
+            e.target.classList.add('dragging');
+        }, 0);
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        sortingMachine.classList.remove('accepting');
+    }
+
+    sortingMachine.addEventListener('dragover', handleDragOver);
+    sortingMachine.addEventListener('dragenter', handleDragEnter);
+    sortingMachine.addEventListener('dragleave', handleDragLeave);
+    sortingMachine.addEventListener('drop', handleDrop);
+
+    function handleDragOver(e) {
+        e.preventDefault(); // Necessary to allow dropping
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        if (currentSumInMachine < targetNumber) {
+            sortingMachine.classList.add('accepting');
+        } else {
+            sortingMachine.classList.add('rejecting');
+        }
+    }
+
+    function handleDragLeave(e) {
+        sortingMachine.classList.remove('accepting', 'rejecting');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        sortingMachine.classList.remove('accepting', 'rejecting');
+        const shapeId = e.dataTransfer.getData('text/plain');
+        const droppedShape = document.getElementById(shapeId);
+
+        if (!droppedShape) return;
+
+        const shapeValue = parseInt(droppedShape.dataset.value);
+
+        if (currentSumInMachine + shapeValue <= targetNumber) {
+            currentSumInMachine += shapeValue;
+            shapesInMachine.push(droppedShape); // Store reference
+            droppedShape.style.display = 'none'; // Hide from shapes area
+            updateSumDisplay();
+            // Optionally, visually add shape to machine here
+
+            if (currentSumInMachine === targetNumber) {
+                handleCorrectSum();
+            } else {
+                // Indicate partial success or just wait for more shapes
+                sortingMachine.classList.add('accepting'); // Briefly show acceptance
+                setTimeout(() => sortingMachine.classList.remove('accepting'), 500);
+            }
+        } else {
+            handleIncorrectDrop(droppedShape);
+        }
+    }
+    
+    function updateSumDisplay() {
+        currentSumDisplay.textContent = `Sum: ${currentSumInMachine}`;
+    }
+
+    function handleCorrectSum() {
+        feedbackMessage.textContent = '😊'; // Smiling face
+        feedbackMessage.style.color = 'green';
+        feedbackMessage.style.display = 'block';
+        sortingMachine.classList.add('accepting'); // Could be a more elaborate success animation
+
+        // Play success sound here if implemented
+
+        setTimeout(() => {
+            generateNewProblem();
+            shapesInMachine.forEach(s => s.style.display = 'flex'); // Show hidden shapes again
+            shapesInMachine = [];
+            // Reset visual state of machine
+        }, 2000); // Wait 2 seconds before new problem
+    }
+
+    function handleIncorrectDrop(shape) {
+        // Shape rejected because sum would exceed target
+        feedbackMessage.textContent = '❌'; // X icon
+        feedbackMessage.style.color = 'red';
+        feedbackMessage.style.display = 'block';
+        sortingMachine.classList.add('rejecting');
+
+        // Return shape to original position (simplified: just make it visible again if it was hidden)
+        // For a true "return to original position", we'd need to store its initial spot.
+        // shape.style.display = 'flex'; // Not needed if we don't hide it until successful sum.
+
+        setTimeout(() => {
+            feedbackMessage.style.display = 'none';
+            sortingMachine.classList.remove('rejecting');
+        }, 1500);
+    }
+    
+    resetButton.addEventListener('click', () => {
+        shapesInMachine.forEach(s => s.style.display = 'flex'); // Make sure shapes are visible if game is reset mid-way
+        generateNewProblem();
+    });
+
+    // Initial setup
+    window.onload = () => {
+        generateNewProblem();
+    };
+
+</script>
+</body>
+</html>
