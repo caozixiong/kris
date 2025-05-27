@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vocabulary Quiz</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
+  .container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 400px;
+  }
+  #word {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #e7e7e7;
+    font-size: 16px;
+    text-align: left;
+  }
+  .options button:hover {
+    background-color: #d7d7d7;
+  }
+  .options button.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+  }
+  .action-buttons button {
+    padding: 10px 15px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+  }
+  .action-buttons button:hover {
+    background-color: #1e7e34;
+  }
+  .action-buttons button#next-word {
+    background-color: #007bff;
+  }
+  .action-buttons button#next-word:hover {
+    background-color: #0056b3;
+  }
+  #message {
+    margin-top: 15px;
+    font-size: 18px;
+    min-height: 25px; /* Reserve space for the message */
+  }
+  .correct {
+    color: green;
+  }
+  .incorrect {
+    color: red;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Vocabulary Quiz</h1>
+  <div id="word"></div>
+  <div class="options" id="options">
+    <!-- Options will be populated by JavaScript -->
+  </div>
+  <div class="action-buttons">
+    <button onclick="checkAnswer()">Check Answer</button>
+    <button id="next-word" onclick="nextWord()">Next Word</button>
+  </div>
+  <div id="message"></div>
+</div>
+
+<script>
+  const vocabulary = [
+    { word: "Serene", definition: "Calm, peaceful, and untroubled.", distractors: ["Loud and chaotic", "Excited and energetic"] },
+    { word: "Ephemeral", definition: "Lasting for a very short time.", distractors: ["Permanent and enduring", "Slow and gradual"] },
+    { word: "Ubiquitous", definition: "Present, appearing, or found everywhere.", distractors: ["Rare and uncommon", "Hidden and secret"] },
+    { word: "Mellifluous", definition: "Pleasant and musical to hear.", distractors: ["Harsh and grating", "Silent and quiet"] },
+    { word: "Conundrum", definition: "A confusing and difficult problem or question.", distractors: ["A simple solution", "An obvious answer"] },
+    { word: "Alacrity", definition: "Bris_k and cheerful readiness.", distractors: ["Reluctance and hesitation", "Sadness and despair"] },
+    { word: "Pulchritudinous", definition: "Having great physical beauty.", distractors: ["Ugly and unattractive", "Plain and ordinary"] }
+  ];
+
+  let currentWordIndex = 0;
+  let correctAnswer = '';
+  let selectedOptionButton = null;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function displayWord() {
+    if (currentWordIndex >= vocabulary.length) {
+      document.getElementById('word').textContent = "Quiz Finished!";
+      document.getElementById('options').innerHTML = '';
+      document.getElementById('message').textContent = 'You have completed all the words!';
+      document.querySelector('.action-buttons button').style.display = 'none'; // Hide check answer
+      document.getElementById('next-word').textContent = 'Restart Quiz';
+      currentWordIndex = 0; // Reset for restart
+      return;
+    }
+
+    document.querySelector('.action-buttons button').style.display = 'inline-block'; // Show check answer
+    document.getElementById('next-word').textContent = 'Next Word';
+
+
+    const currentEntry = vocabulary[currentWordIndex];
+    document.getElementById('word').textContent = currentEntry.word;
+    correctAnswer = currentEntry.definition;
+
+    const optionsArray = [currentEntry.definition, ...currentEntry.distractors];
+    const shuffledOptions = shuffleArray(optionsArray);
+
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+    shuffledOptions.forEach(optionText => {
+      const button = document.createElement('button');
+      button.textContent = optionText;
+      button.onclick = () => selectOption(button, optionText);
+      optionsContainer.appendChild(button);
+    });
+
+    document.getElementById('message').textContent = '';
+    selectedOptionButton = null;
+  }
+
+  function selectOption(buttonElement, optionText) {
+    if (selectedOptionButton) {
+      selectedOptionButton.classList.remove('selected');
+    }
+    selectedOptionButton = buttonElement;
+    selectedOptionButton.classList.add('selected');
+  }
+
+  function checkAnswer() {
+    const messageElement = document.getElementById('message');
+    if (!selectedOptionButton) {
+      messageElement.textContent = 'Please select an option.';
+      messageElement.className = 'incorrect';
+      return;
+    }
+
+    const userAnswer = selectedOptionButton.textContent;
+    if (userAnswer === correctAnswer) {
+      messageElement.textContent = 'Correct!';
+      messageElement.className = 'correct';
+    } else {
+      messageElement.textContent = `Incorrect. The correct answer was: "${correctAnswer}"`;
+      messageElement.className = 'incorrect';
+    }
+  }
+
+  function nextWord() {
+    if (document.getElementById('next-word').textContent === 'Restart Quiz') {
+        currentWordIndex = 0;
+        displayWord();
+        return;
+    }
+    currentWordIndex++;
+    displayWord();
+  }
+
+  // Initialize the first word when the page loads
+  window.onload = displayWord;
+</script>
+
+</body>
+</html>

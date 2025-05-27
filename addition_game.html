@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Addition Game</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
+  .container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  input[type="number"] {
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 60px;
+    text-align: center;
+  }
+  button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  #problem {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  #message {
+    margin-top: 15px;
+    font-size: 18px;
+    min-height: 25px; /* Reserve space for the message */
+  }
+  .correct {
+    color: green;
+  }
+  .incorrect {
+    color: red;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Addition Game</h1>
+  <div id="problem"></div>
+  <input type="number" id="answer" />
+  <button onclick="checkAnswer()">Check Answer</button>
+  <button onclick="newProblem()">New Problem</button>
+  <div id="message"></div>
+</div>
+
+<script>
+  let num1, num2, correctAnswer;
+
+  function generateRandomNumber() {
+    return Math.floor(Math.random() * 20) + 1;
+  }
+
+  function newProblem() {
+    num1 = generateRandomNumber();
+    num2 = generateRandomNumber();
+    correctAnswer = num1 + num2;
+    document.getElementById('problem').textContent = `${num1} + ${num2} = ?`;
+    document.getElementById('answer').value = '';
+    document.getElementById('message').textContent = '';
+    document.getElementById('answer').focus();
+  }
+
+  function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById('answer').value);
+    const messageElement = document.getElementById('message');
+    if (isNaN(userAnswer)) {
+      messageElement.textContent = 'Please enter a number.';
+      messageElement.className = 'incorrect';
+      return;
+    }
+
+    if (userAnswer === correctAnswer) {
+      messageElement.textContent = 'Correct!';
+      messageElement.className = 'correct';
+    } else {
+      messageElement.textContent = `Incorrect. The answer was ${correctAnswer}.`;
+      messageElement.className = 'incorrect';
+    }
+  }
+
+  // Initialize the first problem when the page loads
+  window.onload = newProblem;
+</script>
+
+</body>
+</html>
