@@ -18,3 +18,8 @@
 
 * [MDN Web Docs](https://developer.mozilla.org/) - Mozilla 提供的权威 Web 开发文档。
 * [freeCodeCamp](https://www.freecodecamp.org/) - 提供免费编程课程和认证的社区。
+
+## Games
+
+* [Addition Game](./addition_game.html) - 一个简单的在线加法练习游戏，帮助提高计算速度和准确性。
+* [Vocabulary Quiz](./vocabulary_quiz.html) - 一个在线词汇测试小工具，通过选择题的方式帮助用户学习和巩固单词。
