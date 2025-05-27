@@ -33,32 +33,76 @@
             position: relative;
         }
 
+        .mode-switcher {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-button {
+            padding: 10px 15px;
+            font-size: 16px;
+            font-family: inherit;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #ddd;
+            color: #333;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .mode-button.active {
+            background-color: #007bff; /* Blue */
+            color: white;
+            border-color: #0056b3;
+        }
+        .mode-button:hover:not(.active) {
+            background-color: #ccc;
+        }
+
+
         .target-section {
             background-color: #ffd700; /* Gold */
             padding: 10px 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            margin-bottom: 10px; /* Reduced margin */
+            text-align: center;
+        }
+        
+        .target-section #target-label {
+            font-size: 18px;
+            display: block;
+            color: #555;
         }
 
-        #target-number {
-            font-size: 48px;
+        #target-number, #initial-sum-display, #current-sum-display-subtraction { /* Shared styling for main numbers */
+            font-size: 38px; /* Slightly reduced for more text */
             font-weight: bold;
             color: #333;
         }
+        
+        .subtraction-info {
+            font-size: 18px;
+            color: #444;
+            margin: 5px 0;
+        }
+
 
         .sorting-machine-area {
-            width: 200px;
-            height: 200px;
+            width: 250px; /* Increased size for subtraction mode */
+            height: 250px; /* Increased size for subtraction mode */
             background-color: #A9A9A9; /* DarkGray */
             border: 5px dashed #696969; /* DimGray */
             border-radius: 15px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
+            /* align-items: center;  Default, will be overridden for subtraction */
+            /* justify-content: center; Default, will be overridden for subtraction */
+            margin-bottom: 20px; /* Reduced margin */
             position: relative; /* For feedback elements */
             overflow: hidden; /* For animations */
+            flex-wrap: wrap; /* Allow shapes to wrap in subtraction mode */
+            padding: 10px; /* Padding for shapes inside */
+            box-sizing: border-box;
         }
 
         .sorting-machine-area.accepting {
@@ -76,7 +120,7 @@
             75% { transform: translateX(-5px); }
         }
 
-        .shapes-display-area {
+        .shapes-display-area { /* Used for Addition mode's shape pool */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -86,22 +130,28 @@
             background-color: #add8e6; /* LightBlue */
             border-radius: 10px;
             width: 100%;
-            min-height: 100px;
+            min-height: 120px; /* Slightly increased height */
             box-sizing: border-box;
         }
 
-        .shape {
-            width: 60px;
-            height: 60px;
+        .shape { /* Base style for all shapes */
+            width: 55px; /* Slightly smaller for more shapes in machine */
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px; /* Adjusted for smaller shape */
             font-weight: bold;
             color: white;
+            user-select: none; /* Prevent text selection */
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, opacity 0.2s ease-out;
+        }
+        .shape.draggable { /* For addition mode */
             cursor: grab;
-            user-select: none; /* Prevent text selection during drag */
-            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+        }
+        .shape.clickable { /* For subtraction mode */
+            cursor: pointer;
+            margin: 5px; /* Spacing for shapes inside machine */
         }
         .shape.dragging {
             transform: scale(1.1);
@@ -109,6 +159,11 @@
             cursor: grabbing;
             opacity: 0.7;
         }
+        .shape.removed {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
 
         .circle {
             background-color: #FF6347; /* Tomato */
@@ -123,29 +178,29 @@
         .triangle {
             width: 0;
             height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 60px solid #32CD32; /* LimeGreen */
+            border-left: 27.5px solid transparent; /* Adjusted for 55px size */
+            border-right: 27.5px solid transparent;
+            border-bottom: 55px solid #32CD32; /* LimeGreen */
             background-color: transparent !important; /* Override shape's default bg */
             position: relative;
         }
         .triangle span { /* Number inside triangle */
             position: absolute;
-            top: 30px; /* Adjust based on triangle size */
+            top: 27.5px; /* Adjust based on triangle size */
             left: 50%;
             transform: translate(-50%, -50%);
             color: #333; /* Darker color for visibility on green */
         }
 
-
         #feedback-message {
             position: absolute;
-            top: 50%;
+            top: 60%; /* Adjusted due to larger machine */
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 80px; /* Big smiling face or X */
+            font-size: 70px; /* Slightly smaller */
             display: none; /* Hidden by default */
             animation: pop-in-out 1.5s;
+            z-index: 10; /* Ensure it's on top */
         }
 
         @keyframes pop-in-out {
@@ -155,25 +210,27 @@
             75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
-        .machine-content {
-            font-size: 20px;
+        .machine-content { /* For addition mode's "Drop here! Sum: X" */
+            font-size: 18px; /* Adjusted */
             color: white;
+            text-align: center;
         }
-        .machine-sum {
-            font-size: 28px;
+        .machine-sum { /* For addition mode sum display */
+            font-size: 26px; /* Adjusted */
             font-weight: bold;
         }
 
         #reset-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
+            top: 15px; /* Adjusted for mode switcher */
+            right: 15px;
+            width: 45px; /* Slightly larger */
+            height: 45px;
             background-color: #ffc107; /* Amber */
+            color: #333;
             border: none;
             border-radius: 50%;
-            font-size: 24px;
+            font-size: 28px; /* Adjusted */
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -188,217 +245,417 @@
 <body>
 
 <div class="game-container">
+    <div class="mode-switcher">
+        <button id="addition-mode-btn" class="mode-button active">Addition Mode</button>
+        <button id="subtraction-mode-btn" class="mode-button">Subtraction Mode</button>
+    </div>
+
     <div class="target-section">
+        <span id="target-label">Target Sum</span>
         <span id="target-number">5</span>
+        <div id="subtraction-details" style="display: none;">
+            <span class="subtraction-info">Initial Sum: <span id="initial-sum-display">0</span></span>
+            <span class="subtraction-info">Current Sum: <span id="current-sum-display-subtraction">0</span></span>
+        </div>
     </div>
 
     <div class="sorting-machine-area" id="sorting-machine">
-        <div class="machine-content">Drop here! <span id="current-sum-display">Sum: 0</span></div>
+        <!-- Content dynamically changes: "Drop here" or shapes for subtraction -->
+        <div class="machine-content" id="machine-text-content">Drop here! <span id="current-sum-display-addition">Sum: 0</span></div>
     </div>
 
     <div id="feedback-message"></div>
 
     <div class="shapes-display-area" id="shapes-area">
-        <!-- Shapes will be dynamically generated here -->
+        <!-- Shapes for addition mode will be dynamically generated here -->
     </div>
 
     <button id="reset-button" title="New Problem">&#x21bb;</button> <!-- Unicode for reload arrow -->
 </div>
 
 <script>
+    // DOM Elements
     const targetNumberDisplay = document.getElementById('target-number');
+    const targetLabel = document.getElementById('target-label');
     const sortingMachine = document.getElementById('sorting-machine');
-    const shapesArea = document.getElementById('shapes-area');
+    const shapesArea = document.getElementById('shapes-area'); // For addition mode
     const feedbackMessage = document.getElementById('feedback-message');
-    const currentSumDisplay = document.getElementById('current-sum-display');
+    const additionSumDisplay = document.getElementById('current-sum-display-addition'); // For "Drop here! Sum: X"
+    const machineTextContent = document.getElementById('machine-text-content'); // Container for "Drop here..."
+    
     const resetButton = document.getElementById('reset-button');
+    const additionModeBtn = document.getElementById('addition-mode-btn');
+    const subtractionModeBtn = document.getElementById('subtraction-mode-btn');
+    const subtractionDetailsDisplay = document.getElementById('subtraction-details');
+    const initialSumDisplay = document.getElementById('initial-sum-display');
+    const currentSumDisplaySubtraction = document.getElementById('current-sum-display-subtraction');
 
-    let targetNumber;
-    let currentSumInMachine = 0;
-    let draggableShapes = [];
-    let shapesInMachine = []; // To store references to shapes in the machine
+    // Game State Variables
+    let currentGameMode = 'addition'; // 'addition' or 'subtraction'
+    let targetSum;
+    let currentSumInMachineAddition = 0; // For addition mode
+    let initialSumSubtraction = 0; // For subtraction mode
+    let currentSumSubtraction = 0; // For subtraction mode
+
+    let draggableShapes = []; // For addition mode
+    let shapesInMachineSubtraction = []; // For subtraction mode {element, value}
 
     const shapeTypes = [
         { type: 'circle', color: '#FF6347' }, // Tomato
         { type: 'square', color: '#4682B4' }, // SteelBlue
         { type: 'triangle', color: '#32CD32' }  // LimeGreen
     ];
-    const shapeNumbers = [1, 2, 3]; // Numbers that can appear in shapes
+    const additionShapeNumbers = [1, 2, 3]; // Numbers for addition mode shapes
+    const subtractionShapeNumbers = [1, 2, 3, 4, 5]; // Numbers for subtraction mode shapes
 
+    // --- Utility Functions ---
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function generateNewProblem() {
-        targetNumber = getRandomInt(3, 7); // Target for 6-year-olds
-        targetNumberDisplay.textContent = targetNumber;
-        currentSumInMachine = 0;
-        updateSumDisplay();
-        shapesInMachine = [];
-        clearShapesFromMachineDisplay();
-        generateShapes();
-        feedbackMessage.style.display = 'none';
-        sortingMachine.classList.remove('rejecting', 'accepting');
+    function createShapeElement(shapeInfo, number, idPrefix = 'shape') {
+        const shapeDiv = document.createElement('div');
+        shapeDiv.classList.add('shape', shapeInfo.type);
+        shapeDiv.style.backgroundColor = shapeInfo.type === 'triangle' ? 'transparent' : shapeInfo.color;
+        shapeDiv.dataset.value = number;
+        shapeDiv.id = `${idPrefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`; // Unique ID
+
+        const numberSpan = document.createElement('span');
+        numberSpan.textContent = number;
+        if (shapeInfo.type === 'triangle') {
+            shapeDiv.style.borderBottomColor = shapeInfo.color;
+        }
+        shapeDiv.appendChild(numberSpan);
+        return shapeDiv;
+    }
+    
+    function calculateSum(shapesArray) { // shapesArray is an array of shape *elements*
+        return shapesArray.reduce((sum, shapeEl) => sum + parseInt(shapeEl.dataset.value), 0);
     }
 
-    function generateShapes() {
-        shapesArea.innerHTML = ''; // Clear existing shapes
+    function showFeedback(message, isCorrect) {
+        feedbackMessage.textContent = message;
+        feedbackMessage.style.color = isCorrect ? 'green' : 'red';
+        feedbackMessage.style.display = 'block';
+        sortingMachine.classList.add(isCorrect ? 'accepting' : 'rejecting');
+
+        setTimeout(() => {
+            feedbackMessage.style.display = 'none';
+            sortingMachine.classList.remove('accepting', 'rejecting');
+        }, 1500);
+    }
+
+    function resetGameArea() {
+        feedbackMessage.style.display = 'none';
+        sortingMachine.classList.remove('rejecting', 'accepting');
+        sortingMachine.innerHTML = ''; // Clear any shapes or text from machine
+        shapesArea.innerHTML = ''; // Clear addition shapes pool
         draggableShapes = [];
-        const availableNumbers = [];
+        shapesInMachineSubtraction = [];
+        currentSumInMachineAddition = 0;
+        initialSumSubtraction = 0;
+        currentSumSubtraction = 0;
+        
+        // Reset event listeners on sortingMachine (important for switching modes)
+        sortingMachine.removeEventListener('dragover', handleDragOverAddition);
+        sortingMachine.removeEventListener('dragenter', handleDragEnterAddition);
+        sortingMachine.removeEventListener('dragleave', handleDragLeaveAddition);
+        sortingMachine.removeEventListener('drop', handleDropAddition);
+    }
 
-        // Ensure enough numbers to form the target sum in multiple ways (simplified for now)
-        // This logic can be improved to guarantee solvability.
-        // For now, just generate a variety of shapes.
-        for (let i = 0; i < 8; i++) { // Generate 8 shapes
+    // --- Mode Switching ---
+    additionModeBtn.addEventListener('click', () => switchMode('addition'));
+    subtractionModeBtn.addEventListener('click', () => switchMode('subtraction'));
+
+    function switchMode(mode) {
+        if (currentGameMode === mode) return;
+        currentGameMode = mode;
+        resetGameArea();
+
+        if (mode === 'addition') {
+            additionModeBtn.classList.add('active');
+            subtractionModeBtn.classList.remove('active');
+            subtractionDetailsDisplay.style.display = 'none';
+            shapesArea.style.display = 'flex'; // Show shapes pool
+            targetLabel.textContent = "Target Sum";
+            // Restore machine content for addition
+            const machineContentDiv = document.createElement('div');
+            machineContentDiv.classList.add('machine-content');
+            machineContentDiv.id = 'machine-text-content'; // for consistency if needed elsewhere
+            machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
+            sortingMachine.appendChild(machineContentDiv);
+            // Re-assign additionSumDisplay as it's recreated
+            window.additionSumDisplay = document.getElementById('current-sum-display-addition'); 
+            sortingMachine.style.justifyContent = 'center';
+            sortingMachine.style.alignItems = 'center';
+            initAdditionMode();
+        } else { // Subtraction mode
+            subtractionModeBtn.classList.add('active');
+            additionModeBtn.classList.remove('active');
+            subtractionDetailsDisplay.style.display = 'block';
+            shapesArea.style.display = 'none'; // Hide shapes pool
+            targetLabel.textContent = "Target to Reach";
+            sortingMachine.style.justifyContent = 'flex-start'; // Align shapes to start
+            sortingMachine.style.alignItems = 'flex-start'; // Align shapes to start
+            initSubtractionMode();
+        }
+    }
+    
+    // --- Addition Mode Logic ---
+    function initAdditionMode() {
+        targetSum = getRandomInt(3, 7);
+        targetNumberDisplay.textContent = targetSum;
+        currentSumInMachineAddition = 0;
+        updateAdditionSumDisplay();
+        generateAdditionShapes();
+        // Add drag/drop listeners for addition mode
+        sortingMachine.addEventListener('dragover', handleDragOverAddition);
+        sortingMachine.addEventListener('dragenter', handleDragEnterAddition);
+        sortingMachine.addEventListener('dragleave', handleDragLeaveAddition);
+        sortingMachine.addEventListener('drop', handleDropAddition);
+    }
+
+    function generateAdditionShapes() {
+        shapesArea.innerHTML = '';
+        draggableShapes = [];
+        for (let i = 0; i < 8; i++) {
             const shapeInfo = shapeTypes[getRandomInt(0, shapeTypes.length - 1)];
-            const number = shapeNumbers[getRandomInt(0, shapeNumbers.length - 1)];
-            availableNumbers.push(number);
-
-            const shapeDiv = document.createElement('div');
-            shapeDiv.classList.add('shape', shapeInfo.type);
-            shapeDiv.style.backgroundColor = shapeInfo.type === 'triangle' ? 'transparent' : shapeInfo.color;
-            shapeDiv.dataset.value = number;
+            const number = additionShapeNumbers[getRandomInt(0, additionShapeNumbers.length - 1)];
+            const shapeDiv = createShapeElement(shapeInfo, number, `addshape-${i}`);
+            shapeDiv.classList.add('draggable');
             shapeDiv.draggable = true;
-            shapeDiv.id = `shape-${i}`;
-
-            const numberSpan = document.createElement('span');
-            numberSpan.textContent = number;
-            if (shapeInfo.type === 'triangle') {
-                // Triangle styling is complex, number is positioned absolutely by CSS
-                shapeDiv.style.borderBottomColor = shapeInfo.color;
-            }
-            shapeDiv.appendChild(numberSpan);
-
             shapesArea.appendChild(shapeDiv);
             draggableShapes.push(shapeDiv);
         }
-        addDragListeners();
-    }
-    
-    function clearShapesFromMachineDisplay() {
-        // If shapes were visually added to the machine, clear them here.
-        // For now, we are just using a sum display.
-        // This could be extended to show mini versions of dropped shapes.
+        addDragListenersAddition();
     }
 
-
-    function addDragListeners() {
+    function addDragListenersAddition() {
         draggableShapes.forEach(shape => {
-            shape.addEventListener('dragstart', handleDragStart);
-            shape.addEventListener('dragend', handleDragEnd);
+            shape.addEventListener('dragstart', handleDragStartAddition);
+            shape.addEventListener('dragend', handleDragEndAddition);
         });
     }
 
-    function handleDragStart(e) {
+    function handleDragStartAddition(e) {
         e.dataTransfer.setData('text/plain', e.target.id);
         e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => { // Timeout to allow browser to render drag image
-            e.target.classList.add('dragging');
-        }, 0);
+        setTimeout(() => e.target.classList.add('dragging'), 0);
     }
 
-    function handleDragEnd(e) {
+    function handleDragEndAddition(e) {
         e.target.classList.remove('dragging');
         sortingMachine.classList.remove('accepting');
     }
 
-    sortingMachine.addEventListener('dragover', handleDragOver);
-    sortingMachine.addEventListener('dragenter', handleDragEnter);
-    sortingMachine.addEventListener('dragleave', handleDragLeave);
-    sortingMachine.addEventListener('drop', handleDrop);
-
-    function handleDragOver(e) {
-        e.preventDefault(); // Necessary to allow dropping
+    function handleDragOverAddition(e) {
+        e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     }
 
-    function handleDragEnter(e) {
+    function handleDragEnterAddition(e) {
         e.preventDefault();
-        if (currentSumInMachine < targetNumber) {
+        if (currentSumInMachineAddition < targetSum) {
             sortingMachine.classList.add('accepting');
         } else {
             sortingMachine.classList.add('rejecting');
         }
     }
 
-    function handleDragLeave(e) {
+    function handleDragLeaveAddition(e) {
         sortingMachine.classList.remove('accepting', 'rejecting');
     }
 
-    function handleDrop(e) {
+    function handleDropAddition(e) {
         e.preventDefault();
         sortingMachine.classList.remove('accepting', 'rejecting');
         const shapeId = e.dataTransfer.getData('text/plain');
         const droppedShape = document.getElementById(shapeId);
 
-        if (!droppedShape) return;
+        if (!droppedShape || !draggableShapes.includes(droppedShape)) return; // Ensure it's a draggable shape for this mode
 
         const shapeValue = parseInt(droppedShape.dataset.value);
 
-        if (currentSumInMachine + shapeValue <= targetNumber) {
-            currentSumInMachine += shapeValue;
-            shapesInMachine.push(droppedShape); // Store reference
-            droppedShape.style.display = 'none'; // Hide from shapes area
-            updateSumDisplay();
-            // Optionally, visually add shape to machine here
+        if (currentSumInMachineAddition + shapeValue <= targetSum) {
+            currentSumInMachineAddition += shapeValue;
+            // Visually "move" shape (hide from pool, could animate into machine)
+            droppedShape.style.display = 'none'; 
+            // Remove from draggableShapes to prevent re-dragging
+            draggableShapes = draggableShapes.filter(s => s.id !== shapeId); 
+            updateAdditionSumDisplay();
 
-            if (currentSumInMachine === targetNumber) {
-                handleCorrectSum();
+            if (currentSumInMachineAddition === targetSum) {
+                showFeedback('😊', true);
+                setTimeout(initAdditionMode, 2000);
             } else {
-                // Indicate partial success or just wait for more shapes
-                sortingMachine.classList.add('accepting'); // Briefly show acceptance
+                sortingMachine.classList.add('accepting');
                 setTimeout(() => sortingMachine.classList.remove('accepting'), 500);
             }
         } else {
-            handleIncorrectDrop(droppedShape);
+            showFeedback('❌', false); // Overshot
+        }
+    }
+
+    function updateAdditionSumDisplay() {
+        if (window.additionSumDisplay) { // Check if it exists (it's removed/added on mode switch)
+             window.additionSumDisplay.textContent = `Sum: ${currentSumInMachineAddition}`;
+        }
+    }
+
+    // --- Subtraction Mode Logic ---
+    function initSubtractionMode() {
+        shapesInMachineSubtraction = [];
+        sortingMachine.innerHTML = ''; // Clear machine area for new shapes
+
+        // 1. Generate initial shapes inside the machine
+        let numShapesInMachine = getRandomInt(3, 5);
+        let tempInitialSum = 0;
+        for (let i = 0; i < numShapesInMachine; i++) {
+            const shapeInfo = shapeTypes[getRandomInt(0, shapeTypes.length - 1)];
+            const number = subtractionShapeNumbers[getRandomInt(0, subtractionShapeNumbers.length - 1)];
+            const shapeDiv = createShapeElement(shapeInfo, number, `subshape-${i}`);
+            shapeDiv.classList.add('clickable'); // Make it clickable
+            tempInitialSum += number;
+            shapesInMachineSubtraction.push({element: shapeDiv, value: number, id: shapeDiv.id});
+            sortingMachine.appendChild(shapeDiv);
+        }
+        initialSumSubtraction = tempInitialSum;
+        currentSumSubtraction = initialSumSubtraction;
+
+        // 2. Generate Target Sum (must be less than initialSum and achievable)
+        if (initialSumSubtraction <= 1) { // Need a sum that can be reduced
+             // Fallback: if initial sum is too small, restart. This is a safeguard.
+            initSubtractionMode(); 
+            return;
+        }
+        
+        // Create a list of values of shapes currently in the machine
+        const currentShapeValues = shapesInMachineSubtraction.map(s => s.value);
+
+        // Try to find a target sum by removing one or two shapes (simplistic way to ensure solvability)
+        // This can be made more robust.
+        let potentialTargetSums = [];
+        if (currentShapeValues.length > 0) {
+            potentialTargetSums.push(initialSumSubtraction - currentShapeValues[0]); // Remove one shape
+        }
+        if (currentShapeValues.length > 1) {
+            potentialTargetSums.push(initialSumSubtraction - currentShapeValues[0] - currentShapeValues[1]); // Remove two shapes
+             // Ensure it's not negative
+            if (initialSumSubtraction - currentShapeValues[currentShapeValues.length-1] > 0) {
+                 potentialTargetSums.push(initialSumSubtraction - currentShapeValues[currentShapeValues.length-1]);
+            }
+        }
+        // Filter out non-positive or sums equal to initial sum
+        potentialTargetSums = potentialTargetSums.filter(sum => sum > 0 && sum < initialSumSubtraction);
+
+        if (potentialTargetSums.length === 0) {
+            // If no simple target sum found, try removing any single smallest shape if possible
+            const minShapeValue = Math.min(...currentShapeValues);
+            if (initialSumSubtraction - minShapeValue > 0) {
+                targetSum = initialSumSubtraction - minShapeValue;
+            } else {
+                // Very unlikely edge case, restart if no valid target can be made
+                initSubtractionMode();
+                return;
+            }
+        } else {
+             targetSum = potentialTargetSums[getRandomInt(0, potentialTargetSums.length - 1)];
+        }
+
+
+        // Display sums
+        initialSumDisplay.textContent = initialSumSubtraction;
+        currentSumDisplaySubtraction.textContent = currentSumSubtraction;
+        targetNumberDisplay.textContent = targetSum;
+
+        // Add click listeners to shapes in machine
+        shapesInMachineSubtraction.forEach(shapeObj => {
+            shapeObj.element.addEventListener('click', handleShapeRemovalClick);
+        });
+    }
+
+    function handleShapeRemovalClick(e) {
+        const clickedShapeId = e.currentTarget.id;
+        const clickedShapeObj = shapesInMachineSubtraction.find(s => s.id === clickedShapeId);
+
+        if (!clickedShapeObj || e.currentTarget.classList.contains('removed')) return; // Already removed or not found
+
+        const shapeValue = clickedShapeObj.value;
+        const previousSum = currentSumSubtraction; // Store for potential revert
+
+        // Try removing the shape
+        currentSumSubtraction -= shapeValue;
+        e.currentTarget.classList.add('removed'); // Visually hide or mark for removal
+        updateSubtractionSumDisplay();
+
+        if (currentSumSubtraction === targetSum) {
+            showFeedback('😊', true);
+            // Make remaining shapes unclickable
+            shapesInMachineSubtraction.forEach(s => s.element.removeEventListener('click', handleShapeRemovalClick));
+            setTimeout(initSubtractionMode, 2000);
+        } else if (currentSumSubtraction < targetSum) {
+            // Overshot! Incorrect removal.
+            showFeedback('❌', false);
+            // Revert: make shape reappear and restore sum
+            currentSumSubtraction = previousSum; // Revert sum
+            e.currentTarget.classList.remove('removed'); // Make it visible again
+            updateSubtractionSumDisplay();
+        } else {
+            // Valid intermediate move, no specific feedback needed beyond sum update
+            // Shape stays "removed" (visually hidden)
+            // To make it permanent, filter it out from shapesInMachineSubtraction
+            // For now, 'removed' class handles visual. If they can be clicked multiple times, need more robust state.
+             // Make it unclickable after one valid removal to prevent multiple clicks on same hidden item
+            e.currentTarget.removeEventListener('click', handleShapeRemovalClick);
+            e.currentTarget.style.cursor = 'default';
         }
     }
     
-    function updateSumDisplay() {
-        currentSumDisplay.textContent = `Sum: ${currentSumInMachine}`;
+    function updateSubtractionSumDisplay() {
+        currentSumDisplaySubtraction.textContent = currentSumSubtraction;
     }
 
-    function handleCorrectSum() {
-        feedbackMessage.textContent = '😊'; // Smiling face
-        feedbackMessage.style.color = 'green';
-        feedbackMessage.style.display = 'block';
-        sortingMachine.classList.add('accepting'); // Could be a more elaborate success animation
 
-        // Play success sound here if implemented
-
-        setTimeout(() => {
-            generateNewProblem();
-            shapesInMachine.forEach(s => s.style.display = 'flex'); // Show hidden shapes again
-            shapesInMachine = [];
-            // Reset visual state of machine
-        }, 2000); // Wait 2 seconds before new problem
-    }
-
-    function handleIncorrectDrop(shape) {
-        // Shape rejected because sum would exceed target
-        feedbackMessage.textContent = '❌'; // X icon
-        feedbackMessage.style.color = 'red';
-        feedbackMessage.style.display = 'block';
-        sortingMachine.classList.add('rejecting');
-
-        // Return shape to original position (simplified: just make it visible again if it was hidden)
-        // For a true "return to original position", we'd need to store its initial spot.
-        // shape.style.display = 'flex'; // Not needed if we don't hide it until successful sum.
-
-        setTimeout(() => {
-            feedbackMessage.style.display = 'none';
-            sortingMachine.classList.remove('rejecting');
-        }, 1500);
-    }
-    
+    // --- Reset Button ---
     resetButton.addEventListener('click', () => {
-        shapesInMachine.forEach(s => s.style.display = 'flex'); // Make sure shapes are visible if game is reset mid-way
-        generateNewProblem();
+        resetGameArea(); // General reset
+        if (currentGameMode === 'addition') {
+            // Need to re-add the machine text content for addition mode
+            const machineContentDiv = document.createElement('div');
+            machineContentDiv.classList.add('machine-content');
+            machineContentDiv.id = 'machine-text-content';
+            machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
+            sortingMachine.appendChild(machineContentDiv);
+            window.additionSumDisplay = document.getElementById('current-sum-display-addition');
+            sortingMachine.style.justifyContent = 'center';
+            sortingMachine.style.alignItems = 'center';
+            initAdditionMode();
+        } else {
+            sortingMachine.style.justifyContent = 'flex-start';
+            sortingMachine.style.alignItems = 'flex-start';
+            initSubtractionMode();
+        }
     });
 
-    // Initial setup
+    // --- Initial Load ---
     window.onload = () => {
-        generateNewProblem();
+        // Default to addition mode
+        additionModeBtn.classList.add('active');
+        subtractionModeBtn.classList.remove('active');
+        subtractionDetailsDisplay.style.display = 'none';
+        shapesArea.style.display = 'flex';
+        targetLabel.textContent = "Target Sum";
+        
+        const machineContentDiv = document.createElement('div');
+        machineContentDiv.classList.add('machine-content');
+        machineContentDiv.id = 'machine-text-content';
+        machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
+        sortingMachine.appendChild(machineContentDiv);
+        window.additionSumDisplay = document.getElementById('current-sum-display-addition');
+        sortingMachine.style.justifyContent = 'center';
+        sortingMachine.style.alignItems = 'center';
+
+        initAdditionMode();
     };
 
 </script>
