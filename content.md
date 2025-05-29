@@ -7,6 +7,7 @@
 * [形状分类数学](./shape_sorter_math.html) - 练习加法和减法！拖动形状来匹配数字，或者拿走一些形状来达到目标数量。
 * [加法游戏](./addition_game.html) - 一个简单的在线加法练习游戏，帮助提高计算速度和准确性。
 * [词汇问答](./vocabulary_quiz.html) - 来测试一下你认识多少词语吧！
+* [看图识字](./games/chinese_character_quiz.html) - 通过图片学习常见的汉字。
 * [宝宝巴士游戏](http://www.4399.com/special/bababus.htm) - 这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！
 * [在线涂色](http://www.supercoloring.com/coloring-pages/online) - 选择你喜欢的图片，在线涂上漂亮的颜色吧！
 
