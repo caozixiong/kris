@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字寻宝翻翻乐</title>
+    <style>
+        body {
+            font-family: 'KaiTi', '楷体', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff; /* 淡蓝色背景 */
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #ff6347; /* 番茄色 */
+        }
+
+        .game-board {
+            display: grid;
+            /* 列数和行数会由JS根据卡片数量调整 */
+            grid-template-columns: repeat(5, 100px); /* 默认值，JS会覆盖 */
+            gap: 10px;
+            perspective: 1000px; /* 为了3D翻转效果 */
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card.flipped, .card.matched {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* 隐藏背面 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 2em; /* 调整汉字大小 */
+            overflow: hidden; /* 防止图片溢出 */
+        }
+
+        .card-front {
+            background-color: #fff;
+            color: #333;
+            transform: rotateY(180deg); /* 正面先转过去 */
+        }
+
+        .card-front img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+
+        .card-back {
+            background-color: #4682b4; /* 钢蓝色 */
+            color: white;
+            /* 可以用SVG或图片做卡片背面图案, 例如: */
+            /* background-image: url('images/card_back_pattern.svg'); */
+            /* background-size: cover; */
+        }
+        .card-back::before { /* 简单的问号图案 */
+            content: '?';
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        /* 防止在翻转检查期间快速点击 */
+        .board-locked .card:not(.matched) {
+            pointer-events: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: white;
+            background-color: #5cb85c; /* 成功绿色 */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .win-message h2 {
+            color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>汉字寻宝翻翻乐</h1>
+        <p>得分: <span id="score">0</span> | 尝试次数: <span id="attempts">0</span></p>
+        <button id="restart-button">重新开始</button>
+    </div>
+
+    <div id="game-board" class="game-board">
+        <!-- 卡片将由JavaScript动态生成 -->
+    </div>
+
+    <div id="win-message" class="win-message" style="display: none;">
+        <h2>恭喜你！全部找到了！</h2>
+        <p>你用了 <span id="final-attempts"></span> 次尝试。</p>
+        <button id="play-again-button">再玩一次</button>
+    </div>
+
+    <audio id="flip-sound" src="sounds/flip.mp3" preload="auto"></audio>
+    <audio id="match-sound" src="sounds/match.mp3" preload="auto"></audio>
+    <audio id="no-match-sound" src="sounds/nomatch.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="sounds/win.mp3" preload="auto"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameData = [
+                // 确保图片文件名与实际文件名一致，并且在 images/ 目录下
+                // id 用于配对，确保每个汉字-图片组合的id相同
+                { hanzi: "一", image: "one", id: 1 },
+                { hanzi: "二", image: "two", id: 2 },
+                { hanzi: "三", image: "three", id: 3 },
+                { hanzi: "人", image: "person", id: 4 },
+                { hanzi: "口", image: "mouth", id: 5 },
+                { hanzi: "大", image: "big", id: 6 },
+                { hanzi: "小", image: "small", id: 7 },
+                { hanzi: "山", image: "mountain", id: 8 },
+                { hanzi: "水", image: "water", id: 9 },
+                { hanzi: "火", image: "fire", id: 10 },
+                { hanzi: "木", image: "tree", id: 11 },
+                { hanzi: "日", image: "sun", id: 12 },
+                { hanzi: "月", image: "moon", id: 13 },
+                { hanzi: "田", image: "field", id: 14 },
+                { hanzi: "土", image: "soil", id: 15 },
+                { hanzi: "上", image: "up", id: 16 },
+                { hanzi: "下", image: "down", id: 17 },
+                { hanzi: "中", image: "middle", id: 18 },
+                { hanzi: "目", image: "eye", id: 19 },
+                { hanzi: "手", image: "hand", id: 20 },
+            ];
+
+            const gameBoard = document.getElementById('game-board');
+            const scoreDisplay = document.getElementById('score');
+            const attemptsDisplay = document.getElementById('attempts');
+            const restartButton = document.getElementById('restart-button');
+            const playAgainButton = document.getElementById('play-again-button');
+            const winMessage = document.getElementById('win-message');
+            const finalAttemptsDisplay = document.getElementById('final-attempts');
+
+            const flipSound = document.getElementById('flip-sound');
+            const matchSound = document.getElementById('match-sound');
+            const noMatchSound = document.getElementById('no-match-sound');
+            const winSound = document.getElementById('win-sound');
+
+            let cards = []; // 存放所有卡片DOM元素
+            let flippedCards = []; // 存放当前翻开的卡片
+            let matchedPairs = 0; // 记录已匹配的对数
+            let currentScore = 0;
+            let currentAttempts = 0;
+            let lockBoard = false; // 防止在检查配对时快速点击
+
+            const IMAGE_PATH = 'images/'; // 图片文件夹路径
+            const IMAGE_EXTENSION = '.svg'; // 或者 .png, .jpg 等，确保与你的图片文件扩展名一致
+
+            function createCardElement(item, type) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.id = item.id; // 用于配对的唯一标识，来自gameData
+                card.dataset.type = type; // 'hanzi' or 'image'
+
+                const cardFront = document.createElement('div');
+                cardFront.classList.add('card-face', 'card-front');
+
+                if (type === 'hanzi') {
+                    cardFront.textContent = item.hanzi;
+                } else { // type === 'image'
+                    const img = document.createElement('img');
+                    img.src = `${IMAGE_PATH}${item.image}${IMAGE_EXTENSION}`;
+                    img.alt = item.hanzi; // 图片的alt文本设为对应汉字
+                    cardFront.appendChild(img);
+                }
+
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('card-face', 'card-back');
+
+                card.appendChild(cardFront);
+                card.appendChild(cardBack);
+
+                card.addEventListener('click', () => handleCardClick(card));
+                return card;
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function initializeGame() {
+                gameBoard.innerHTML = ''; // 清空旧卡片
+                cards = [];
+                flippedCards = [];
+                matchedPairs = 0;
+                currentScore = 0;
+                currentAttempts = 0;
+                lockBoard = false;
+                winMessage.style.display = 'none';
+                gameBoard.classList.remove('board-locked');
+
+                updateScoreAndAttempts();
+
+                // 创建卡片对数据 (一个汉字卡，一个图片卡，它们共享相同的id)
+                let gameCardsData = [];
+                gameData.forEach(item => {
+                    // 每个item代表一个汉字-图片对
+                    gameCardsData.push({ ...item, cardType: 'hanzi' }); // 复制item并添加cardType
+                    gameCardsData.push({ ...item, cardType: 'image' });
+                });
+
+                shuffleArray(gameCardsData);
+
+                // 动态调整列数
+                const numTotalCards = gameCardsData.length;
+                let columns = 5; // 默认5列
+                if (numTotalCards === 40) columns = 8; // 20对=40张卡片 (8x5)
+                else if (numTotalCards === 20) columns = 5; // 10对=20张卡片 (5x4)
+                else if (numTotalCards <= 12) columns = 4; // 6对=12张 (4x3)
+                
+                // 计算行数，确保能放下所有卡片
+                let rows = Math.ceil(numTotalCards / columns);
+                gameBoard.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
+                // gameBoard.style.gridTemplateRows = `repeat(${rows}, 100px)`; // 可选，如果高度也想固定
+
+
+                gameCardsData.forEach(itemData => {
+                    // itemData现在包含 id, hanzi, image, cardType
+                    const cardElement = createCardElement(itemData, itemData.cardType);
+                    cards.push(cardElement);
+                    gameBoard.appendChild(cardElement);
+                });
+            }
+
+            function handleCardClick(card) {
+                if (lockBoard || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                    return;
+                }
+
+                try {
+                    flipSound.currentTime = 0;
+                    flipSound.play().catch(e => console.log("Flip sound play error:", e));
+                } catch(e) { console.log("Error playing flip sound:", e); }
+
+
+                card.classList.add('flipped');
+                flippedCards.push(card);
+
+                if (flippedCards.length === 2) {
+                    lockBoard = true;
+                    gameBoard.classList.add('board-locked');
+                    currentAttempts++;
+                    updateScoreAndAttempts();
+                    checkForMatch();
+                }
+            }
+
+            function checkForMatch() {
+                const [card1, card2] = flippedCards;
+                // 它们有相同的 dataset.id 且一个是汉字一个是图片，则匹配
+                // (此版简化为只要id相同即可，因为我们确保id相同的卡片是一个汉字一个图片)
+                const isMatch = card1.dataset.id === card2.dataset.id;
+
+                if (isMatch) {
+                    try{
+                        matchSound.currentTime = 0;
+                        matchSound.play().catch(e => console.log("Match sound play error:", e));
+                    } catch(e) { console.log("Error playing match sound:", e); }
+
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    matchedPairs++;
+                    currentScore += 10;
+                    flippedCards = [];
+                    unlockBoardAfterDelay(); // 稍微延迟解锁，避免问题
+                    if (matchedPairs === gameData.length) { // gameData.length 是指汉字-图片对的数量
+                        gameOver();
+                    }
+                } else {
+                    try {
+                        noMatchSound.currentTime = 0;
+                        noMatchSound.play().catch(e => console.log("No-match sound play error:", e));
+                    } catch(e) { console.log("Error playing no-match sound:", e); }
+                    
+                    setTimeout(() => {
+                        card1.classList.remove('flipped');
+                        card2.classList.remove('flipped');
+                        flippedCards = [];
+                        unlockBoardAfterDelay();
+                    }, 1000);
+                }
+                updateScoreAndAttempts();
+            }
+            
+            function unlockBoardAfterDelay() {
+                // 这个函数确保在CSS过渡和可能的音频播放后解锁板子
+                setTimeout(() => {
+                    lockBoard = false;
+                    gameBoard.classList.remove('board-locked');
+                }, 200); // 200ms是一个经验值，可以根据需要调整
+            }
+
+
+            function updateScoreAndAttempts() {
+                scoreDisplay.textContent = currentScore;
+                attemptsDisplay.textContent = currentAttempts;
+            }
+
+            function gameOver() {
+                try {
+                    winSound.play().catch(e => console.log("Win sound play error:", e));
+                } catch(e) { console.log("Error playing win sound:", e); }
+
+                finalAttemptsDisplay.textContent = currentAttempts;
+                winMessage.style.display = 'flex';
+            }
+
+            restartButton.addEventListener('click', initializeGame);
+            playAgainButton.addEventListener('click', initializeGame);
+
+            // 初始加载游戏
+            initializeGame();
+        });
+    </script>
+</body>
+</html>
