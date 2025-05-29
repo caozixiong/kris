@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>看图识字 - Chinese Character Quiz</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
+            background-color: #e9f5ff;
+            text-align: center;
+            user-select: none;
+            touch-action: manipulation;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #ff6b6b;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        #image-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+            border: 2px solid #ddd;
+            background-color: #f0f0f0;
+            display: flex; /* To center the image */
+            align-items: center; /* To center the image */
+            justify-content: center; /* To center the image */
+        }
+
+        #image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        #options-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            background-color: #74c0fc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .option-button:hover,
+        .option-button:active {
+            transform: scale(1.05);
+            background-color: #4dabf7;
+        }
+
+        #feedback-message {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+
+        #feedback-message.correct {
+            color: #40c057;
+        }
+
+        #feedback-message.wrong {
+            color: #fa5252;
+        }
+
+        #score-display {
+            font-size: 20px;
+            color: #555;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>看图识字</h1>
+        <div id="image-container">
+            <!-- Placeholder for image -->
+        </div>
+        <div id="options-container">
+            <!-- Placeholder for options -->
+        </div>
+        <div id="feedback-message">
+            <!-- Placeholder for feedback -->
+        </div>
+        <div id="score-display">得分: 0</div>
+    </div>
+
+    <script>
+        // Game Data (Placeholder)
+        const questions = [
+            {
+                image: "../pictures/placeholder_apple.png",
+                options: ["苹果", "香蕉", "橙子", "西瓜"],
+                correctAnswer: "苹果"
+            },
+            {
+                image: "../pictures/placeholder_car.png",
+                options: ["火车", "飞机", "汽车", "月亮"],
+                correctAnswer: "汽车"
+            },
+            {
+                image: "../pictures/placeholder_banana.png", // Assuming a placeholder for banana
+                options: ["香蕉", "草莓", "桃子", "葡萄"],
+                correctAnswer: "香蕉"
+            }
+        ];
+
+        // DOM Element References
+        const imageContainer = document.getElementById('image-container');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const scoreDisplay = document.getElementById('score-display');
+
+        // Game State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Function to create an option button
+        function createOptionButton(character) {
+            const button = document.createElement('button');
+            button.textContent = character;
+            button.classList.add('option-button');
+            button.addEventListener('click', () => selectAnswer(character));
+            return button;
+        }
+
+        // Function to load a question
+        function loadQuestion() {
+            // Clear previous options and feedback
+            optionsContainer.innerHTML = '';
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = ''; // Clear existing classes
+
+            if (currentQuestionIndex >= questions.length) {
+                // Game Over
+                imageContainer.innerHTML = ''; // Clear image
+                feedbackMessage.textContent = `游戏结束! 你的总分是: ${score} / ${questions.length}`;
+                feedbackMessage.classList.add('correct'); // Use 'correct' style for final score
+                optionsContainer.innerHTML = '<button class="option-button" onclick="initGame()">再玩一次</button>'; // Play Again button
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+
+            // Display image
+            imageContainer.innerHTML = `<img src="${currentQuestion.image}" alt="Quiz Image" style="max-width: 100%; max-height: 100%;">`;
+
+            // Create and display option buttons
+            currentQuestion.options.forEach(option => {
+                const button = createOptionButton(option);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Function to handle answer selection
+        function selectAnswer(selectedCharacter) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+            buttons.forEach(button => button.disabled = true); // Disable buttons after an answer
+
+            if (selectedCharacter === currentQuestion.correctAnswer) {
+                score++;
+                feedbackMessage.textContent = "太棒了! (Great!)";
+                feedbackMessage.className = 'correct';
+            } else {
+                feedbackMessage.textContent = `错误! 正确的是: ${currentQuestion.correctAnswer}`;
+                feedbackMessage.className = 'wrong';
+            }
+
+            // Update score display
+            scoreDisplay.textContent = `得分: ${score}`;
+
+            // Move to next question or end game
+            currentQuestionIndex++;
+
+            setTimeout(() => {
+                buttons.forEach(button => button.disabled = false); // Re-enable buttons
+                loadQuestion();
+            }, 1500); // Delay before loading next question
+        }
+
+        // Function to initialize/reset the game
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = `得分: ${score}`;
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = '';
+            loadQuestion();
+        }
+
+        // Initial Game Load
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
