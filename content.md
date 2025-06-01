@@ -11,17 +11,35 @@
 * [宝宝巴士游戏](http://www.4399.com/special/bababus.htm) - 这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！
 * [在线涂色](http://www.supercoloring.com/coloring-pages/online) - 选择你喜欢的图片，在线涂上漂亮的颜色吧！
 
+### English Math Games
+* [Cool Math 4 Kids](https://www.coolmath4kids.com/) - Offers a wide range of math games, puzzles, and quizzes for younger kids.
+* [Khan Academy Kids](https://learn.khanacademy.org/khan-academy-kids/) - A comprehensive free learning app/website with a strong math section for early learners.
+* [Funbrain](https://www.funbrain.com/) - Features a variety of math games categorized by grade level, making learning fun.
+
 ## 阅读 (Reading)
 
 * [七故事](http://www.qigushi.com/) - 这里有很多中文小故事，每天都可以听新故事。
 * [Unite for Literacy](https://www.uniteforliteracy.com/) - 这里有各种语言的免费图画书，可以选择中文来阅读哦。
 * [洪恩识字](https://www.hongen.com/literacy/) - 一个有趣的识字App和小游戏，帮助学习汉字。（备注：部分内容可能需要付费）
 
+### English Language Learning
+* [Starfall](https://www.starfall.com/) - Focuses on phonics and early reading through interactive games and activities.
+* [PBS Kids](https://pbskids.org/) - Offers educational games and videos featuring popular characters, many of which support language development.
+* [ABCya](https://www.abcya.com/) - Provides a wide variety of educational games, including many for practicing language arts skills.
+
 ## 科学 (Science)
 
 * [宝宝巴士科学](https://list.youku.com/albumlist/show/id_50096108.html) - 通过有趣的动画学习科学小知识。
 * [神奇校车](https://www.qiyi.com/dianying/20110408/a56766870363490a.html) - 跟卷毛老师和同学们一起去冒险，探索奇妙的科学世界！（备注：这是一个视频链接，可能需要爱奇艺会员）
 * [儿童DIY科学实验](https://www.youtube.com/playlist?list=PLT0568_Bl09A51PYhZ4N0tA102n9uL3hK) - 很多简单又好玩的科学小实验，可以和爸爸妈妈一起动手做！（备注：YouTube链接，可能需要VPN）
+
+### English Science Exploration
+* [National Geographic Kids](https://kids.nationalgeographic.com/) - Provides engaging articles, videos, and games about animals, nature, and science.
+* [NASA Space Place](https://spaceplace.nasa.gov/) - Offers fun games, animations, and articles about space and Earth science for kids.
+* [Mystery Doug](https://mysterydoug.com/) - Features short science videos that answer questions submitted by kids, sparking curiosity.
+
+## 本地生活 (Local Life)
+* [诊所预约](https://rvsq.gouv.qc.ca/prendrerendezvous/Principale.aspx?culture=fr) - 在线预约魁北克省的诊所服务
 
 ## 工具 (Tools)
 
