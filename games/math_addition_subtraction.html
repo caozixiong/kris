@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20以内加减法练习</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
+            text-align: center;
+            background-color: #FFFDE7; /* Light yellow */
+            user-select: none;
+            touch-action: manipulation;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .game-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #ccc; /* Keep a subtle border */
+        }
+
+        h1 {
+            color: #FF6B6B; /* Coral red */
+            font-size: 2.2em;
+        }
+
+        .problem-area {
+            font-size: 2.5em; /* Larger font for problem */
+            margin-bottom: 20px;
+            color: #333; /* Good contrast for text */
+            min-height: 80px; /* Prevent layout jumps */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .problem-area span { /* Style for the actual problem text/icons */
+            padding: 10px;
+        }
+
+        .answer-options button {
+            background-color: #7986CB; /* Lavender blue */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.8em;
+            margin: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+        }
+
+        .answer-options button:hover, .answer-options button:active {
+            background-color: #5C6BC0; /* Darker lavender blue */
+            transform: scale(1.05);
+        }
+
+        .timer-area, .score-area {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            color: #555;
+        }
+
+        .controls button, .timer-controls button {
+            background-color: #4DB6AC; /* Teal */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 1.2em;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .controls button:hover, .controls button:active,
+        .timer-controls button:hover, .timer-controls button:active {
+            background-color: #26A69A; /* Darker teal */
+            transform: scale(1.03);
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .timer-controls span {
+            margin-right: 10px;
+        }
+
+        #timer-value {
+            font-weight: bold;
+            color: #00796B; /* Darker teal for emphasis */
+        }
+
+        .timer-controls button { /* Smaller buttons for timer adjustment */
+            font-size: 1em;
+            padding: 5px 10px;
+        }
+
+        .message-area {
+            min-height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .message-area .correct {
+            color: #4CAF50; /* Green for correct */
+        }
+
+        .message-area .incorrect {
+            color: #F44336; /* Red for incorrect */
+        }
+
+        #next-question {
+            background-color: #FF8F00; /* Amber for next question */
+        }
+        #next-question:hover, #next-question:active {
+            background-color: #FF6F00; /* Darker amber */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .game-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .problem-area {
+                font-size: 2em;
+                min-height: 60px;
+            }
+            .answer-options button {
+                font-size: 1.5em;
+                padding: 12px 15px;
+                margin: 8px;
+            }
+            .timer-area, .score-area {
+                font-size: 1.1em;
+            }
+            .controls button, .timer-controls button {
+                font-size: 1em;
+                padding: 8px 12px;
+            }
+            .timer-controls button { /* Timer adjustment buttons even smaller */
+                 font-size: 0.9em;
+                 padding: 4px 8px;
+            }
+            .message-area {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>20以内加减法练习</h1>
+
+        <div class="timer-controls">
+            <span>时间限制: <span id="timer-value">30</span>s</span>
+            <button id="decrease-timer">-</button>
+            <button id="increase-timer">+</button>
+        </div>
+
+        <div class="problem-area">
+            <span id="problem-display">点击“开始游戏”</span>
+        </div>
+
+        <div class="answer-options">
+            <button id="ans1"></button>
+            <button id="ans2"></button>
+            <button id="ans3"></button>
+        </div>
+
+        <div class="timer-area">
+            剩余时间: <span id="time-left">N/A</span>
+        </div>
+
+        <div class="score-area">
+            得分: <span id="score">0</span>
+        </div>
+
+        <div class="message-area">
+            <span id="feedback-message"></span>
+        </div>
+
+        <div class="controls">
+            <button id="start-game">开始游戏</button>
+            <button id="next-question" style="display:none;">下一题</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const timerValueDisplay = document.getElementById('timer-value');
+            const decreaseTimerButton = document.getElementById('decrease-timer');
+            const increaseTimerButton = document.getElementById('increase-timer');
+            const problemDisplay = document.getElementById('problem-display');
+            const ans1Button = document.getElementById('ans1');
+            const ans2Button = document.getElementById('ans2');
+            const ans3Button = document.getElementById('ans3');
+            const answerButtons = [ans1Button, ans2Button, ans3Button];
+            const timeLeftDisplay = document.getElementById('time-left');
+            const scoreDisplay = document.getElementById('score');
+            const feedbackMessageDisplay = document.getElementById('feedback-message');
+            const startGameButton = document.getElementById('start-game');
+            const nextQuestionButton = document.getElementById('next-question');
+
+            // Global Variables
+            let currentProblem = {};
+            let score = 0;
+            let timerDuration = 30; // Default timer duration
+            let timerInterval = null;
+            let timeLeft = 0;
+            let gameActive = false;
+            const imageMapping = { apple: '🍎', star: '🌟' }; // Simple representation for items
+
+            // Initialization
+            function initGame() {
+                updateTimerValueDisplay();
+                disableAnswerButtons();
+                nextQuestionButton.style.display = 'none';
+
+                startGameButton.addEventListener('click', startGame);
+                decreaseTimerButton.addEventListener('click', () => adjustTimer(-5));
+                increaseTimerButton.addEventListener('click', () => adjustTimer(5));
+                nextQuestionButton.addEventListener('click', nextQuestion);
+
+                answerButtons.forEach(button => {
+                    button.addEventListener('click', () => checkAnswer(button));
+                });
+            }
+
+            // Timer Adjustment
+            function adjustTimer(amount) {
+                if (gameActive) return;
+                timerDuration = Math.max(10, Math.min(60, timerDuration + amount));
+                updateTimerValueDisplay();
+            }
+
+            function updateTimerValueDisplay() {
+                timerValueDisplay.textContent = timerDuration;
+            }
+
+            // Game Start
+            function startGame() {
+                score = 0;
+                gameActive = true;
+                updateScoreDisplay();
+                feedbackMessageDisplay.textContent = '';
+                startGameButton.style.display = 'none';
+                // nextQuestionButton.style.display = 'block'; // Show next Q button, or handle in nextQuestion
+                enableTimerAdjustmentButtons(false); // Disable timer adjustment
+                nextQuestion();
+            }
+
+            // Generate and Display Next Question
+            function nextQuestion() {
+                clearFeedback();
+                enableAnswerButtons();
+                nextQuestionButton.style.display = 'none'; // Hide until answer or timeout
+                timeLeftDisplay.textContent = timerDuration; // Reset display for this question
+
+                // Generate problem
+                const isAddition = Math.random() < 0.5;
+                let num1, num2, correctAnswer;
+
+                if (isAddition) {
+                    num1 = getRandomInt(0, 10); // Keep numbers smaller for addition to stay within 20
+                    num2 = getRandomInt(0, 20 - num1);
+                    correctAnswer = num1 + num2;
+                    currentProblem = { num1, num2, operator: '+', correctAnswer };
+                } else { // Subtraction
+                    num1 = getRandomInt(0, 20);
+                    num2 = getRandomInt(0, num1); // Ensure num1 >= num2
+                    correctAnswer = num1 - num2;
+                    currentProblem = { num1, num2, operator: '-', correctAnswer };
+                }
+
+                problemDisplay.innerHTML = formatProblemForDisplay(currentProblem.num1, currentProblem.operator, currentProblem.num2);
+
+                // Generate answer options
+                let options = [correctAnswer];
+                while (options.length < 3) {
+                    let distractor = getRandomInt(Math.max(0, correctAnswer - 5), Math.min(20, correctAnswer + 5));
+                    if (!options.includes(distractor)) {
+                        options.push(distractor);
+                    }
+                }
+                shuffleArray(options);
+
+                answerButtons.forEach((button, index) => {
+                    button.textContent = options[index];
+                });
+
+                // Start timer
+                timeLeft = timerDuration;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timerInterval) clearInterval(timerInterval); // Clear existing timer
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+
+            function formatProblemForDisplay(num1, op, num2, itemIcon1 = '🍎', itemIcon2 = '🌟') {
+                const displayNum1 = num1 <= 7 ? itemIcon1.repeat(num1) : num1.toString();
+                // For subtraction, ensure the second item is distinct or makes sense.
+                // Using itemIcon1 for subtraction if it's about taking away from the same group.
+                // If subtracting different items, itemIcon2 would be appropriate.
+                // For this version, let's assume subtracting same items or itemIcon2 is generic enough.
+                const displayNum2 = num2 <= 7 ? (op === '+' ? itemIcon2.repeat(num2) : itemIcon1.repeat(num2)) : num2.toString();
+                return `${displayNum1} ${op} ${displayNum2} = ?`;
+            }
+
+            // Timer Update
+            function updateTimer() {
+                timeLeft--;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showFeedback("时间到！答案是 " + currentProblem.correctAnswer, 'incorrect');
+                    disableAnswerButtons();
+                    nextQuestionButton.style.display = 'block';
+                    // Removed gameActive = false; to allow game to continue via "Next Question"
+                    enableTimerAdjustmentButtons(true); // Re-enable timer adjustment
+                    startGameButton.style.display = 'block'; // Show start game to allow restart
+                }
+            }
+
+            // Check Answer
+            function checkAnswer(button) {
+                if (!gameActive || timeLeft <= 0) return;
+
+                clearInterval(timerInterval);
+                disableAnswerButtons();
+                const selectedAnswer = parseInt(button.textContent);
+
+                if (selectedAnswer === currentProblem.correctAnswer) {
+                    score++;
+                    updateScoreDisplay();
+                    showFeedback("正确!", 'correct');
+                } else {
+                    showFeedback(`错误！答案是 ${currentProblem.correctAnswer}`, 'incorrect');
+                }
+                nextQuestionButton.style.display = 'block';
+                // if all questions done, then game over, else show next question
+            }
+
+            // Feedback Display
+            function showFeedback(message, typeClass) { // typeClass can be 'correct' or 'incorrect'
+                feedbackMessageDisplay.textContent = message;
+                feedbackMessageDisplay.className = 'message-area ' + typeClass; // Reset and add specific class
+            }
+
+            function clearFeedback() {
+                feedbackMessageDisplay.textContent = '';
+                feedbackMessageDisplay.className = 'message-area'; // Reset class
+            }
+
+            // Utility Functions
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function disableAnswerButtons() {
+                answerButtons.forEach(button => button.disabled = true);
+            }
+
+            function enableAnswerButtons() {
+                answerButtons.forEach(button => button.disabled = false);
+            }
+
+            function enableTimerAdjustmentButtons(enable) {
+                decreaseTimerButton.disabled = !enable;
+                increaseTimerButton.disabled = !enable;
+            }
+
+            function updateScoreDisplay() {
+                scoreDisplay.textContent = score;
+            }
+
+            // Initialize the game when DOM is fully loaded
+            initGame();
+        });
+    </script>
+</body>
+</html>
