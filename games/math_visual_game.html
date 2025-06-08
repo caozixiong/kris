@@ -61,6 +61,11 @@
             color: #333; /* Darker text for better contrast on amber */
         }
 
+        .times-symbol {
+            margin: 0 0.2em; /* Adds a little space around the 'x' */
+            font-weight: bold;
+        }
+
         .problem-area {
             font-size: 2.5em; /* Larger font for problem */
             margin-bottom: 20px;
@@ -266,7 +271,7 @@
             // Global Variables
             let currentProblem = { num1: null, num2: null, operator: null, correctAnswer: null }; // Initialize to avoid null errors
             let score = 0;
-            let timerDuration = 30;
+            let timerDuration = 10; // Changed default from 30
             let timerInterval = null;
             let timeLeft = 0;
             let gameActive = false;
@@ -333,19 +338,32 @@
 
             // Problem Visuals
             function getVisualForNumber(number, theme) {
-                if (theme === 'matchsticks') {
-                    if (matchstickSVGs[number]) {
-                        return matchstickSVGs[number];
+                const singleChickEmoji = '🐥';
+
+                if (number > 10) {
+                    if (theme === 'matchsticks') {
+                        // Ensure matchstickSVGs[1] is defined and represents a single matchstick
+                        return matchstickSVGs[1] + ` <span class="times-symbol">x</span> ${number}`;
+                    } else if (theme === 'chicks') {
+                        return `${singleChickEmoji} <span class="times-symbol">x</span> ${number}`;
                     }
-                    return `<span style="font-size:0.8em; vertical-align:middle;">[火柴棒 ${number}]</span>`; // Fallback for larger numbers
-                } else if (theme === 'chicks') {
-                    // Simple emoji repeat for chicks, can be expanded
-                    if (number > 0 && number <= 7) { // Show up to 7 chicks as emojis
-                        return chickRepresentations[number] || '🐥'.repeat(number);
+                } else { // number <= 10
+                    if (theme === 'matchsticks') {
+                        if (matchstickSVGs[number]) { // Handles 1, 2, 3
+                            return matchstickSVGs[number];
+                        }
+                        // Fallback for 4 to 10 (or if SVGs for 1,2,3 are missing)
+                        return `<span style="font-size:0.8em; vertical-align:middle;">[火柴棒 ${number}]</span>`;
+                    } else if (theme === 'chicks') {
+                        if (number >= 1 && number <= 7) {
+                            // chickRepresentations might be pre-defined for 1,2,3. Fallback to repeat.
+                            return chickRepresentations[number] || singleChickEmoji.repeat(number);
+                        }
+                        // Fallback for 8 to 10
+                        return `<span style="font-size:0.8em; vertical-align:middle;">[小鸡 ${number}]</span>`;
                     }
-                    return `<span style="font-size:0.8em; vertical-align:middle;">[小鸡 ${number}]</span>`; // Fallback
                 }
-                return number.toString(); // Default fallback
+                return number.toString(); // Default fallback if theme not matched or other cases
             }
 
             function formatProblemForDisplay(num1, op, num2) {
