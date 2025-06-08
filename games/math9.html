@@ -404,9 +404,10 @@
 
         // 生成随机数学题
         function generateQuestion() {
-            const maxNumber = 5 + gameState.level; // 随着关卡增加，数字范围增大
-            
-            // 根据游戏模式确定运算类型
+            const QUESTION_MAX_VALUE = 10; // Max value for numbers in problems and results
+            // The original 'maxNumber = 5 + gameState.level;' can be left if it's used elsewhere,
+            // but for num1, num2, and answer generation, QUESTION_MAX_VALUE is the constraint.
+
             let operation = gameState.gameMode;
             if (gameState.gameMode === 'mixed') {
                 operation = Math.random() < 0.5 ? '+' : '-';
@@ -415,13 +416,17 @@
             let num1, num2, answer;
             
             if (operation === '+') {
-                // 加法
-                num1 = Math.floor(Math.random() * maxNumber) + 1;
-                num2 = Math.floor(Math.random() * (maxNumber - num1 + 1)) + 1;
+                // Addition: num1 + num2 <= QUESTION_MAX_VALUE
+                // num1 from 1 up to QUESTION_MAX_VALUE-1 (i.e., 1 to 9) to ensure num2 can be at least 1.
+                num1 = Math.floor(Math.random() * (QUESTION_MAX_VALUE - 1)) + 1;
+                // num2 from 1 up to (QUESTION_MAX_VALUE - num1).
+                // Example: if num1 is 9, num2 is 1. If num1 is 1, num2 is up to 9.
+                num2 = Math.floor(Math.random() * (QUESTION_MAX_VALUE - num1)) + 1;
                 answer = num1 + num2;
-            } else {
-                // 减法
-                num1 = Math.floor(Math.random() * maxNumber) + 1;
+            } else { // operation === '-'
+                // Subtraction: num1 - num2 >= 0, and num1 <= QUESTION_MAX_VALUE
+                num1 = Math.floor(Math.random() * QUESTION_MAX_VALUE) + 1; // num1 from 1 to 10
+                // num2 from 1 up to num1 (inclusive), ensuring the answer is not negative.
                 num2 = Math.floor(Math.random() * num1) + 1;
                 answer = num1 - num2;
             }
