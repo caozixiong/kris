@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Math Games Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        // Tailwind config from math9.html - potential merge point if other games use it
+        tailwind.config = { /* ... existing tailwind config ... */ };
+    </script>
+    <style id="master-css">
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        #game-navigation {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            display: flex; /* Use flexbox for alignment */
+            justify-content: center; /* Center buttons */
+            gap: 5px; /* Add gap between buttons */
+        }
+        #game-navigation button {
+            padding: 8px 12px;
+            margin: 2px; /* Reduced margin as gap is used */
+            border: 1px solid #ccc;
+            background-color: #e7e7e7;
+            cursor: pointer;
+        }
+        #game-navigation button.active {
+            background-color: #ddd;
+            font-weight: bold;
+        }
+        #game-content-area {
+            padding: 15px;
+            flex-grow: 1; /* Allow content area to take available space */
+        }
+        .game-instance {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .game-instance:not(.active-game) {
+            display: none;
+        }
+
+        /* Styles for Math1 (Count Shapes) - From previous steps, assumed to be complete and correct */
+        #container-math1 { /* ... */ } @keyframes math1-pulse { /* ... */ } /* ... */
+        /* Styles for Math10 (Arithmetic Game) - From previous steps, assumed to be complete and correct */
+        #container-math10 { /* ... */ } /* ... */
+        /* Styles for Math234 (1st Grade Games) - From previous steps, assumed to be complete and correct */
+        #container-math234 { /* ... */ } @keyframes math234-game23-shake { /* ... */ } /* ... */
+        /* Styles for Math567 (Mixed Adventures) - From previous steps, assumed to be complete and correct */
+        #container-math567 { /* ... */ } @keyframes math567-game-shake { /* ... */ } /* ... */
+        /* Styles for Math8 (Alien Countdown Jumps!) - From previous steps, assumed to be complete and correct */
+        #container-math8 { /* ... */ } @keyframes math8-float { /* ... */ } @keyframes math8-popup-appear { /* ... */ } /* ... */
+        /* Tailwind Custom Utilities from math9.html - From previous steps */
+        .content-auto { /* ... */ } .text-shadow { /* ... */ } .text-shadow-lg { /* ... */ } .transition-transform-special { /* ... */ }
+        #container-math9 .number-glow { /* ... */ } #container-math9 { /* ... */ }
+        /* Styles for Math Add/Subtract (math_add_sub) - From previous steps */
+        #container-math_add_sub { /* ... */ } /* ... */
+
+        /* Styles for Math Visual (math_visual) */
+        #container-math_visual {
+            font-family: 'Comic Sans MS', 'Marker Felt', Arial, sans-serif;
+            text-align: center;
+            background-color: #FFFDE7; /* Light yellow from original body */
+            user-select: none;
+            touch-action: manipulation;
+            max-width: 600px; /* from original .game-container */
+            margin: auto; /* from original .game-container */
+            padding: 20px; /* from original .game-container */
+            border: 1px solid #ccc; /* from original .game-container */
+            border-radius: 20px; /* from original .game-container */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* from original .game-container */
+        }
+        #container-math_visual h1 { color: #FF6B6B; font-size: 2.2em; }
+        #container-math_visual .theme-selector { display: flex; align-items: center; justify-content: center; margin-bottom: 15px; gap: 10px; }
+        #container-math_visual .theme-selector span { font-size: 1.1em; }
+        #container-math_visual .theme-selector button { background-color: #607D8B; color: white; border: none; border-radius: 5px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; transition: background-color 0.2s; }
+        #container-math_visual .theme-selector button:hover { background-color: #546E7A; }
+        #container-math_visual .theme-selector button.active-theme { background-color: #FFC107; font-weight: bold; color: #333; }
+        #container-math_visual .times-symbol { margin: 0 0.2em; font-weight: bold; } /* From original math_visual_game */
+        #container-math_visual .problem-area { font-size: 2.5em; margin-bottom: 20px; color: #333; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        #container-math_visual .problem-area span { padding: 10px; } /* Original span styling */
+        #container-math_visual .problem-area svg { vertical-align: middle; margin: 0 2px; } /* Align SVGs if they are direct children or within spans */
+        #container-math_visual .answer-options button { background-color: #7986CB; color: white; border: none; border-radius: 15px; padding: 15px 20px; font-size: 1.8em; margin: 10px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; -webkit-tap-highlight-color: transparent; }
+        #container-math_visual .answer-options button:hover, #container-math_visual .answer-options button:active { background-color: #5C6BC0; transform: scale(1.05); }
+        #container-math_visual .timer-area, #container-math_visual .score-area { margin-bottom: 15px; font-size: 1.3em; color: #555; }
+        #container-math_visual .controls button, #container-math_visual .timer-controls button { background-color: #4DB6AC; color: white; border: none; border-radius: 10px; padding: 10px 18px; font-size: 1.2em; margin: 5px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; -webkit-tap-highlight-color: transparent; }
+        #container-math_visual .controls button:hover, #container-math_visual .controls button:active, #container-math_visual .timer-controls button:hover, #container-math_visual .timer-controls button:active { background-color: #26A69A; transform: scale(1.03); }
+        #container-math_visual .timer-controls { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.1em; }
+        #container-math_visual .timer-controls span { margin-right: 10px; }
+        #container-math_visual #math_visual-timer-value { font-weight: bold; color: #00796B; }
+        #container-math_visual .timer-controls button { font-size: 1em; padding: 5px 10px; }
+        #container-math_visual .message-area { min-height: 30px; margin-top: 15px; font-weight: bold; font-size: 1.2em; }
+        #container-math_visual .message-area .correct { color: #4CAF50; }
+        #container-math_visual .message-area .incorrect { color: #F44336; }
+        #container-math_visual #math_visual-next-question { background-color: #FF8F00; }
+        #container-math_visual #math_visual-next-question:hover, #container-math_visual #math_visual-next-question:active { background-color: #FF6F00; }
+        @media (max-width: 600px) {
+            #container-math_visual { padding: 10px; } #container-math_visual h1 { font-size: 1.8em; }
+            #container-math_visual .problem-area { font-size: 2em; min-height: 60px; }
+            #container-math_visual .answer-options button { font-size: 1.5em; padding: 12px 15px; margin: 8px; }
+            #container-math_visual .timer-area, #container-math_visual .score-area { font-size: 1.1em; }
+            #container-math_visual .controls button, #container-math_visual .timer-controls button { font-size: 1em; padding: 8px 12px; }
+            #container-math_visual .timer-controls button { font-size: 0.9em; padding: 4px 8px; }
+            #container-math_visual .message-area { font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <header id="game-navigation">
+        <button data-gameid="container-math1" onclick="showGame('container-math1')">Math 1 (Count Shapes)</button>
+        <button data-gameid="container-math10" onclick="showGame('container-math10')">Math 10 (Arithmetic)</button>
+        <button data-gameid="container-math234" onclick="showGame('container-math234')">Math 234 (1st Grade Games)</button>
+        <button data-gameid="container-math567" onclick="showGame('container-math567')">Math 567 (Adventures V2)</button>
+        <button data-gameid="container-math8" onclick="showGame('container-math8')">Math 8 (Alien Jumps)</button>
+        <button data-gameid="container-math9" onclick="showGame('container-math9')">Math 9 (Super Hero)</button>
+        <button data-gameid="container-math_add_sub" onclick="showGame('container-math_add_sub')">Math Add/Subtract</button>
+        <button data-gameid="container-math_visual" onclick="showGame('container-math_visual')">Visual Math</button>
+    </header>
+    <main id="game-content-area">
+        <div id="container-math1" class="game-instance"> /* ...math1 html... */ </div>
+        <div id="container-math10" class="game-instance"> /* ...math10 html... */ </div>
+        <div id="container-math234" class="game-instance"> /* ...math234 html... */ </div>
+        <div id="container-math567" class="game-instance"> /* ...math567 html... */ </div>
+        <div id="container-math8" class="game-instance"> /* ...math8 html... */ </div>
+        <div id="container-math9" class="game-instance font-comic bg-gradient-to-br from-blue-50 to-indigo-100 p-4"> /* ...math9 html... */ </div>
+        <div id="container-math_add_sub" class="game-instance"> /* ...math_add_sub html... */ </div>
+
+        <div id="container-math_visual" class="game-instance">
+            <h1>Fun Visual Math Practice</h1>
+            <div class="timer-controls">
+                <span>Time Limit: <span id="math_visual-timer-value">10</span>s</span>
+                <button id="math_visual-decrease-timer">-</button>
+                <button id="math_visual-increase-timer">+</button>
+            </div>
+            <div class="theme-selector">
+                <span>Select Theme:</span>
+                <button id="math_visual-theme-matchsticks">Matchsticks</button>
+                <button id="math_visual-theme-chicks">Chicks</button>
+            </div>
+            <div class="problem-area">
+                <span id="math_visual-problem-display">Click 'Start Game'</span>
+            </div>
+            <div class="answer-options">
+                <button id="math_visual-ans1"></button>
+                <button id="math_visual-ans2"></button>
+                <button id="math_visual-ans3"></button>
+            </div>
+            <div class="timer-area">
+                Time Left: <span id="math_visual-time-left">N/A</span>
+            </div>
+            <div class="score-area">
+                Score: <span id="math_visual-score">0</span>
+            </div>
+            <div class="message-area">
+                <span id="math_visual-feedback-message"></span>
+            </div>
+            <div class="controls">
+                <button id="math_visual-start-game">Start Game</button>
+                <button id="math_visual-next-question" style="display:none;">Next Question</button>
+            </div>
+        </div>
+    </main>
+    <script id="master-js">
+        // Master script for navigation and game initializations will be built here
+        function showGame(gameIdToShow) { /* ... Master showGame ... */ }
+        window.game_math1 = { /* ... game_math1 JS ... */ };
+        window.game_math10 = { /* ... game_math10 JS ... */ };
+        window.game_math234 = { /* ... game_math234 JS ... */ };
+        window.game_math567 = { /* ... game_math567 JS ... */ };
+        window.game_math8 = { /* ... game_math8 JS ... */ };
+        window.game_math9 = { /* ... game_math9 JS ... */ };
+        window.game_math_add_sub = { /* ... game_math_add_sub JS ... */ };
+
+        window.game_math_visual = {
+            gameRoot: null,
+            state: {
+                currentProblem: { num1: null, num2: null, operator: null, correctAnswer: null },
+                score: 0, timerDuration: 10, timerInterval: null, timeLeft: 0, gameActive: false,
+                currentTheme: 'matchsticks'
+            },
+            elements: {},
+            themes: {
+                matchsticks: {
+                    item1: 'M', item2: 'S', // Not directly used if SVGs are involved for numbers
+                    svgs: {
+                        1: '<svg width="12" height="40" viewbox="0 0 12 40"><rect x="4" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
+                        2: '<svg width="24" height="40" viewbox="0 0 24 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
+                        3: '<svg width="36" height="40" viewbox="0 0 36 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="20" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>'
+                    },
+                    get singleUnitVisual() { return this.svgs[1]; }
+                },
+                chicks: {
+                    item1: '🐥', item2: '🐣', // item2 can be used if needed for variety in addition
+                    representations: { 1: '🐥', 2: '🐥🐥', 3: '🐥🐥🐥', 4: '🐥🐥🐥🐥', 5: '🐥🐥🐥🐥🐥', 6: '🐥🐥🐥🐥🐥🐥', 7: '🐥🐥🐥🐥🐥🐥🐥' },
+                    get singleUnitVisual() { return this.item1; }
+                }
+            },
+            init: function() {
+                console.log("game_math_visual.init called");
+                this.gameRoot = document.getElementById('container-math_visual');
+                if (!this.gameRoot) { console.error("Math Visual container not found!"); return; }
+
+                this.elements.timerValueDisplay = this.gameRoot.querySelector('#math_visual-timer-value');
+                this.elements.decreaseTimerButton = this.gameRoot.querySelector('#math_visual-decrease-timer');
+                this.elements.increaseTimerButton = this.gameRoot.querySelector('#math_visual-increase-timer');
+                this.elements.problemDisplay = this.gameRoot.querySelector('#math_visual-problem-display');
+                this.elements.ans1Button = this.gameRoot.querySelector('#math_visual-ans1');
+                this.elements.ans2Button = this.gameRoot.querySelector('#math_visual-ans2');
+                this.elements.ans3Button = this.gameRoot.querySelector('#math_visual-ans3');
+                this.elements.answerButtons = [this.elements.ans1Button, this.elements.ans2Button, this.elements.ans3Button];
+                this.elements.timeLeftDisplay = this.gameRoot.querySelector('#math_visual-time-left');
+                this.elements.scoreDisplay = this.gameRoot.querySelector('#math_visual-score');
+                this.elements.feedbackMessageDisplay = this.gameRoot.querySelector('#math_visual-feedback-message');
+                this.elements.startGameButton = this.gameRoot.querySelector('#math_visual-start-game');
+                this.elements.nextQuestionButton = this.gameRoot.querySelector('#math_visual-next-question');
+                this.elements.themeMatchsticksButton = this.gameRoot.querySelector('#math_visual-theme-matchsticks');
+                this.elements.themeChicksButton = this.gameRoot.querySelector('#math_visual-theme-chicks');
+
+                this.updateTimerValueDisplay();
+                this.disableAnswerButtons();
+                this.elements.nextQuestionButton.style.display = 'none';
+                this.elements.problemDisplay.textContent = "Click 'Start Game'";
+
+                this.elements.startGameButton.addEventListener('click', () => this.startGame());
+                this.elements.decreaseTimerButton.addEventListener('click', () => this.adjustTimer(-5));
+                this.elements.increaseTimerButton.addEventListener('click', () => this.adjustTimer(5));
+                this.elements.nextQuestionButton.addEventListener('click', () => this.nextQuestion());
+                this.elements.answerButtons.forEach(button => button.addEventListener('click', () => this.checkAnswer(button)));
+                this.elements.themeMatchsticksButton.addEventListener('click', () => this.setTheme('matchsticks'));
+                this.elements.themeChicksButton.addEventListener('click', () => this.setTheme('chicks'));
+
+                this.updateThemeButtons(); // Set initial active theme button
+                // Display an initial problem based on default theme
+                if (this.state.currentProblem.num1 === null) { // Only if no problem is set yet
+                    this.generateNewProblem();
+                }
+                this.displayCurrentProblem();
+
+            },
+            setTheme: function(themeName) {
+                this.state.currentTheme = themeName;
+                this.updateThemeButtons();
+                if (this.state.currentProblem.num1 !== null) { // If a problem (even the initial one) exists
+                    this.displayCurrentProblem();
+                } else {
+                    this.elements.problemDisplay.textContent = "Theme changed. Click 'Start Game' to see problems.";
+                }
+            },
+            updateThemeButtons: function() {
+                this.elements.themeMatchsticksButton.classList.remove('active-theme');
+                this.elements.themeChicksButton.classList.remove('active-theme');
+                if (this.state.currentTheme === 'matchsticks') this.elements.themeMatchsticksButton.classList.add('active-theme');
+                else if (this.state.currentTheme === 'chicks') this.elements.themeChicksButton.classList.add('active-theme');
+            },
+            getVisualForNumber: function(number) { // Removed theme param, uses this.state.currentTheme
+                const themeConfig = this.themes[this.state.currentTheme];
+                if (!themeConfig) return number.toString();
+
+                if (number > 10) {
+                    if (this.state.currentTheme === 'matchsticks' && themeConfig.singleUnitVisual) {
+                        return themeConfig.singleUnitVisual + ` <span class="times-symbol">x</span> ${number}`;
+                    } else if (this.state.currentTheme === 'chicks' && themeConfig.singleUnitVisual) {
+                        return `${themeConfig.singleUnitVisual} <span class="times-symbol">x</span> ${number}`;
+                    }
+                } else { // number <= 10
+                    if (this.state.currentTheme === 'matchsticks') {
+                        if (themeConfig.svgs && themeConfig.svgs[number]) { return themeConfig.svgs[number]; }
+                        return `<span style="font-size:0.8em; vertical-align:middle;">[${number} Matchsticks]</span>`;
+                    } else if (this.state.currentTheme === 'chicks') {
+                        if (number >= 1 && number <= 7) {
+                            return themeConfig.representations[number] || themeConfig.item1.repeat(number);
+                        }
+                        return `<span style="font-size:0.8em; vertical-align:middle;">[${number} Chicks]</span>`;
+                    }
+                }
+                return number.toString();
+            },
+            formatProblemForDisplay: function(num1, op, num2) {
+                if (num1 === null) return "Click 'Start Game'";
+                const visualNum1 = this.getVisualForNumber(num1);
+                const visualNum2 = this.getVisualForNumber(num2);
+                // Operator styling from math_visual_game, might be nice to keep
+                return `${visualNum1} <span style="font-weight:bold; color:#FF6B6B;">${op}</span> ${visualNum2} = ?`;
+            },
+            displayCurrentProblem: function() {
+                 this.elements.problemDisplay.innerHTML = this.formatProblemForDisplay(this.state.currentProblem.num1, this.state.currentProblem.operator, this.state.currentProblem.num2);
+            },
+            generateNewProblem: function() { // From math_add_sub logic
+                const isAddition = Math.random() < 0.5;
+                let num1, num2, correctAnswer;
+                if (isAddition) {
+                    num1 = this.getRandomInt(0, 10); num2 = this.getRandomInt(0, 20 - num1); correctAnswer = num1 + num2;
+                    this.state.currentProblem = { num1, num2, operator: '+', correctAnswer };
+                } else {
+                    num1 = this.getRandomInt(0, 20); num2 = this.getRandomInt(0, num1); correctAnswer = num1 - num2;
+                    this.state.currentProblem = { num1, num2, operator: '-', correctAnswer };
+                }
+            },
+            // Copied methods from math_add_sub, ensure 'this' context is correct
+            adjustTimer: function(amount) { if (this.state.gameActive) return; this.state.timerDuration = Math.max(10, Math.min(60, this.state.timerDuration + amount)); this.updateTimerValueDisplay(); },
+            updateTimerValueDisplay: function() { this.elements.timerValueDisplay.textContent = this.state.timerDuration; },
+            startGame: function() { this.state.score = 0; this.state.gameActive = true; this.updateScoreDisplay(); this.elements.feedbackMessageDisplay.textContent = ''; this.elements.feedbackMessageDisplay.className = 'message-area'; this.elements.startGameButton.style.display = 'none'; this.enableTimerAdjustmentButtons(false); this.nextQuestion(); },
+            nextQuestion: function() { this.clearFeedback(); this.enableAnswerButtons(); this.elements.nextQuestionButton.style.display = 'none'; this.elements.timeLeftDisplay.textContent = this.state.timerDuration; this.generateNewProblem(); this.displayCurrentProblem(); let options = [this.state.currentProblem.correctAnswer]; while (options.length < 3) { let d = this.getRandomInt(Math.max(0, this.state.currentProblem.correctAnswer - 5), Math.min(20, this.state.currentProblem.correctAnswer + 5)); if (!options.includes(d)) { options.push(d); } } this.shuffleArray(options); this.elements.answerButtons.forEach((b, i) => { b.textContent = options[i]; }); this.state.timeLeft = this.state.timerDuration; this.elements.timeLeftDisplay.textContent = this.state.timeLeft; if (this.state.timerInterval) clearInterval(this.state.timerInterval); this.state.timerInterval = setInterval(() => this.updateTimer(), 1000); },
+            updateTimer: function() { this.state.timeLeft--; this.elements.timeLeftDisplay.textContent = this.state.timeLeft; if (this.state.timeLeft <= 0) { clearInterval(this.state.timerInterval); this.showFeedback("Time's up! The answer was " + this.state.currentProblem.correctAnswer, 'incorrect'); this.disableAnswerButtons(); this.elements.nextQuestionButton.style.display = 'block'; this.enableTimerAdjustmentButtons(true); this.elements.startGameButton.style.display = 'block'; this.state.gameActive = false; } },
+            checkAnswer: function(button) { if (!this.state.gameActive || this.state.timeLeft <= 0) return; clearInterval(this.state.timerInterval); this.disableAnswerButtons(); const selectedAnswer = parseInt(button.textContent); if (selectedAnswer === this.state.currentProblem.correctAnswer) { this.state.score++; this.updateScoreDisplay(); this.showFeedback("Correct!", 'correct'); } else { this.showFeedback(`Wrong! The answer was ${this.state.currentProblem.correctAnswer}`, 'incorrect'); } this.elements.nextQuestionButton.style.display = 'block'; },
+            showFeedback: function(message, typeClass) { this.elements.feedbackMessageDisplay.textContent = message; this.elements.feedbackMessageDisplay.className = 'message-area'; this.elements.feedbackMessageDisplay.classList.add(typeClass); },
+            clearFeedback: function() { this.elements.feedbackMessageDisplay.textContent = ''; this.elements.feedbackMessageDisplay.className = 'message-area'; },
+            getRandomInt: function(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
+            shuffleArray: function(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } },
+            disableAnswerButtons: function() { this.elements.answerButtons.forEach(button => button.disabled = true); },
+            enableAnswerButtons: function() { this.elements.answerButtons.forEach(button => button.disabled = false); },
+            enableTimerAdjustmentButtons: function(enable) { this.elements.decreaseTimerButton.disabled = !enable; this.elements.increaseTimerButton.disabled = !enable; },
+            updateScoreDisplay: function() { this.elements.scoreDisplay.textContent = this.state.score; },
+            cleanup: function() { clearInterval(this.state.timerInterval); console.log("game_math_visual.cleanup called");}
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstGameButton = document.querySelector('#game-navigation button');
+            if (firstGameButton) {
+                showGame(firstGameButton.getAttribute('data-gameid'));
+            }
+        });
+    </script>
+</body>
+</html>
