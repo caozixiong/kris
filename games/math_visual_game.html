@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味视觉数学练习</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
+            text-align: center;
+            background-color: #FFFDE7; /* Light yellow */
+            user-select: none;
+            touch-action: manipulation;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .game-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #ccc; /* Keep a subtle border */
+        }
+
+        h1 {
+            color: #FF6B6B; /* Coral red */
+            font-size: 2.2em;
+        }
+
+        .theme-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px; /* Adjusted margin */
+            gap: 10px;
+        }
+        .theme-selector span {
+            font-size: 1.1em;
+            /* margin-right is handled by gap now */
+        }
+        .theme-selector button {
+            background-color: #607D8B; /* Blue Grey */
+            color: white;
+            border: none;
+            border-radius: 5px; /* Adjusted border-radius */
+            padding: 8px 12px;
+            font-size: 0.9em; /* Adjusted font-size */
+            /* margin is handled by gap now */
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .theme-selector button:hover {
+            background-color: #546E7A; /* Darker Blue Grey */
+        }
+        .theme-selector button.active-theme {
+            background-color: #FFC107; /* Amber */
+            font-weight: bold;
+            color: #333; /* Darker text for better contrast on amber */
+        }
+
+        .problem-area {
+            font-size: 2.5em; /* Larger font for problem */
+            margin-bottom: 20px;
+            color: #333; /* Good contrast for text */
+            min-height: 100px; /* Increased min-height for visual elements */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .problem-area span { /* Style for the actual problem text/icons */
+            padding: 10px;
+        }
+
+        .answer-options button {
+            background-color: #7986CB; /* Lavender blue */
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.8em;
+            margin: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+        }
+
+        .answer-options button:hover, .answer-options button:active {
+            background-color: #5C6BC0; /* Darker lavender blue */
+            transform: scale(1.05);
+        }
+
+        .timer-area, .score-area {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            color: #555;
+        }
+
+        .controls button, .timer-controls button {
+            background-color: #4DB6AC; /* Teal */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 1.2em;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .controls button:hover, .controls button:active,
+        .timer-controls button:hover, .timer-controls button:active {
+            background-color: #26A69A; /* Darker teal */
+            transform: scale(1.03);
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .timer-controls span {
+            margin-right: 10px;
+        }
+
+        #timer-value {
+            font-weight: bold;
+            color: #00796B; /* Darker teal for emphasis */
+        }
+
+        .timer-controls button { /* Smaller buttons for timer adjustment */
+            font-size: 1em;
+            padding: 5px 10px;
+        }
+
+        .message-area {
+            min-height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .message-area .correct {
+            color: #4CAF50; /* Green for correct */
+        }
+
+        .message-area .incorrect {
+            color: #F44336; /* Red for incorrect */
+        }
+
+        #next-question {
+            background-color: #FF8F00; /* Amber for next question */
+        }
+        #next-question:hover, #next-question:active {
+            background-color: #FF6F00; /* Darker amber */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .game-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .problem-area {
+                font-size: 2em;
+                min-height: 60px;
+            }
+            .answer-options button {
+                font-size: 1.5em;
+                padding: 12px 15px;
+                margin: 8px;
+            }
+            .timer-area, .score-area {
+                font-size: 1.1em;
+            }
+            .controls button, .timer-controls button {
+                font-size: 1em;
+                padding: 8px 12px;
+            }
+            .timer-controls button { /* Timer adjustment buttons even smaller */
+                 font-size: 0.9em;
+                 padding: 4px 8px;
+            }
+            .message-area {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>趣味视觉数学练习</h1>
+
+        <div class="timer-controls">
+            <span>时间限制: <span id="timer-value">30</span>s</span>
+            <button id="decrease-timer">-</button>
+            <button id="increase-timer">+</button>
+        </div>
+
+        <div class="theme-selector">
+            <span>选择主题:</span>
+            <button id="theme-matchsticks">火柴棒</button>
+            <button id="theme-chicks">小鸡</button>
+        </div>
+
+        <div class="problem-area">
+            <span id="problem-display">点击“开始游戏”</span>
+        </div>
+
+        <div class="answer-options">
+            <button id="ans1"></button>
+            <button id="ans2"></button>
+            <button id="ans3"></button>
+        </div>
+
+        <div class="timer-area">
+            剩余时间: <span id="time-left">N/A</span>
+        </div>
+
+        <div class="score-area">
+            得分: <span id="score">0</span>
+        </div>
+
+        <div class="message-area">
+            <span id="feedback-message"></span>
+        </div>
+
+        <div class="controls">
+            <button id="start-game">开始游戏</button>
+            <button id="next-question" style="display:none;">下一题</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const timerValueDisplay = document.getElementById('timer-value');
+            const decreaseTimerButton = document.getElementById('decrease-timer');
+            const increaseTimerButton = document.getElementById('increase-timer');
+            const problemDisplay = document.getElementById('problem-display');
+            const ans1Button = document.getElementById('ans1');
+            const ans2Button = document.getElementById('ans2');
+            const ans3Button = document.getElementById('ans3');
+            const answerButtons = [ans1Button, ans2Button, ans3Button];
+            const timeLeftDisplay = document.getElementById('time-left');
+            const scoreDisplay = document.getElementById('score');
+            const feedbackMessageDisplay = document.getElementById('feedback-message');
+            const startGameButton = document.getElementById('start-game');
+            const nextQuestionButton = document.getElementById('next-question');
+            const themeMatchsticksButton = document.getElementById('theme-matchsticks');
+            const themeChicksButton = document.getElementById('theme-chicks');
+
+            // Global Variables
+            let currentProblem = { num1: null, num2: null, operator: null, correctAnswer: null }; // Initialize to avoid null errors
+            let score = 0;
+            let timerDuration = 30;
+            let timerInterval = null;
+            let timeLeft = 0;
+            let gameActive = false;
+            let currentTheme = 'matchsticks'; // Default theme
+
+            const matchstickSVGs = {
+                1: '<svg width="12" height="40" viewbox="0 0 12 40"><rect x="4" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
+                2: '<svg width="24" height="40" viewbox="0 0 24 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
+                3: '<svg width="36" height="40" viewbox="0 0 36 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="20" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>'
+            };
+            // Placeholder for chick SVGs or image tags
+            const chickRepresentations = {
+                1: '🐥',
+                2: '🐥🐥',
+                3: '🐥🐥🐥',
+                // Add more as needed, or use a function to repeat
+            };
+
+
+            // Initialization
+            function initGame() {
+                updateTimerValueDisplay();
+                disableAnswerButtons();
+                nextQuestionButton.style.display = 'none';
+                updateThemeButtons(); // Set initial active theme button
+
+                startGameButton.addEventListener('click', startGame);
+                decreaseTimerButton.addEventListener('click', () => adjustTimer(-5));
+                increaseTimerButton.addEventListener('click', () => adjustTimer(5));
+                nextQuestionButton.addEventListener('click', nextQuestion);
+
+                answerButtons.forEach(button => {
+                    button.addEventListener('click', () => checkAnswer(button));
+                });
+
+                themeMatchsticksButton.addEventListener('click', () => setTheme('matchsticks'));
+                themeChicksButton.addEventListener('click', () => setTheme('chicks'));
+
+                // Generate and display an initial problem (but don't start timer)
+                generateNewProblem();
+                displayCurrentProblem();
+            }
+
+            // Theme Management
+            function setTheme(themeName) {
+                currentTheme = themeName;
+                updateThemeButtons();
+                if (currentProblem.num1 !== null) { // Check if a problem exists
+                    displayCurrentProblem(); // Refresh problem display with new theme
+                } else {
+                     problemDisplay.innerHTML = "选择主题后，点击开始游戏"; // Or some placeholder
+                }
+            }
+
+            function updateThemeButtons() {
+                themeMatchsticksButton.classList.remove('active-theme');
+                themeChicksButton.classList.remove('active-theme');
+                if (currentTheme === 'matchsticks') {
+                    themeMatchsticksButton.classList.add('active-theme');
+                } else if (currentTheme === 'chicks') {
+                    themeChicksButton.classList.add('active-theme');
+                }
+            }
+
+            // Problem Visuals
+            function getVisualForNumber(number, theme) {
+                if (theme === 'matchsticks') {
+                    if (matchstickSVGs[number]) {
+                        return matchstickSVGs[number];
+                    }
+                    return `<span style="font-size:0.8em; vertical-align:middle;">[火柴棒 ${number}]</span>`; // Fallback for larger numbers
+                } else if (theme === 'chicks') {
+                    // Simple emoji repeat for chicks, can be expanded
+                    if (number > 0 && number <= 7) { // Show up to 7 chicks as emojis
+                        return chickRepresentations[number] || '🐥'.repeat(number);
+                    }
+                    return `<span style="font-size:0.8em; vertical-align:middle;">[小鸡 ${number}]</span>`; // Fallback
+                }
+                return number.toString(); // Default fallback
+            }
+
+            function formatProblemForDisplay(num1, op, num2) {
+                if (num1 === null || num2 === null || op === null) {
+                    return "点击“开始游戏”";
+                }
+                const visualNum1 = getVisualForNumber(num1, currentTheme);
+                const visualNum2 = getVisualForNumber(num2, currentTheme);
+                return `${visualNum1} <span style="font-weight:bold; color:#FF6B6B;">${op}</span> ${visualNum2} = ?`;
+            }
+
+            function displayCurrentProblem() {
+                 problemDisplay.innerHTML = formatProblemForDisplay(currentProblem.num1, currentProblem.operator, currentProblem.num2);
+            }
+
+            // Timer Adjustment
+            function adjustTimer(amount) {
+                if (gameActive) return;
+                timerDuration = Math.max(10, Math.min(60, timerDuration + amount));
+                updateTimerValueDisplay();
+            }
+
+            function updateTimerValueDisplay() {
+                timerValueDisplay.textContent = timerDuration;
+            }
+
+            // Game Start
+            function startGame() {
+                score = 0;
+                gameActive = true; // Set game active *before* first question
+                updateScoreDisplay();
+                clearFeedback(); // Clear feedback before starting
+                startGameButton.style.display = 'none';
+                enableTimerAdjustmentButtons(false);
+                nextQuestion(); // This will generate and display
+            }
+
+            function generateNewProblem() {
+                const isAddition = Math.random() < 0.5;
+                let num1, num2, correctAnswer;
+
+                if (isAddition) {
+                    num1 = getRandomInt(1, 10); // Ensure num1 is at least 1 for visual
+                    num2 = getRandomInt(1, Math.min(10, 20 - num1)); // Ensure num2 is at least 1 and sum <=20
+                    correctAnswer = num1 + num2;
+                    currentProblem = { num1, num2, operator: '+', correctAnswer };
+                } else { // Subtraction
+                    num1 = getRandomInt(2, 20); // Ensure num1 is at least 2 for meaningful subtraction
+                    num2 = getRandomInt(1, num1 -1); // Ensure num2 is smaller and at least 1
+                    correctAnswer = num1 - num2;
+                    currentProblem = { num1, num2, operator: '-', correctAnswer };
+                }
+            }
+
+            // Generate and Display Next Question
+            function nextQuestion() {
+                if (!gameActive && timeLeft > 0) { // If called from 'Next Question' button after timeout, but game not formally restarted
+                    // This case might need startGame() to be called implicitly or UI guides user to Start
+                }
+                if (!gameActive) { // If game was never started or fully ended (e.g. after timeout and no auto-restart)
+                     // Do not proceed if game is not active (e.g. initial load before start)
+                     // however, startGame sets gameActive=true then calls nextQuestion.
+                }
+
+                clearFeedback();
+                enableAnswerButtons();
+                nextQuestionButton.style.display = 'none';
+
+                generateNewProblem();
+                displayCurrentProblem();
+
+                // Generate answer options (numeric)
+                let options = [currentProblem.correctAnswer];
+                while (options.length < 3) {
+                    // Ensure distractors are positive and reasonably close
+                    let distractorBase = Math.max(1, currentProblem.correctAnswer - 5);
+                    let distractorRange = Math.min(20, currentProblem.correctAnswer + 5);
+                    let distractor = getRandomInt(distractorBase, distractorRange);
+                    if (!options.includes(distractor) && distractor > 0) { // Ensure positive distractors
+                        options.push(distractor);
+                    } else if (options.length < 2 && !options.includes(distractorRange)) { // try boundary if stuck
+                        options.push(distractorRange);
+                    } else if (options.length < 2 && !options.includes(distractorBase) && distractorBase > 0) {
+                         options.push(distractorBase);
+                    } else if (options.length < 2) { // last resort if still stuck
+                        options.push(getRandomInt(1,20));
+                    }
+                }
+                 // Simple shuffle, ensure options are unique from above loop
+                shuffleArray(options);
+                options = [...new Set(options)]; // Ensure uniqueness after shuffle if any duplicates crept in
+                while(options.length < 3) { // If Set reduced length, fill up
+                    let fill = getRandomInt(1,20);
+                    if(!options.includes(fill)) options.push(fill);
+                }
+
+
+                answerButtons.forEach((button, index) => {
+                    button.textContent = options[index]; // Answers are numbers
+                });
+
+                // Start timer only if game is active
+                if (gameActive) {
+                    timeLeft = timerDuration;
+                    timeLeftDisplay.textContent = timeLeft;
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(updateTimer, 1000);
+                } else {
+                     timeLeftDisplay.textContent = "N/A"; // Or timerDuration if to show it pre-start
+                }
+            }
+
+
+            // Timer Update
+            function updateTimer() {
+                timeLeft--;
+                timeLeftDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showFeedback("时间到！答案是 " + currentProblem.correctAnswer, 'incorrect');
+                    disableAnswerButtons();
+                    nextQuestionButton.style.display = 'block';
+                    enableTimerAdjustmentButtons(true);
+                    startGameButton.style.display = 'block';
+                    // gameActive remains true as per previous fix, allowing nextQuestion to proceed if clicked
+                }
+            }
+
+            // Check Answer
+            function checkAnswer(button) {
+                if (!gameActive || timeLeft <= 0) return;
+
+                clearInterval(timerInterval);
+                disableAnswerButtons();
+                const selectedAnswer = parseInt(button.textContent);
+
+                if (selectedAnswer === currentProblem.correctAnswer) {
+                    score++;
+                    updateScoreDisplay();
+                    showFeedback("正确!", 'correct');
+                } else {
+                    showFeedback(`错误！答案是 ${currentProblem.correctAnswer}`, 'incorrect');
+                }
+                nextQuestionButton.style.display = 'block';
+            }
+
+            // Feedback Display
+            function showFeedback(message, typeClass) {
+                feedbackMessageDisplay.textContent = message;
+                feedbackMessageDisplay.className = 'message-area'; // Reset classes first
+                feedbackMessageDisplay.classList.add(typeClass);
+            }
+
+            function clearFeedback() {
+                feedbackMessageDisplay.textContent = '';
+                feedbackMessageDisplay.className = 'message-area';
+            }
+
+            // Utility Functions
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function disableAnswerButtons() {
+                answerButtons.forEach(button => button.disabled = true);
+            }
+
+            function enableAnswerButtons() {
+                answerButtons.forEach(button => button.disabled = false);
+            }
+
+            function enableTimerAdjustmentButtons(enable) {
+                decreaseTimerButton.disabled = !enable;
+                increaseTimerButton.disabled = !enable;
+            }
+
+            function updateScoreDisplay() {
+                scoreDisplay.textContent = score;
+            }
+
+            // Initialize the game when DOM is fully loaded
+            initGame();
+        });
+    </script>
+</body>
+</html>
