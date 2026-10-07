@@ -9,3 +9,4 @@
 @media(max-width:540px){.product-grid{grid-template-columns:repeat(2,1fr)}.mission-map{grid-template-columns:repeat(4,1fr)}.map-stop{min-height:66px}.map-stop small{display:block;font-size:9px}}
 
 .word.placed:disabled,.material.selected:disabled,.switch-button.selected:disabled,.predict-button.selected:disabled{opacity:1}
+.word{min-width:44px}.quest-brand{min-height:44px}.science-sources a{min-height:44px}
