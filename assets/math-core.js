@@ -90,7 +90,7 @@
           if (token === generation) {
             timers.clear(timeout); timeout = null; current = null;
             // Only platform diagnostics: never log the spoken text or user input.
-            env.console?.warn?.('Kris math speech unavailable', { error: event?.error || 'unknown', availableVoices: voices.length });
+            env.console?.warn?.('Kris math speech unavailable: ' + JSON.stringify({ error: event?.error || 'unknown', availableVoices: voices.length }));
             onStatus('failed');
           }
         };
