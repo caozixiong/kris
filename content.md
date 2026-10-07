@@ -5,7 +5,8 @@
 ## 游戏 (Games)
 
 * [形状分类数学](./shape_sorter_math.html) - 练习加法和减法！拖动形状来匹配数字，或者拿走一些形状来达到目标数量。
-* [加法游戏](./addition_game.html) - 一个简单的在线加法练习游戏，帮助提高计算速度和准确性。
+* [加法游戏](./addition_game.html) - 把两篮果子合起来，动手数一数、闯关收集星星！支持1–20加法和语音复习。
+* [乘法星球](./multiplication_game.html) - 练习两个1–10的数相乘，点亮星星分组，每题结束听中文乘法口诀。
 * [词汇问答](./vocabulary_quiz.html) - 来测试一下你认识多少词语吧！
 * [看图识字](./games/chinese_character_quiz.html) - 通过图片学习常见的汉字。
 * [20以内加减法练习](./games/math_addition_subtraction.html) - 练习20以内的加法和减法，可计时和调整时间。
@@ -54,3 +55,4 @@
 * [认识我们的身体](http://www.a-hospital.com/health/child/200809/36770.html) - 简单介绍身体各个部位的小知识。
 
 希望你喜欢这些网站！
+

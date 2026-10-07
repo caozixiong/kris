@@ -21,6 +21,7 @@
   const gameStyles = {
     './shape_sorter_math.html': ['peach', 'shapes', '动手学数学'],
     './addition_game.html': ['mint', 'math', '加法小挑战'],
+    './multiplication_game.html': ['blue', 'planet', '分组探索 · 听听口诀'],
     './vocabulary_quiz.html': ['lavender', 'words', '词语大挑战'],
     './games/chinese_character_quiz.html': ['yellow', 'chinese', '认识新汉字'],
     './games/math_addition_subtraction.html': ['blue', 'timer', '算一算 · 练一练'],
@@ -171,7 +172,7 @@
   $('#surprise-button').hidden = gameGrid.childElementCount === 0;
   applyFilters();
 
-  fetch('content.md')
+  fetch('content.md?v=8757a5c27509')
     .then((response) => {
       if (!response.ok) throw new Error(`Content HTTP ${response.status}`);
       return response.text();
@@ -185,3 +186,4 @@
       message.hidden = false;
     });
 })();
+
