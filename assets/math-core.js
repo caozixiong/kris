@@ -86,7 +86,14 @@
         else if (voices.length) { current = null; onStatus('noVoice'); return false; }
         current.onstart = () => { if (token === generation) { timers.clear(timeout); timeout = null; onStatus('speaking'); } };
         current.onend = () => { if (token === generation) { timers.clear(timeout); timeout = null; current = null; onStatus('ready'); } };
-        current.onerror = () => { if (token === generation) { timers.clear(timeout); timeout = null; current = null; onStatus('failed'); } };
+        current.onerror = event => {
+          if (token === generation) {
+            timers.clear(timeout); timeout = null; current = null;
+            // Only platform diagnostics: never log the spoken text or user input.
+            env.console?.warn?.('Kris math speech unavailable', { error: event?.error || 'unknown', availableVoices: voices.length });
+            onStatus('failed');
+          }
+        };
         onStatus('starting');
         timeout = timers.set(() => { if (token === generation) { stop(); onStatus('failed'); } }, 5000);
         // Synchronous inside answer/replay click or submit: preserves iOS user activation.
