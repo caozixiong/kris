@@ -1,25 +1,140 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的导航页</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="theme-color" content="#FCF9F0">
+ <meta name="description" content="欢迎来到 Kris 的奇妙乐园！玩数学小游戏、读故事、探索科学，还有画画和音乐。为小朋友准备的快乐学习导航。">
+ <title>Kris 的奇妙乐园 · 让好奇心出发</title>
+ <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+ <link rel="stylesheet" href="style.css">
+ <script src="script.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>链接导航</h1>
-    </header>
-
-    <main id="content-container">
-        <div id="loading-message">正在加载内容...</div>
-        </main>
-
-    <footer>
-        <p>内容从 content.md 加载</p>
-    </footer>
-
-    <script src="script.js"></script>
+ <a class="skip-link" href="#main">跳到主要内容</a>
+ <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="icon-external" viewBox="0 0 24 24"><path d="M9 5H5v14h14v-4M12 4h8v8M10 14 20 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="icon-shuffle" viewBox="0 0 24 24"><path d="M3 6h3c5 0 6 12 11 12h4m-4-4 4 4-4 4M3 18h3c2 0 3-2 4-4m4-5c1-2 2-3 4-3h3m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="icon-shapes" viewBox="0 0 140 110"><rect x="19" y="49" width="47" height="47" rx="10" fill="#EF9A70" transform="rotate(-12 42 72)"/><path d="m98 17 29 48H69Z" fill="#6F9A89" stroke="#6F9A89" stroke-linejoin="round" stroke-width="8"/><circle cx="89" cy="77" r="23" fill="#E8BD57"/><path d="M36 69v3m12-5v3m-10 9q6 5 11-2M84 77v2m11-2v2m-10 8q5 3 8-1" stroke="#354F45" stroke-width="2.5" stroke-linecap="round"/></symbol>
+<symbol id="icon-math" viewBox="0 0 140 110"><rect x="19" y="18" width="57" height="74" rx="13" fill="#73A08A" transform="rotate(-9 48 55)"/><path d="M35 49h25M47 37v25" stroke="#FFF9E8" stroke-width="7" stroke-linecap="round"/><circle cx="90" cy="68" r="31" fill="#F5D37E"/><path d="M77 61h26M77 75h26" stroke="#786843" stroke-width="6" stroke-linecap="round"/><circle cx="110" cy="22" r="8" fill="#ECA58B"/></symbol>
+<symbol id="icon-words" viewBox="0 0 140 110"><rect x="13" y="31" width="56" height="60" rx="12" fill="#A99BC8" transform="rotate(-12 41 61)"/><rect x="66" y="19" width="59" height="67" rx="12" fill="#F5CE78" transform="rotate(10 95 52)"/><path d="m29 73 9-29 15 25M33 63l15-3M86 36v33h13q17-2 6-16 8-16-8-17Z" fill="none" stroke="#FFFBEF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="icon-chinese" viewBox="0 0 140 110"><rect x="29" y="10" width="82" height="89" rx="15" fill="#FFFCED" stroke="#E4BD63" stroke-width="3" transform="rotate(7 70 55)"/><path d="M42 56h57M70 22v64" stroke="#EBDEC0" stroke-dasharray="4 4"/><path d="m52 40 5 36 31-4-1-36-35 4Zm4 17 31-3" fill="none" stroke="#916C40" stroke-width="5" stroke-linejoin="round"/><circle cx="27" cy="28" r="11" fill="#EBA58A"/></symbol>
+<symbol id="icon-timer" viewBox="0 0 140 110"><path d="M64 16h18M73 16v13m31 7 8-9" fill="none" stroke="#678E9C" stroke-width="7" stroke-linecap="round"/><circle cx="73" cy="64" r="36" fill="#83ACB7"/><circle cx="73" cy="64" r="27" fill="#F9FAED"/><path d="M73 45v20l13 9" fill="none" stroke="#4B717A" stroke-width="5" stroke-linecap="round"/><path d="m17 47 14-5m-15 22h12m-8 19 13-3" stroke="#DCB859" stroke-width="5" stroke-linecap="round"/></symbol>
+<symbol id="icon-chick" viewBox="0 0 140 110"><path d="M59 87v11m-6 0h13m21-11v11m-6 0h13" stroke="#C8894B" stroke-width="4" stroke-linecap="round"/><path d="M72 30q-11-27-10-10m10 10q11-25 12-8" fill="none" stroke="#DCAB48" stroke-width="4" stroke-linecap="round"/><path d="M37 66c0-27 13-39 37-39s36 19 35 39c-1 23-17 31-35 31s-37-10-37-31Z" fill="#F1C760"/><path d="M39 60q-24 2-11 20l16-8M107 60q24 2 11 20l-15-8" fill="#E9B950"/><path d="M61 56v4m25-4v4" stroke="#68532F" stroke-width="4" stroke-linecap="round"/><path d="m67 65 8 9 8-9Z" fill="#DE8D57"/><ellipse cx="51" cy="67" rx="7" ry="4" fill="#EFA382"/><ellipse cx="96" cy="67" rx="7" ry="4" fill="#EFA382"/></symbol>
+<symbol id="icon-book" viewBox="0 0 40 40"><path d="M20 11C13 7 6 8 4 9v24c5-2 11-1 16 2 5-3 11-4 16-2V9c-5-2-11-1-16 2Z" fill="#93AD91"/><path d="M20 12v22M9 15l6 1M9 21l6 1m10-6 6-1m-6 7 6-1" stroke="#FFF9E9" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="icon-planet" viewBox="0 0 40 40"><circle cx="20" cy="20" r="13" fill="#B6A3CC"/><path d="M9 19c-8 5-8 11 6 10 20-2 28-16 19-17" fill="none" stroke="#E0B65C" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="13" r="3" fill="#DAD0E5"/></symbol>
+<symbol id="icon-palette" viewBox="0 0 40 40"><path d="M35 18c0-10-8-15-17-13C4 8 0 25 10 33c8 6 9-5 14-4 7 3 12-3 11-11Z" fill="#E0AF72"/><circle cx="11" cy="18" r="3" fill="#EC7F6F"/><circle cx="18" cy="11" r="3" fill="#F8DA8B"/><circle cx="28" cy="15" r="3" fill="#78A995"/><circle cx="11" cy="27" r="3" fill="#A696C0"/></symbol>
+<symbol id="icon-heart" viewBox="0 0 40 40"><path d="M20 34S2 23 4 12c2-10 14-9 16-2 5-8 16-7 17 2 1 10-17 22-17 22Z" fill="#D78D7F"/><path d="M10 19h6l3-6 4 13 3-7h5" fill="none" stroke="#FFF9EC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+ <header class="site-header wrap">
+  <a class="brand" href="./" aria-label="Kris 的奇妙乐园，首页"><span class="brand-mark">k<span>✦</span></span><span><strong>Kris 的奇妙乐园</strong><small>小小世界，大大好奇</small></span></a>
+  <nav class="main-nav" aria-label="主导航"><a class="nav-games" href="#games">玩游戏</a><a href="#explore">去探索</a><a href="#family">家长角落</a></nav>
+  <span class="header-note">让快乐和好奇，一起长大 <span aria-hidden="true">✺</span></span>
+ </header>
+ <main id="main">
+  <section class="hero wrap" aria-labelledby="hero-title">
+   <div class="hero-copy"><span class="eyebrow"><span aria-hidden="true">✦</span> 嗨，小小探险家！</span><h1 id="hero-title">每一次好奇，<br>都是<span class="highlight">新冒险<svg viewBox="0 0 320 20" aria-hidden="true"><path d="M4 12Q150-3 315 10M20 18Q150 7 283 17" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg></span><span class="title-dot">。</span></h1><p>玩一场小游戏，认识一个新世界。<br>和 Kris 一起，在快乐里发现自己的小小超能力！</p><div class="hero-actions"><a class="button button-primary" href="#games">开始探险 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></a><button class="button button-secondary" id="surprise-button" type="button" hidden><svg class="icon " aria-hidden="true"><use href="#icon-shuffle"></use></svg> 随便玩一个</button></div><div class="hero-caption"><span class="mini-stars" aria-hidden="true">✦ ✦ ✦</span> 每个小小进步，都值得开心一下</div></div>
+   <div class="hero-visual"><span class="floating-note note-top">LET’S PLAY & LEARN!</span><img src="assets/adventure.svg" width="650" height="510" alt="一只坐在故事书上的小兔子，身边有彩虹、太阳和数学积木" fetchpriority="high"><span class="floating-note note-bottom"><span aria-hidden="true">✦</span> 今天，也有新发现！</span></div>
+  </section>
+  <div class="discovery-strip wrap"><span><i class="strip-dot peach"></i>动动小脑筋</span><span><i class="strip-dot mint"></i>打开想象力</span><span><i class="strip-dot lavender"></i>发现大世界</span><span class="strip-last">快乐学习，从这里开始 <span aria-hidden="true">↗</span></span></div>
+  <section class="games-section wrap" id="games" aria-labelledby="games-title"><div class="section-heading"><div><span class="section-kicker">PLAY TIME</span><h2 id="games-title">小小挑战，大大乐趣 <span aria-hidden="true">✷</span></h2><p>选一个喜欢的游戏，动手试一试吧！</p></div><span class="section-counter"><strong id="game-count">6</strong> 个趣味小游戏</span></div><div class="game-grid" id="game-grid"><a class="game-card theme-peach" href="./shape_sorter_math.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">动手学数学</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>形状分类数学</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>练习加法和减法！拖动形状来匹配数字，或者拿走一些形状来达到目标数量。</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a>
+<a class="game-card theme-mint" href="./addition_game.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-math"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">加法小挑战</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>加法游戏</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>一个简单的在线加法练习游戏，帮助提高计算速度和准确性。</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a>
+<a class="game-card theme-lavender" href="./vocabulary_quiz.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-words"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">词语大挑战</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>词汇问答</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>来测试一下你认识多少词语吧！</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a>
+<a class="game-card theme-yellow" href="./games/chinese_character_quiz.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-chinese"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">认识新汉字</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>看图识字</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>通过图片学习常见的汉字。</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a>
+<a class="game-card theme-blue" href="./games/math_addition_subtraction.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-timer"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">算一算 · 练一练</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>20以内加减法练习</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>练习20以内的加法和减法，可计时和调整时间。</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a>
+<a class="game-card theme-pink" href="./games/math_visual_game.html" data-game>
+   <div class="game-art"><svg class="icon " aria-hidden="true"><use href="#icon-chick"></use></svg><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">边看边学</span></div>
+   <div class="game-copy"><div class="game-title-row"><h3>趣味视觉数学</h3><span class="round-arrow"><svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div><p>用火柴棒或小鸡图案练习20以内加减法！</p><span class="game-link">开始玩 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></span></div>
+  </a></div></section>
+  <section class="explore-section" id="explore" aria-labelledby="explore-title"><div class="wrap"><div class="section-heading"><div><span class="section-kicker">WONDER & DISCOVER</span><h2 id="explore-title">好奇心，想去哪里？ <span aria-hidden="true">✧</span></h2><p>为小朋友们收集了一些好玩的网站和学习资源！</p></div><span class="little-planet" aria-hidden="true"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span></div>
+   <div class="resource-toolbar" id="resource-toolbar" hidden><div class="filter-list" role="group" aria-label="学习资源分类"><button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">全部探索</button><button class="filter-button" type="button" data-filter="games" aria-pressed="false">趣味游戏</button><button class="filter-button" type="button" data-filter="reading" aria-pressed="false">阅读识字</button><button class="filter-button" type="button" data-filter="science" aria-pressed="false">科学探索</button><button class="filter-button" type="button" data-filter="tools" aria-pressed="false">创意工具</button></div><label class="search-box"><svg class="icon " aria-hidden="true"><use href="#icon-search"></use></svg><span class="sr-only">搜索学习资源</span><input id="resource-search" type="search" placeholder="找一找感兴趣的…" autocomplete="off"><button id="clear-search" type="button" aria-label="清空搜索" hidden>×</button></label></div>
+   <p class="results-status" id="results-status" role="status" aria-live="polite" aria-atomic="true"></p>
+   <div class="resource-grid" id="resource-grid"><a class="resource-card category-games" href="http://www.4399.com/special/bababus.htm" target="_blank" rel="noopener noreferrer" data-category="games" data-resource-title="宝宝巴士游戏">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg></span><div class="resource-copy"><div class="resource-meta">趣味游戏 </div><h3>宝宝巴士游戏 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-games" href="http://www.supercoloring.com/coloring-pages/online" target="_blank" rel="noopener noreferrer" data-category="games" data-resource-title="在线涂色">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg></span><div class="resource-copy"><div class="resource-meta">趣味游戏 </div><h3>在线涂色 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>选择你喜欢的图片，在线涂上漂亮的颜色吧！</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-games" href="https://www.coolmath4kids.com/" target="_blank" rel="noopener noreferrer" data-category="games" data-resource-title="Cool Math 4 Kids">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg></span><div class="resource-copy"><div class="resource-meta">趣味游戏 <span class="language-tag">English</span></div><h3>Cool Math 4 Kids <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Offers a wide range of math games, puzzles, and quizzes for younger kids.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-games" href="https://learn.khanacademy.org/khan-academy-kids/" target="_blank" rel="noopener noreferrer" data-category="games" data-resource-title="Khan Academy Kids">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg></span><div class="resource-copy"><div class="resource-meta">趣味游戏 <span class="language-tag">English</span></div><h3>Khan Academy Kids <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>A comprehensive free learning app/website with a strong math section for early learners.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-games" href="https://www.funbrain.com/" target="_blank" rel="noopener noreferrer" data-category="games" data-resource-title="Funbrain">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-shapes"></use></svg></span><div class="resource-copy"><div class="resource-meta">趣味游戏 <span class="language-tag">English</span></div><h3>Funbrain <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Features a variety of math games categorized by grade level, making learning fun.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="http://www.qigushi.com/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="七故事">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 </div><h3>七故事 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>这里有很多中文小故事，每天都可以听新故事。</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="https://www.uniteforliteracy.com/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="Unite for Literacy">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 </div><h3>Unite for Literacy <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>这里有各种语言的免费图画书，可以选择中文来阅读哦。</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="https://www.hongen.com/literacy/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="洪恩识字">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 </div><h3>洪恩识字 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>一个有趣的识字App和小游戏，帮助学习汉字。（备注：部分内容可能需要付费）</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="https://www.starfall.com/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="Starfall">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 <span class="language-tag">English</span></div><h3>Starfall <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Focuses on phonics and early reading through interactive games and activities.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="https://pbskids.org/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="PBS Kids">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 <span class="language-tag">English</span></div><h3>PBS Kids <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Offers educational games and videos featuring popular characters, many of which support language development.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-reading" href="https://www.abcya.com/" target="_blank" rel="noopener noreferrer" data-category="reading" data-resource-title="ABCya">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-book"></use></svg></span><div class="resource-copy"><div class="resource-meta">阅读识字 <span class="language-tag">English</span></div><h3>ABCya <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Provides a wide variety of educational games, including many for practicing language arts skills.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://list.youku.com/albumlist/show/id_50096108.html" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="宝宝巴士科学">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 </div><h3>宝宝巴士科学 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>通过有趣的动画学习科学小知识。</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://www.qiyi.com/dianying/20110408/a56766870363490a.html" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="神奇校车">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 </div><h3>神奇校车 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>跟卷毛老师和同学们一起去冒险，探索奇妙的科学世界！（备注：这是一个视频链接，可能需要爱奇艺会员）</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://www.youtube.com/playlist?list=PLT0568_Bl09A51PYhZ4N0tA102n9uL3hK" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="儿童DIY科学实验">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 </div><h3>儿童DIY科学实验 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>很多简单又好玩的科学小实验，可以和爸爸妈妈一起动手做！（备注：YouTube链接，可能需要VPN）</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://kids.nationalgeographic.com/" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="National Geographic Kids">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 <span class="language-tag">English</span></div><h3>National Geographic Kids <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Provides engaging articles, videos, and games about animals, nature, and science.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://spaceplace.nasa.gov/" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="NASA Space Place">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 <span class="language-tag">English</span></div><h3>NASA Space Place <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Offers fun games, animations, and articles about space and Earth science for kids.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-science" href="https://mysterydoug.com/" target="_blank" rel="noopener noreferrer" data-category="science" data-resource-title="Mystery Doug">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-planet"></use></svg></span><div class="resource-copy"><div class="resource-meta">科学探索 <span class="language-tag">English</span></div><h3>Mystery Doug <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>Features short science videos that answer questions submitted by kids, sparking curiosity.</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-tools" href="http://www.onemotion.com/flash/sketch-paint/" target="_blank" rel="noopener noreferrer" data-category="tools" data-resource-title="在线画板">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-palette"></use></svg></span><div class="resource-copy"><div class="resource-meta">创意工具 </div><h3>在线画板 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>一个简单的在线画画工具，可以随便涂鸦。</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-tools" href="https://www.onlinepianist.com/virtual-piano" target="_blank" rel="noopener noreferrer" data-category="tools" data-resource-title="虚拟钢琴">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-palette"></use></svg></span><div class="resource-copy"><div class="resource-meta">创意工具 </div><h3>虚拟钢琴 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>在线弹钢琴，试试弹出你喜欢的歌曲吧！</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a></div><div class="empty-state" id="empty-state" hidden><span aria-hidden="true">⌕</span><h3>这个小发现还没出现</h3><p>换个词，或者看看其他分类吧。</p><button class="button button-secondary" id="reset-filters" type="button">查看全部资源</button></div><div class="show-more-wrap"><button class="button button-secondary" id="show-more" type="button" hidden>探索更多资源 <span aria-hidden="true">↓</span></button></div><p class="external-note"><svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg> 学习资源会在新标签页打开。部分网站有广告、付费内容或地区访问限制，请和家长一起探索。</p>
+  </div></section>
+  <section class="family-section wrap" id="family" aria-labelledby="family-title"><div class="family-intro"><span class="section-kicker">A LITTLE CORNER FOR FAMILY</span><h2 id="family-title">陪伴，是最好的礼物 <span aria-hidden="true">♡</span></h2><p>一起读故事、做实验，也一起养成健康好习惯。<br>这里是给家长和小朋友的生活小帮手。</p></div><div class="family-grid" id="family-grid"><a class="resource-card category-life" href="https://rvsq.gouv.qc.ca/prendrerendezvous/Principale.aspx?culture=fr" target="_blank" rel="noopener noreferrer" data-category="life" data-resource-title="诊所预约">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-heart"></use></svg></span><div class="resource-copy"><div class="resource-meta">本地生活 </div><h3>诊所预约 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>在线预约魁北克省的诊所服务</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-health" href="https://www.youtube.com/playlist?list=PLPA0MWt6L47CM2kKDEsEM33H2p3gP2bXj" target="_blank" rel="noopener noreferrer" data-category="health" data-resource-title="宝宝巴士好习惯">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-heart"></use></svg></span><div class="resource-copy"><div class="resource-meta">医疗健康 </div><h3>宝宝巴士好习惯 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>学习健康好习惯，比如正确洗手、好好刷牙。（备注：YouTube链接，可能需要VPN）</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a>
+<a class="resource-card category-health" href="http://www.a-hospital.com/health/child/200809/36770.html" target="_blank" rel="noopener noreferrer" data-category="health" data-resource-title="认识我们的身体">
+  <span class="resource-icon"><svg class="icon " aria-hidden="true"><use href="#icon-heart"></use></svg></span><div class="resource-copy"><div class="resource-meta">医疗健康 </div><h3>认识我们的身体 <svg class="icon " aria-hidden="true"><use href="#icon-external"></use></svg></h3><p>简单介绍身体各个部位的小知识。</p></div><span class="sr-only">（外部网站，在新标签页打开）</span>
+ </a></div><p class="family-note">健康链接仅供了解知识，不能代替专业医疗建议；动手实验请由家长陪同。</p></section>
+  <aside class="closing-banner wrap"><span class="closing-doodle" aria-hidden="true">✷</span><div><strong>今天的你，又多了一点点了不起。</strong><p>保持好奇，慢慢长大。希望你喜欢这些网站！</p></div><a href="#games">再去玩一会儿 <svg class="icon " aria-hidden="true"><use href="#icon-arrow"></use></svg></a></aside>
+ </main>
+ <footer class="site-footer wrap"><a class="footer-brand" href="./">Kris 的奇妙乐园 <span aria-hidden="true">✦</span></a><p>为好奇的小朋友，收藏快乐与发现。</p><a class="back-top" href="#main">回到顶部 ↑</a><p id="content-status" class="content-status" role="status" hidden></p></footer>
 </body>
 </html>
