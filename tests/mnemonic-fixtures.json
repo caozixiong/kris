@@ -1,0 +1,602 @@
+[
+  {
+    "a": 1,
+    "b": 1,
+    "product": 1,
+    "mnemonic": "一一得一"
+  },
+  {
+    "a": 1,
+    "b": 2,
+    "product": 2,
+    "mnemonic": "一二得二"
+  },
+  {
+    "a": 1,
+    "b": 3,
+    "product": 3,
+    "mnemonic": "一三得三"
+  },
+  {
+    "a": 1,
+    "b": 4,
+    "product": 4,
+    "mnemonic": "一四得四"
+  },
+  {
+    "a": 1,
+    "b": 5,
+    "product": 5,
+    "mnemonic": "一五得五"
+  },
+  {
+    "a": 1,
+    "b": 6,
+    "product": 6,
+    "mnemonic": "一六得六"
+  },
+  {
+    "a": 1,
+    "b": 7,
+    "product": 7,
+    "mnemonic": "一七得七"
+  },
+  {
+    "a": 1,
+    "b": 8,
+    "product": 8,
+    "mnemonic": "一八得八"
+  },
+  {
+    "a": 1,
+    "b": 9,
+    "product": 9,
+    "mnemonic": "一九得九"
+  },
+  {
+    "a": 1,
+    "b": 10,
+    "product": 10,
+    "mnemonic": "一乘十等于十"
+  },
+  {
+    "a": 2,
+    "b": 1,
+    "product": 2,
+    "mnemonic": "一二得二"
+  },
+  {
+    "a": 2,
+    "b": 2,
+    "product": 4,
+    "mnemonic": "二二得四"
+  },
+  {
+    "a": 2,
+    "b": 3,
+    "product": 6,
+    "mnemonic": "二三得六"
+  },
+  {
+    "a": 2,
+    "b": 4,
+    "product": 8,
+    "mnemonic": "二四得八"
+  },
+  {
+    "a": 2,
+    "b": 5,
+    "product": 10,
+    "mnemonic": "二五一十"
+  },
+  {
+    "a": 2,
+    "b": 6,
+    "product": 12,
+    "mnemonic": "二六十二"
+  },
+  {
+    "a": 2,
+    "b": 7,
+    "product": 14,
+    "mnemonic": "二七十四"
+  },
+  {
+    "a": 2,
+    "b": 8,
+    "product": 16,
+    "mnemonic": "二八十六"
+  },
+  {
+    "a": 2,
+    "b": 9,
+    "product": 18,
+    "mnemonic": "二九十八"
+  },
+  {
+    "a": 2,
+    "b": 10,
+    "product": 20,
+    "mnemonic": "二乘十等于二十"
+  },
+  {
+    "a": 3,
+    "b": 1,
+    "product": 3,
+    "mnemonic": "一三得三"
+  },
+  {
+    "a": 3,
+    "b": 2,
+    "product": 6,
+    "mnemonic": "二三得六"
+  },
+  {
+    "a": 3,
+    "b": 3,
+    "product": 9,
+    "mnemonic": "三三得九"
+  },
+  {
+    "a": 3,
+    "b": 4,
+    "product": 12,
+    "mnemonic": "三四十二"
+  },
+  {
+    "a": 3,
+    "b": 5,
+    "product": 15,
+    "mnemonic": "三五十五"
+  },
+  {
+    "a": 3,
+    "b": 6,
+    "product": 18,
+    "mnemonic": "三六十八"
+  },
+  {
+    "a": 3,
+    "b": 7,
+    "product": 21,
+    "mnemonic": "三七二十一"
+  },
+  {
+    "a": 3,
+    "b": 8,
+    "product": 24,
+    "mnemonic": "三八二十四"
+  },
+  {
+    "a": 3,
+    "b": 9,
+    "product": 27,
+    "mnemonic": "三九二十七"
+  },
+  {
+    "a": 3,
+    "b": 10,
+    "product": 30,
+    "mnemonic": "三乘十等于三十"
+  },
+  {
+    "a": 4,
+    "b": 1,
+    "product": 4,
+    "mnemonic": "一四得四"
+  },
+  {
+    "a": 4,
+    "b": 2,
+    "product": 8,
+    "mnemonic": "二四得八"
+  },
+  {
+    "a": 4,
+    "b": 3,
+    "product": 12,
+    "mnemonic": "三四十二"
+  },
+  {
+    "a": 4,
+    "b": 4,
+    "product": 16,
+    "mnemonic": "四四十六"
+  },
+  {
+    "a": 4,
+    "b": 5,
+    "product": 20,
+    "mnemonic": "四五二十"
+  },
+  {
+    "a": 4,
+    "b": 6,
+    "product": 24,
+    "mnemonic": "四六二十四"
+  },
+  {
+    "a": 4,
+    "b": 7,
+    "product": 28,
+    "mnemonic": "四七二十八"
+  },
+  {
+    "a": 4,
+    "b": 8,
+    "product": 32,
+    "mnemonic": "四八三十二"
+  },
+  {
+    "a": 4,
+    "b": 9,
+    "product": 36,
+    "mnemonic": "四九三十六"
+  },
+  {
+    "a": 4,
+    "b": 10,
+    "product": 40,
+    "mnemonic": "四乘十等于四十"
+  },
+  {
+    "a": 5,
+    "b": 1,
+    "product": 5,
+    "mnemonic": "一五得五"
+  },
+  {
+    "a": 5,
+    "b": 2,
+    "product": 10,
+    "mnemonic": "二五一十"
+  },
+  {
+    "a": 5,
+    "b": 3,
+    "product": 15,
+    "mnemonic": "三五十五"
+  },
+  {
+    "a": 5,
+    "b": 4,
+    "product": 20,
+    "mnemonic": "四五二十"
+  },
+  {
+    "a": 5,
+    "b": 5,
+    "product": 25,
+    "mnemonic": "五五二十五"
+  },
+  {
+    "a": 5,
+    "b": 6,
+    "product": 30,
+    "mnemonic": "五六三十"
+  },
+  {
+    "a": 5,
+    "b": 7,
+    "product": 35,
+    "mnemonic": "五七三十五"
+  },
+  {
+    "a": 5,
+    "b": 8,
+    "product": 40,
+    "mnemonic": "五八四十"
+  },
+  {
+    "a": 5,
+    "b": 9,
+    "product": 45,
+    "mnemonic": "五九四十五"
+  },
+  {
+    "a": 5,
+    "b": 10,
+    "product": 50,
+    "mnemonic": "五乘十等于五十"
+  },
+  {
+    "a": 6,
+    "b": 1,
+    "product": 6,
+    "mnemonic": "一六得六"
+  },
+  {
+    "a": 6,
+    "b": 2,
+    "product": 12,
+    "mnemonic": "二六十二"
+  },
+  {
+    "a": 6,
+    "b": 3,
+    "product": 18,
+    "mnemonic": "三六十八"
+  },
+  {
+    "a": 6,
+    "b": 4,
+    "product": 24,
+    "mnemonic": "四六二十四"
+  },
+  {
+    "a": 6,
+    "b": 5,
+    "product": 30,
+    "mnemonic": "五六三十"
+  },
+  {
+    "a": 6,
+    "b": 6,
+    "product": 36,
+    "mnemonic": "六六三十六"
+  },
+  {
+    "a": 6,
+    "b": 7,
+    "product": 42,
+    "mnemonic": "六七四十二"
+  },
+  {
+    "a": 6,
+    "b": 8,
+    "product": 48,
+    "mnemonic": "六八四十八"
+  },
+  {
+    "a": 6,
+    "b": 9,
+    "product": 54,
+    "mnemonic": "六九五十四"
+  },
+  {
+    "a": 6,
+    "b": 10,
+    "product": 60,
+    "mnemonic": "六乘十等于六十"
+  },
+  {
+    "a": 7,
+    "b": 1,
+    "product": 7,
+    "mnemonic": "一七得七"
+  },
+  {
+    "a": 7,
+    "b": 2,
+    "product": 14,
+    "mnemonic": "二七十四"
+  },
+  {
+    "a": 7,
+    "b": 3,
+    "product": 21,
+    "mnemonic": "三七二十一"
+  },
+  {
+    "a": 7,
+    "b": 4,
+    "product": 28,
+    "mnemonic": "四七二十八"
+  },
+  {
+    "a": 7,
+    "b": 5,
+    "product": 35,
+    "mnemonic": "五七三十五"
+  },
+  {
+    "a": 7,
+    "b": 6,
+    "product": 42,
+    "mnemonic": "六七四十二"
+  },
+  {
+    "a": 7,
+    "b": 7,
+    "product": 49,
+    "mnemonic": "七七四十九"
+  },
+  {
+    "a": 7,
+    "b": 8,
+    "product": 56,
+    "mnemonic": "七八五十六"
+  },
+  {
+    "a": 7,
+    "b": 9,
+    "product": 63,
+    "mnemonic": "七九六十三"
+  },
+  {
+    "a": 7,
+    "b": 10,
+    "product": 70,
+    "mnemonic": "七乘十等于七十"
+  },
+  {
+    "a": 8,
+    "b": 1,
+    "product": 8,
+    "mnemonic": "一八得八"
+  },
+  {
+    "a": 8,
+    "b": 2,
+    "product": 16,
+    "mnemonic": "二八十六"
+  },
+  {
+    "a": 8,
+    "b": 3,
+    "product": 24,
+    "mnemonic": "三八二十四"
+  },
+  {
+    "a": 8,
+    "b": 4,
+    "product": 32,
+    "mnemonic": "四八三十二"
+  },
+  {
+    "a": 8,
+    "b": 5,
+    "product": 40,
+    "mnemonic": "五八四十"
+  },
+  {
+    "a": 8,
+    "b": 6,
+    "product": 48,
+    "mnemonic": "六八四十八"
+  },
+  {
+    "a": 8,
+    "b": 7,
+    "product": 56,
+    "mnemonic": "七八五十六"
+  },
+  {
+    "a": 8,
+    "b": 8,
+    "product": 64,
+    "mnemonic": "八八六十四"
+  },
+  {
+    "a": 8,
+    "b": 9,
+    "product": 72,
+    "mnemonic": "八九七十二"
+  },
+  {
+    "a": 8,
+    "b": 10,
+    "product": 80,
+    "mnemonic": "八乘十等于八十"
+  },
+  {
+    "a": 9,
+    "b": 1,
+    "product": 9,
+    "mnemonic": "一九得九"
+  },
+  {
+    "a": 9,
+    "b": 2,
+    "product": 18,
+    "mnemonic": "二九十八"
+  },
+  {
+    "a": 9,
+    "b": 3,
+    "product": 27,
+    "mnemonic": "三九二十七"
+  },
+  {
+    "a": 9,
+    "b": 4,
+    "product": 36,
+    "mnemonic": "四九三十六"
+  },
+  {
+    "a": 9,
+    "b": 5,
+    "product": 45,
+    "mnemonic": "五九四十五"
+  },
+  {
+    "a": 9,
+    "b": 6,
+    "product": 54,
+    "mnemonic": "六九五十四"
+  },
+  {
+    "a": 9,
+    "b": 7,
+    "product": 63,
+    "mnemonic": "七九六十三"
+  },
+  {
+    "a": 9,
+    "b": 8,
+    "product": 72,
+    "mnemonic": "八九七十二"
+  },
+  {
+    "a": 9,
+    "b": 9,
+    "product": 81,
+    "mnemonic": "九九八十一"
+  },
+  {
+    "a": 9,
+    "b": 10,
+    "product": 90,
+    "mnemonic": "九乘十等于九十"
+  },
+  {
+    "a": 10,
+    "b": 1,
+    "product": 10,
+    "mnemonic": "十乘一等于十"
+  },
+  {
+    "a": 10,
+    "b": 2,
+    "product": 20,
+    "mnemonic": "十乘二等于二十"
+  },
+  {
+    "a": 10,
+    "b": 3,
+    "product": 30,
+    "mnemonic": "十乘三等于三十"
+  },
+  {
+    "a": 10,
+    "b": 4,
+    "product": 40,
+    "mnemonic": "十乘四等于四十"
+  },
+  {
+    "a": 10,
+    "b": 5,
+    "product": 50,
+    "mnemonic": "十乘五等于五十"
+  },
+  {
+    "a": 10,
+    "b": 6,
+    "product": 60,
+    "mnemonic": "十乘六等于六十"
+  },
+  {
+    "a": 10,
+    "b": 7,
+    "product": 70,
+    "mnemonic": "十乘七等于七十"
+  },
+  {
+    "a": 10,
+    "b": 8,
+    "product": 80,
+    "mnemonic": "十乘八等于八十"
+  },
+  {
+    "a": 10,
+    "b": 9,
+    "product": 90,
+    "mnemonic": "十乘九等于九十"
+  },
+  {
+    "a": 10,
+    "b": 10,
+    "product": 100,
+    "mnemonic": "十乘十等于一百"
+  }
+]

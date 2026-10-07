@@ -1,0 +1,142 @@
+[
+  {
+    "title": "形状分类数学",
+    "url": "./shape_sorter_math.html",
+    "description": "练习加法和减法！拖动形状来匹配数字，或者拿走一些形状来达到目标数量。"
+  },
+  {
+    "title": "加法游戏",
+    "url": "./addition_game.html",
+    "description": "一个简单的在线加法练习游戏，帮助提高计算速度和准确性。"
+  },
+  {
+    "title": "词汇问答",
+    "url": "./vocabulary_quiz.html",
+    "description": "来测试一下你认识多少词语吧！"
+  },
+  {
+    "title": "看图识字",
+    "url": "./games/chinese_character_quiz.html",
+    "description": "通过图片学习常见的汉字。"
+  },
+  {
+    "title": "20以内加减法练习",
+    "url": "./games/math_addition_subtraction.html",
+    "description": "练习20以内的加法和减法，可计时和调整时间。"
+  },
+  {
+    "title": "趣味视觉数学",
+    "url": "./games/math_visual_game.html",
+    "description": "用火柴棒或小鸡图案练习20以内加减法！"
+  },
+  {
+    "title": "宝宝巴士游戏",
+    "url": "http://www.4399.com/special/bababus.htm",
+    "description": "这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！"
+  },
+  {
+    "title": "在线涂色",
+    "url": "http://www.supercoloring.com/coloring-pages/online",
+    "description": "选择你喜欢的图片，在线涂上漂亮的颜色吧！"
+  },
+  {
+    "title": "Cool Math 4 Kids",
+    "url": "https://www.coolmath4kids.com/",
+    "description": "Offers a wide range of math games, puzzles, and quizzes for younger kids."
+  },
+  {
+    "title": "Khan Academy Kids",
+    "url": "https://learn.khanacademy.org/khan-academy-kids/",
+    "description": "A comprehensive free learning app/website with a strong math section for early learners."
+  },
+  {
+    "title": "Funbrain",
+    "url": "https://www.funbrain.com/",
+    "description": "Features a variety of math games categorized by grade level, making learning fun."
+  },
+  {
+    "title": "七故事",
+    "url": "http://www.qigushi.com/",
+    "description": "这里有很多中文小故事，每天都可以听新故事。"
+  },
+  {
+    "title": "Unite for Literacy",
+    "url": "https://www.uniteforliteracy.com/",
+    "description": "这里有各种语言的免费图画书，可以选择中文来阅读哦。"
+  },
+  {
+    "title": "洪恩识字",
+    "url": "https://www.hongen.com/literacy/",
+    "description": "一个有趣的识字App和小游戏，帮助学习汉字。（备注：部分内容可能需要付费）"
+  },
+  {
+    "title": "Starfall",
+    "url": "https://www.starfall.com/",
+    "description": "Focuses on phonics and early reading through interactive games and activities."
+  },
+  {
+    "title": "PBS Kids",
+    "url": "https://pbskids.org/",
+    "description": "Offers educational games and videos featuring popular characters, many of which support language development."
+  },
+  {
+    "title": "ABCya",
+    "url": "https://www.abcya.com/",
+    "description": "Provides a wide variety of educational games, including many for practicing language arts skills."
+  },
+  {
+    "title": "宝宝巴士科学",
+    "url": "https://list.youku.com/albumlist/show/id_50096108.html",
+    "description": "通过有趣的动画学习科学小知识。"
+  },
+  {
+    "title": "神奇校车",
+    "url": "https://www.qiyi.com/dianying/20110408/a56766870363490a.html",
+    "description": "跟卷毛老师和同学们一起去冒险，探索奇妙的科学世界！（备注：这是一个视频链接，可能需要爱奇艺会员）"
+  },
+  {
+    "title": "儿童DIY科学实验",
+    "url": "https://www.youtube.com/playlist?list=PLT0568_Bl09A51PYhZ4N0tA102n9uL3hK",
+    "description": "很多简单又好玩的科学小实验，可以和爸爸妈妈一起动手做！（备注：YouTube链接，可能需要VPN）"
+  },
+  {
+    "title": "National Geographic Kids",
+    "url": "https://kids.nationalgeographic.com/",
+    "description": "Provides engaging articles, videos, and games about animals, nature, and science."
+  },
+  {
+    "title": "NASA Space Place",
+    "url": "https://spaceplace.nasa.gov/",
+    "description": "Offers fun games, animations, and articles about space and Earth science for kids."
+  },
+  {
+    "title": "Mystery Doug",
+    "url": "https://mysterydoug.com/",
+    "description": "Features short science videos that answer questions submitted by kids, sparking curiosity."
+  },
+  {
+    "title": "诊所预约",
+    "url": "https://rvsq.gouv.qc.ca/prendrerendezvous/Principale.aspx?culture=fr",
+    "description": "在线预约魁北克省的诊所服务"
+  },
+  {
+    "title": "在线画板",
+    "url": "http://www.onemotion.com/flash/sketch-paint/",
+    "description": "一个简单的在线画画工具，可以随便涂鸦。"
+  },
+  {
+    "title": "虚拟钢琴",
+    "url": "https://www.onlinepianist.com/virtual-piano",
+    "description": "在线弹钢琴，试试弹出你喜欢的歌曲吧！"
+  },
+  {
+    "title": "宝宝巴士好习惯",
+    "url": "https://www.youtube.com/playlist?list=PLPA0MWt6L47CM2kKDEsEM33H2p3gP2bXj",
+    "description": "学习健康好习惯，比如正确洗手、好好刷牙。（备注：YouTube链接，可能需要VPN）"
+  },
+  {
+    "title": "认识我们的身体",
+    "url": "http://www.a-hospital.com/health/child/200809/36770.html",
+    "description": "简单介绍身体各个部位的小知识。"
+  }
+]

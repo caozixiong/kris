@@ -19,6 +19,11 @@
     '医疗健康 (Medical/Health)': { key: 'health', label: '医疗健康', icon: 'heart' }
   };
   const gameStyles = {
+    './games/math-orbit.html': ['mint', 'rocket', '8–10 岁 · 数学策略'],
+    './games/english-ruins.html': ['lavender', 'words', '8–10 岁 · 英语探险'],
+    './games/french-market.html': ['peach', 'backpack', '8–10 岁 · 法语生活'],
+    './games/circuit-lab.html': ['yellow', 'bulb', '8–10 岁 · 科学实验'],
+
     './shape_sorter_math.html': ['peach', 'shapes', '动手学数学'],
     './addition_game.html': ['mint', 'math', '加法小挑战'],
     './multiplication_game.html': ['blue', 'planet', '分组探索 · 听听口诀'],
@@ -172,7 +177,7 @@
   $('#surprise-button').hidden = gameGrid.childElementCount === 0;
   applyFilters();
 
-  fetch('content.md?v=8757a5c27509')
+  fetch('content.md?v=30d81dbc76a4')
     .then((response) => {
       if (!response.ok) throw new Error(`Content HTTP ${response.status}`);
       return response.text();
