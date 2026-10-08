@@ -72,6 +72,11 @@ function solve(g) {
     g.click('card', pair.id + ':en'); g.click('card', pair.id + ':fr');
   }
   assert.equal(g.state.phase, 'complete'); assertStateUI(g);
+  if (g.mode !== 'memory') {
+    const columns = g.all('.language-column');
+    const ids = column => column.querySelectorAll('button[data-act="card"]').map(card => card.dataset.value.split(':')[0]);
+    assert.deepEqual(ids(columns[0]), ids(columns[1]), 'completed rows align the true English–French pairs');
+  }
   assert.equal(g.document.activeElement, g.button('next-topic'), 'win focuses the next available action');
 }
 function topic(g) { return g.all('button[data-act="topic"]').find(b => b.getAttribute('aria-pressed') === 'true')?.dataset.value; }
