@@ -12,12 +12,39 @@
   const validKeys = topics.flatMap(topic => levels.map(n => topic.id + ':' + n));
   const progress = C.readProgress(storage, key, validKeys);
   let topicIndex = 0, count = levels[0], state, recorded = false, feedback = 'ready', latestPair = null, saved = !!storage;
+  let pendingMismatch = null;
   const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const button = (act,value,label,cls='',disabled=false,extra='') => `<button type="button" data-act="${act}" data-value="${esc(value)}" class="${cls}" ${disabled?'disabled':''} ${extra}>${label}</button>`;
   const label = value => value[I.language] || value.zh;
   const titles = {memory:['双语翻翻乐','Bilingual Memory','Mémoire bilingue'],bridge:['单词搭桥','Word Bridge','Le pont des mots'],sentences:['句子对对碰','Sentence Match','Paires de phrases']};
   function title() { return t(...titles[mode]); }
-  function reset() { state = C.createRound(topics[topicIndex].items,count,mode); recorded = false; feedback = 'ready'; latestPair = null; }
+  function clearMismatchTimer() {
+    if (pendingMismatch) window.clearTimeout(pendingMismatch.timer);
+    pendingMismatch = null;
+  }
+  function reset() { clearMismatchTimer(); state = C.createRound(topics[topicIndex].items,count,mode); recorded = false; feedback = 'ready'; latestPair = null; }
+  function scheduleMismatch() {
+    if (mode !== 'memory' || state.phase !== 'mismatch' || pendingMismatch) return;
+    const pending = {round:state, retry:state.selected[1]};
+    pendingMismatch = pending;
+    pending.timer = window.setTimeout(() => {
+      // A reset or page exit must never let an old callback alter a newer round.
+      if (pendingMismatch !== pending || state !== pending.round || state.phase !== 'mismatch') return;
+      pendingMismatch = null;
+      const focus = document.activeElement === root.querySelector('#word-feedback') ? `button[data-act="card"][data-value="${pending.retry}"]` : undefined;
+      C.dismiss(state); feedback = 'ready'; latestPair = null;
+      render(focus);
+    },1000);
+  }
+  function currentFocus() {
+    const active = document.activeElement;
+    if (!active || !root.contains(active)) return null;
+    if (active.id) return '#' + active.id;
+    if (active.matches('button[data-act]')) return `button[data-act="${active.dataset.act}"][data-value="${active.dataset.value}"]`;
+    if (active.matches('summary')) return '.learning-note summary';
+    if (active.matches('a[href]')) return `a[href="${active.getAttribute('href')}"]`;
+    return null;
+  }
   function save() {
     if (recorded || state.phase !== 'complete') return;
     recorded = true; C.recordProgress(progress, topics[topicIndex].id + ':' + count, state.moves);
@@ -44,13 +71,14 @@
   }
   function feedbackHTML() {
     if (state.phase === 'hint') return `<strong>${t('看清这一对，再试着找回来','Notice this pair, then find it yourself','Observe cette paire, puis retrouve-la')}</strong><div class="feedback-pair">${pairHTML(latestPair)}</div><p>${t('提示不会自动得分。','Hints do not automatically earn a match.','Un indice ne valide pas la paire.')}</p>${button('continue','',t('记住了，继续','Got it, continue','J’ai compris, continuer'),'primary-button')}`;
-    if (state.phase === 'mismatch') return `<strong>${t('这两张意思不同，再试一次','Different meanings. Try again','Ces cartes ont des sens différents. Réessaie')}</strong><p>${t('先读一读卡片，再继续。没有时间限制。','Read both cards before continuing. There is no time limit.','Lis les deux cartes avant de continuer. Il n’y a pas de limite de temps.')}</p>${button('continue','',t('继续配对','Keep matching','Continuer'),'primary-button')}`;
+    if (state.phase === 'mismatch') return `<strong>${t('这两张意思不同，再试一次','Different meanings. Try again','Ces cartes ont des sens différents. Réessaie')}</strong>${mode==='memory'?`<p>${t('卡片将在 1 秒后自动翻回。','The cards will turn back over after 1 second.','Les cartes se retourneront après 1 seconde.')}</p>`:`<p>${t('先读一读卡片，再继续。没有时间限制。','Read both cards before continuing. There is no time limit.','Lis les deux cartes avant de continuer. Il n’y a pas de limite de temps.')}</p>${button('continue','',t('继续配对','Keep matching','Continuer'),'primary-button')}`}`;
     if (state.phase === 'complete') return `<strong>${t('太棒了，这一组全部配对！','Lovely work! Every pair found','Bravo ! Toutes les paires sont réunies')}</strong><p>${t(`完成 ${count} 对，用了 ${state.moves} 次尝试和 ${state.hints} 次提示。`,`You matched ${count} pairs in ${state.moves} tries with ${state.hints} hints.`,`${count} paires trouvées en ${state.moves} essais, avec ${state.hints} indices.`)}</p><div class="finish-actions">${button('restart','',t('洗牌再玩','Shuffle & play again','Mélanger et rejouer'),'primary-button')}${button('next-topic','',t('下一个主题 →','Next theme →','Thème suivant →'),'quiet-button')}</div>`;
     if (feedback === 'match' && latestPair) return `<strong>${t('意思相同，配对成功！','Same meaning. A perfect pair!','Même sens. Une paire réussie !')}</strong><div class="feedback-pair">${pairHTML(latestPair)}</div>`;
     if (state.selected.length) return `<strong>${t('现在找意思相同的另一张','Now find the same meaning','Trouve maintenant le même sens')}</strong><p>${mode==='memory'?t('一张英文，一张法文。','One English card, one French card.','Une carte en anglais, une carte en français.'):t('在另一栏选择；再点同一栏可换一个词。','Choose from the other column. Another card in this column changes your choice.','Choisis dans l’autre colonne. Une autre carte de cette colonne change ton choix.')}</p>`;
     return `<strong>${t('准备好了？从任意一张开始','Ready? Start with any card','Prêt ? Commence par une carte')}</strong><p>${t('不计时，不扣分。每一次尝试都在学习。','No timer and no lost points. Every try is practice.','Pas de chrono ni de points perdus. Chaque essai aide à apprendre.')}</p>`;
   }
   function render(focus) {
+    const preservedFocus = focus ? null : currentFocus();
     const topic = topics[topicIndex], stampKey = topic.id+':'+count, best = progress[stampKey]?.best;
     document.title = title() + ' · Kris';
     const announcement = document.getElementById('word-announcement');
@@ -58,14 +86,18 @@
     <div class="word-layout"><aside class="settings-panel"><span class="panel-kicker">${t('你的学习路线','YOUR LEARNING PATH','TON PARCOURS')}</span><h2>${t('选一个主题','Choose a theme','Choisis un thème')}</h2><div class="topic-buttons">${topics.map((item,i)=>button('topic',item.id,`<span aria-hidden="true">${['✿','☀','✎','✦'][i%4]}</span>${esc(label(item.labels))}`,'topic-button'+(i===topicIndex?' current':''),false,`aria-pressed="${i===topicIndex}"`)).join('')}</div><h2>${t('挑战大小','Choose your challenge','Choisis ton défi')}</h2><div class="level-buttons">${levels.map(n=>button('level',n,`${n}<small>${t('对','pairs','paires')}</small>`,'level-button'+(n===count?' current':''),false,`aria-pressed="${n===count}"`)).join('')}</div><p class="setting-note">${t('切换主题或大小会开始新的一局。','Changing theme or size starts a new round.','Changer de thème ou de taille lance une nouvelle manche.')}</p><div class="passport"><span aria-hidden="true">✹</span><div><strong data-stat="stamps">${Object.keys(progress).length} / ${validKeys.length}</strong><small>${t('主题挑战印章','theme challenge stamps','défis validés')}</small></div></div><p class="storage-note">${saved?t('已完成的挑战保存在这台设备。','Completed challenges stay on this device.','Les défis terminés sont gardés sur cet appareil.'):t('进度暂存在本页；浏览器未能保存。','Progress is kept for this visit; browser saving is unavailable.','Les progrès restent sur cette page ; le navigateur ne peut pas les enregistrer.')}</p></aside>
     <section class="play-panel" aria-labelledby="round-title"><div class="round-heading"><div><span class="panel-kicker" lang="en">ENGLISH ↔ FRANÇAIS</span><h2 id="round-title" tabindex="-1">${esc(label(topic.labels))}</h2></div><span class="round-size">${count} ${t('对','pairs','paires')}</span></div><p class="how-to">${instructions()}</p><div class="round-stats"><div><strong data-stat="matched">${state.matched.length} / ${count}</strong><span>${t('已配对','matched','réunies')}</span></div><div><strong data-stat="moves">${state.moves}</strong><span>${t('尝试','tries','essais')}</span></div><div><strong data-stat="hints">${state.hints}</strong><span>${t('提示','hints','indices')}</span></div><div><strong data-stat="best">${best||'—'}</strong><span>${t('本组最少尝试','best tries here','meilleur score ici')}</span></div></div><div class="pair-progress" role="progressbar" aria-label="${t('配对进度','Matching progress','Progression des paires')}" aria-valuenow="${state.matched.length}" aria-valuemin="0" aria-valuemax="${count}"><span style="width:${state.matched.length/count*100}%"></span></div>
     ${mode==='memory'?`<div class="memory-board" aria-label="${t('英法记忆卡片','English–French memory cards','Cartes mémoire anglais–français')}">${state.cards.map(cardHTML).join('')}</div>`:`<div class="match-board ${mode==='sentences'?'sentence-board':''}">${['en','fr'].map(language=>`<section class="language-column"><h3 lang="${language}"><span>${language==='en'?'EN':'FR'}</span>${language==='en'?'English':'Français'}</h3><div>${columnCards(language).map(c=>cardHTML(c,state.cards.indexOf(c))).join('')}</div></section>`).join('')}</div>`}
-    <div class="round-feedback ${state.phase==='complete'?'complete':''}" id="word-feedback">${feedbackHTML()}</div><div class="board-tools">${button('hint','',t('✧ 看一对提示','✧ Show one pair','✧ Voir une paire'),'hint-button',state.phase!=='active')}${button('restart','',t('↻ 洗牌重来','↻ New shuffled round','↻ Nouvelle manche'),'quiet-button')}</div><details class="learning-note"><summary>${t('小小语言发现','A little language discovery','Une petite découverte linguistique')}</summary><p>${esc(label(topic.hints))}</p></details>${state.matched.length?`<section class="found-pairs"><h3>${t('已经认识的好搭档','Pairs you have discovered','Les paires découvertes')}</h3><ul>${state.pairs.filter(p=>state.matched.includes(p.id)).map(p=>`<li>${pairHTML(p)}</li>`).join('')}</ul></section>`:''}</section></div>
+    <div class="round-feedback ${state.phase==='complete'?'complete':''}" id="word-feedback" tabindex="-1">${feedbackHTML()}</div><div class="board-tools">${button('hint','',t('✧ 看一对提示','✧ Show one pair','✧ Voir une paire'),'hint-button',state.phase!=='active')}${button('restart','',t('↻ 洗牌重来','↻ New shuffled round','↻ Nouvelle manche'),'quiet-button')}</div><details class="learning-note"><summary>${t('小小语言发现','A little language discovery','Une petite découverte linguistique')}</summary><p>${esc(label(topic.hints))}</p></details>${state.matched.length?`<section class="found-pairs"><h3>${t('已经认识的好搭档','Pairs you have discovered','Les paires découvertes')}</h3><ul>${state.pairs.filter(p=>state.matched.includes(p.id)).map(p=>`<li>${pairHTML(p)}</li>`).join('')}</ul></section>`:''}</section></div>
     <nav class="more-word-games" aria-label="${t('更多英法游戏','More English–French games','D’autres jeux anglais–français')}"><span>${t('继续双语小旅行','Keep exploring in two languages','Continue l’aventure bilingue')}</span>${[['memory','bilingual-memory'],['bridge','word-bridge'],['sentences','sentence-match']].filter(([name])=>name!==mode).map(([name,path])=>`<a href="${path}.html">${t(...titles[name])} ↗</a>`).join('')}</nav>`;
-    // Only announced after a user action; translating the UI never repeats a win or saves twice.
+    // Actions and an automatic return to the board announce; translation never repeats a win or saves twice.
     if (announcement && focus) announcement.textContent = root.querySelector('#word-feedback').textContent;
     if (focus) {
       let target = root.querySelector(focus);
       if (!target || target.disabled) target = state.phase==='complete'?root.querySelector('button[data-act="next-topic"]'):root.querySelector('button[data-act="card"]:not([disabled])');
       target?.focus({preventScroll:true});
+    } else if (preservedFocus) {
+      // Timer and translation rerenders retain a control the player moved to.
+      const target = root.querySelector(preservedFocus);
+      if (target && !target.disabled) target.focus({preventScroll:true});
     }
   }
   root.setAttribute('data-i18n-skip','');
@@ -78,16 +110,24 @@
       const card = state.cards.find(c=>c.key===value); if (!card) return;
       const result = C.choose(state,value); if (result === 'ignored') return;
       feedback = result; latestPair = result==='match'?state.pairs.find(p=>p.id===card.id):null;
-      if (state.phase==='mismatch') focus='button[data-act="continue"]';
+      if (state.phase==='mismatch') focus=mode==='memory'?'#word-feedback':'button[data-act="continue"]';
       if (state.phase==='complete') {save();focus='button[data-act="next-topic"]';}
     } else if (act === 'hint') { latestPair=C.hint(state); if (!latestPair) return; focus='button[data-act="continue"]'; }
-    else if (act === 'continue') { if(!C.dismiss(state))return; feedback='ready';latestPair=null;focus='button[data-act="hint"]'; }
+    else if (act === 'continue') { if((mode==='memory'&&state.phase==='mismatch')||!C.dismiss(state))return; feedback='ready';latestPair=null;focus='button[data-act="hint"]'; }
     else if (act === 'restart') { reset(); focus='#round-title'; }
     else if (act === 'topic') { const next=topics.findIndex(p=>p.id===value); if(next<0)return; topicIndex=next; reset(); focus='#round-title'; }
     else if (act === 'level') { const n=Number(value); if(!levels.includes(n))return; count=n;reset();focus='#round-title'; }
     else if (act === 'next-topic' && state.phase==='complete') {topicIndex=(topicIndex+1)%topics.length;reset();focus='#round-title';}
     else return;
     render(focus);
+    scheduleMismatch();
+  });
+  window.addEventListener('pagehide', () => {
+    clearMismatchTimer();
+    // A page restored from the back/forward cache must not stay locked forever.
+    if (mode==='memory' && state.phase==='mismatch') {
+      C.dismiss(state); feedback='ready'; latestPair=null; render();
+    }
   });
   I.onChange(()=>render());
   reset(); render();

@@ -18,6 +18,15 @@
 * [看图识字](./games/chinese_character_quiz.html) - 通过图片学习常见的汉字。
 * [20以内加减法练习](./games/math_addition_subtraction.html) - 练习20以内的加法和减法，可计时和调整时间。
 * [趣味视觉数学](./games/math_visual_game.html) - 用火柴棒或小鸡图案练习20以内加减法！
+* [数图形](./games/math1.html) - 数一数 1–10 个图形，点击正确的数字。
+* [图形与保龄球](./games/math234.html) - 三个小游戏：图形相加、混合图形计数和保龄球减法。
+* [数学小冒险](./games/math567.html) - 四个小游戏：图形加法、魔法补数、外星人跳跃和水果买卖。
+* [外星人倒数跳](./games/math8.html) - 跟着外星人向后跳，用数轴练习倒数和减法。
+* [超级算术小英雄](./games/math9.html) - 练习 10 以内加法、减法或混合挑战，逐步解锁小英雄。
+* [加减乘练习](./games/math10.html) - 选择加法、减法或乘法，完成自己的算术小挑战。
+* [经典数学合集 · 中文原版](./games/math_chinese.html) - 十种经典数学玩法：数数、图形、保龄球、买卖和算术。中文原版入口。
+* [经典数学合集 · 英文原版](./games/math_english.html) - 十种经典数学玩法的英文原版入口，学习内容同属数学。
+* [汉字寻宝翻翻乐](./games/chinese_game1.html) - 翻开汉字和图片，找出 20 对好搭档，边玩边识字。
 * [宝宝巴士游戏](http://www.4399.com/special/bababus.htm) - 这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！
 * [在线涂色](http://www.supercoloring.com/coloring-pages/online) - 选择你喜欢的图片，在线涂上漂亮的颜色吧！
 

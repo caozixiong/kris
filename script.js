@@ -27,6 +27,15 @@
     './games/french-market.html': ['peach', 'backpack', '8–10 岁 · 法语生活'],
     './games/circuit-lab.html': ['yellow', 'bulb', '8–10 岁 · 科学实验'],
 
+    './games/math1.html': ["mint", "shapes", "数数入门"],
+    './games/math234.html': ["blue", "shapes", "3 种数学玩法"],
+    './games/math567.html': ["lavender", "rocket", "4 种数学玩法"],
+    './games/math8.html': ["blue", "rocket", "数轴与减法"],
+    './games/math9.html': ["yellow", "math", "10 以内加减法"],
+    './games/math10.html': ["peach", "math", "三种运算"],
+    './games/math_chinese.html': ["mint", "shapes", "10 种数学玩法"],
+    './games/math_english.html': ["blue", "shapes", "10 种数学玩法"],
+    './games/chinese_game1.html': ["yellow", "chinese", "汉字与图片"],
     './shape_sorter_math.html': ['peach', 'shapes', '动手学数学'],
     './addition_game.html': ['mint', 'math', '加法小挑战'],
     './multiplication_game.html': ['blue', 'planet', '分组探索 · 听听口诀'],
@@ -35,6 +44,84 @@
     './games/math_addition_subtraction.html': ['blue', 'timer', '算一算 · 练一练'],
     './games/math_visual_game.html': ['pink', 'chick', '边看边学']
   };
+  // Subject is determined by gameplay, independently of the interface language.
+  const gameSubjects = {
+  "./games/bilingual-memory.html": [
+    "english",
+    "french"
+  ],
+  "./games/word-bridge.html": [
+    "english",
+    "french"
+  ],
+  "./games/sentence-match.html": [
+    "english",
+    "french"
+  ],
+  "./vocabulary_quiz.html": [
+    "english",
+    "french"
+  ],
+  "./games/math-orbit.html": [
+    "math"
+  ],
+  "./games/math_addition_subtraction.html": [
+    "math"
+  ],
+  "./games/math_visual_game.html": [
+    "math"
+  ],
+  "./games/math1.html": [
+    "math"
+  ],
+  "./games/math234.html": [
+    "math"
+  ],
+  "./games/math567.html": [
+    "math"
+  ],
+  "./games/math8.html": [
+    "math"
+  ],
+  "./games/math9.html": [
+    "math"
+  ],
+  "./games/math10.html": [
+    "math"
+  ],
+  "./games/math_chinese.html": [
+    "math"
+  ],
+  "./games/math_english.html": [
+    "math"
+  ],
+  "./shape_sorter_math.html": [
+    "math"
+  ],
+  "./addition_game.html": [
+    "math"
+  ],
+  "./multiplication_game.html": [
+    "math"
+  ],
+  "./games/chinese_character_quiz.html": [
+    "chinese"
+  ],
+  "./games/chinese_game1.html": [
+    "chinese"
+  ],
+  "./games/english-ruins.html": [
+    "english"
+  ],
+  "./games/french-market.html": [
+    "french"
+  ],
+  "./games/circuit-lab.html": [
+    "science"
+  ]
+};
+  const gameCategories = {all: '全部小游戏', math: '数学', chinese: '中文', english: '英文', french: '法文'};
+  let selectedGameCategory = 'all';
   const gameSearchTerms = {
     "./games/bilingual-memory.html": "双语翻翻乐 Bilingual Memory Mémoire bilingue 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 记忆 翻牌 memory mémoire memorisation cards cartes",
     "./games/word-bridge.html": "单词搭桥 Word Bridge Le pont des mots 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 词汇 单词 bridge pont mots vocabulaire nouns noms",
@@ -80,6 +167,7 @@
     link.className = `game-card theme-${theme}`;
     link.href = entry.url;
     link.setAttribute('data-game', '');
+    link.setAttribute('data-game-subjects', (gameSubjects[entry.url] || []).join(' '));
     link.innerHTML = `<div class="game-art">${icon(art)}<span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✧</span><span class="game-tag">${tag}</span></div><div class="game-copy"><div class="game-title-row"><h3></h3><span class="round-arrow">${icon('arrow')}</span></div><p></p><span class="game-link">开始玩 ${icon('arrow')}</span></div>`;
     link.querySelector('h3').textContent = entry.title;
     link.querySelector('p').textContent = entry.description;
@@ -135,6 +223,7 @@
     familyGrid.replaceChildren(family);
     $('#game-count').textContent = String(gameCount);
     $('#surprise-button').hidden = gameCount === 0;
+    window.KrisI18n?.refresh(gameGrid);
     window.KrisI18n?.refresh(resourceGrid);
     applyFilters();
     applyGameSearch();
@@ -147,11 +236,22 @@
     for (const card of cards) {
       const href = card.getAttribute('href');
       const text = `${card.textContent} ${gameSearchTerms[href] || ''}`;
-      card.hidden = Boolean(query) && !normalizeSearch(text).includes(query);
+      const subjects = gameSubjects[href] || [];
+      const categoryMatches = selectedGameCategory === 'all' || subjects.includes(selectedGameCategory);
+      card.hidden = !categoryMatches || (Boolean(query) && !normalizeSearch(text).includes(query));
       if (!card.hidden) visible += 1;
     }
+    document.querySelectorAll('[data-game-category]').forEach(link => {
+      const active = link.dataset.gameCategory === selectedGameCategory;
+      link.classList.toggle('is-active', active);
+      link.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+    $('#game-list-title').textContent = gameCategories[selectedGameCategory];
+    window.KrisI18n?.refresh($('#game-list-title'));
+    $('#game-empty-state').hidden = visible !== 0;
+    $('#surprise-button').disabled = visible === 0;
     clearGameSearch.hidden = gameSearch.value.length === 0;
-    gameStatus.textContent = visible ? `找到 ${visible} 个小游戏` : '没有找到小游戏，试试“英语”或“法语”吧。';
+    gameStatus.textContent = visible ? `找到 ${visible} 个小游戏` : '这个分类里没有找到游戏，换个词或查看全部小游戏吧。';
     window.KrisI18n?.refresh(gameStatus);
   }
 
@@ -199,9 +299,46 @@
   });
   showMore.addEventListener('click', () => { state.expanded = !state.expanded; applyFilters(); });
   $('#surprise-button').addEventListener('click', () => {
-    const games = Array.from(gameGrid.querySelectorAll('[data-game]'));
+    const games = Array.from(gameGrid.querySelectorAll('[data-game]')).filter(card => !card.hidden);
     if (games.length) window.location.assign(window.KrisI18n?.localizeURL(games[Math.floor(Math.random() * games.length)].getAttribute('href')) || games[Math.floor(Math.random() * games.length)].getAttribute('href'));
   });
+  function selectGameCategory(category, focus = false) {
+    if (!Object.hasOwn(gameCategories, category)) return;
+    selectedGameCategory = category;
+    applyGameSearch();
+    if (focus) $('#game-list-title').focus({preventScroll: true});
+  }
+  function restoreGameCategory() {
+    const hash = window.location.hash || '';
+    if (hash.startsWith('#games-')) selectGameCategory(hash.slice(7));
+    else if (!hash || hash === '#games') selectGameCategory('all');
+  }
+  document.querySelectorAll('[data-game-category]').forEach(link => {
+    link.addEventListener('click', event => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (window.history?.pushState) {
+        event.preventDefault();
+        const hash = link.getAttribute('href');
+        if (window.location.hash !== hash) window.history.pushState(null, '', hash);
+      }
+      selectGameCategory(link.dataset.gameCategory, true);
+    });
+  });
+  // Category links remain shareable; pushState avoids a second fragment focus jump.
+  window.addEventListener?.('hashchange', restoreGameCategory);
+  window.addEventListener?.('popstate', restoreGameCategory);
+  $('#reset-game-filters').addEventListener('click', event => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (window.history?.pushState) {
+      event.preventDefault();
+      if (window.location.hash !== '#games-all') window.history.pushState(null, '', '#games-all');
+    }
+    gameSearch.value = '';
+    selectGameCategory('all', true);
+  });
+  $('#game-categories').hidden = false;
+  $('#game-browse-heading').hidden = false;
+  restoreGameCategory();
   gameSearch.addEventListener('input', applyGameSearch);
   clearGameSearch.addEventListener('click', () => { gameSearch.value = ''; applyGameSearch(); gameSearch.focus(); });
   $('#game-toolbar').hidden = false;
@@ -218,7 +355,7 @@
   };
   if (window.KrisI18n) { window.KrisI18n.onChange(applyHomeLanguage); applyHomeLanguage(); }
 
-  fetch('content.md?v=6bb83de8fc48')
+  fetch('content.md?v=31a79bbb5b07')
     .then((response) => {
       if (!response.ok) throw new Error(`Content HTTP ${response.status}`);
       return response.text();

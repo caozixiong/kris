@@ -6,10 +6,32 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const {makeDOM, ROOT} = require('./quest-dom.cjs');
 const pages = {memory: 'bilingual-memory', bridge: 'word-bridge', sentences: 'sentence-match'};
 const copy = value => JSON.parse(JSON.stringify(value));
+function fakeClock() {
+  let now = 0, nextId = 0;
+  const pending = new Map(), history = [];
+  return {
+    get now() { return now; }, get pending() { return [...pending.values()]; }, history,
+    setTimeout(fn, delay) {
+      const task = {id:++nextId, fn, delay, due:now + delay};
+      pending.set(task.id, task); history.push(task); return task.id;
+    },
+    clearTimeout(id) { pending.delete(id); },
+    advance(ms) {
+      assert(Number.isFinite(ms) && ms >= 0);
+      const end = now + ms;
+      for (;;) {
+        const task = [...pending.values()].sort((a,b) => a.due - b.due || a.id - b.id)[0];
+        if (!task || task.due > end) break;
+        now = task.due; pending.delete(task.id); task.fn();
+      }
+      now = end;
+    }
+  };
+}
 function createGame(mode, options = {}) {
   const file = path.join(ROOT, 'games', pages[mode] + '.html');
   const document = makeDOM(fs.readFileSync(file, 'utf8'));
-  const store = options.store || new Map(), writes = [], rounds = [], roundInputs = [], records = [], timers = [], listeners = {};
+  const store = options.store || new Map(), writes = [], rounds = [], roundInputs = [], records = [], clock = fakeClock(), listeners = {};
   const storage = {
     getItem(key) { if (options.deniedRead) throw Error('Storage read blocked'); return store.get(key) ?? null; },
     setItem(key, value) { if (options.deniedWrite) throw Error('Storage write blocked'); if (key.startsWith('kris-word-')) writes.push([key, value]); store.set(key, value); },
@@ -20,7 +42,8 @@ function createGame(mode, options = {}) {
   const context = {document, console, Math: math, URL,
     location: {href: `https://example.test/games/${pages[mode]}.html${options.language ? '?lang=' + options.language : ''}`, origin: 'https://example.test'},
     addEventListener(type, listener) { (listeners[type] ??= []).push(listener); },
-    setTimeout(fn) { timers.push(fn); return timers.length; }, setInterval(fn) { timers.push(fn); return timers.length; }, clearTimeout() {}, clearInterval() {}
+    setTimeout:clock.setTimeout, clearTimeout:clock.clearTimeout,
+    setInterval() { throw Error('Matching games must not create recurring timers'); }, clearInterval() {}
   };
   context.window = context;
   Object.defineProperty(context, 'localStorage', {get() { if (options.deniedGetter) throw Error('Storage getter blocked'); return storage; }});
@@ -41,7 +64,8 @@ function createGame(mode, options = {}) {
   const $ = selector => document.querySelector(selector), all = selector => document.querySelectorAll(selector);
   const button = (act, value) => all('button[data-act]').find(b => b.dataset.act === act && (value === undefined || b.dataset.value === String(value)));
   const click = (act, value) => { const b = button(act, value); assert(b, `Missing ${mode} ${act}:${value ?? ''}`); b.click(); };
-  return {mode, file, document, context, store, writes, records, rounds, roundInputs, timers, $, all, button, click, get state() { return rounds.at(-1); }, key: 'kris-word-v1-' + mode + (options.skipBank && mode !== 'sentences' ? '-fallback' : '')};
+  const dispatch = (type, event = {}) => { for (const fn of listeners[type] || []) fn({type,...event}); };
+  return {mode, file, document, context, store, writes, records, rounds, roundInputs, clock, dispatch, $, all, button, click, get state() { return rounds.at(-1); }, key: 'kris-word-v1-' + mode + (options.skipBank && mode !== 'sentences' ? '-fallback' : '')};
 }
 function assertStateUI(g) {
   const s = g.state;
@@ -55,7 +79,8 @@ function assertStateUI(g) {
     if (['mismatch','hint','complete'].includes(s.phase)) assert(b.disabled, 'locked round cards cannot be clicked');
   }
   const ids = g.all('[id]').map(n => n.id); assert.equal(ids.length, new Set(ids).size, 'rendered IDs stay unique');
-  assert.equal(g.timers.length, 0, 'no hidden countdown or delayed lock');
+  assert.equal(g.clock.pending.length, g.mode === 'memory' && s.phase === 'mismatch' ? 1 : 0, 'only a memory mismatch has one pending flip-back');
+  for (const task of g.clock.pending) assert.equal(task.delay, 1000, 'memory reveal lasts exactly one second');
   assert(!/\b(?:undefined|NaN)\b/.test(g.$('#word-app').textContent), 'expanded themes never render missing values');
   assert.equal(g.$('[data-stat="matched"]').textContent, `${s.matched.length} / ${s.pairs.length}`);
   assert.equal(g.$('[data-stat="moves"]').textContent, String(s.moves));
@@ -161,13 +186,21 @@ for (const mode of Object.keys(pages)) {
   g.click('card', a.id + ':fr'); assert.equal(g.state.matched.length, 1); assert.equal(g.state.moves, 1);
   for (const lang of ['fr','en','zh']) language(g, lang);
   g.click('card', b.id + ':en'); g.click('card', c.id + ':fr');
-  assert.equal(g.state.phase, 'mismatch'); assert.equal(g.document.activeElement, g.button('continue')); assert.equal(g.state.moves, 2); assert.equal(g.state.matched.length, 1);
+  assert.equal(g.state.phase, 'mismatch'); assert.equal(g.document.activeElement, mode === 'memory' ? g.$('#word-feedback') : g.button('continue')); assert.equal(g.state.moves, 2); assert.equal(g.state.matched.length, 1);
   assertStateUI(g);
   const mismatch = copy(g.state), beforeWrites = g.writes.length;
   for (const card of g.state.cards) g.click('card', card.key);
   g.click('hint'); assert.deepEqual(copy(g.state), mismatch); assert.equal(g.writes.length, beforeWrites);
   for (const lang of ['en','fr','zh']) language(g, lang);
-  const staleContinue = g.button('continue'); assert(staleContinue); staleContinue.click();
+  const staleContinue = g.button('continue');
+  if (mode === 'memory') {
+    assert.equal(staleContinue, undefined, 'memory mismatches need no Continue button');
+    g.clock.advance(999); assert.deepEqual(copy(g.state), mismatch);
+    g.clock.advance(1);
+  } else {
+    g.clock.advance(1000); assert.deepEqual(copy(g.state), mismatch, 'other games keep explicit Continue');
+    assert(staleContinue); staleContinue.click();
+  }
   assert.equal(g.state.phase, 'active'); assert.equal(g.state.selected.length, 0); assert.equal(g.state.moves, 2);
   assert.equal(g.state.matched.length, 1);
   g.click('card', b.id + ':fr'); const moves = g.state.moves;
@@ -176,7 +209,7 @@ for (const mode of Object.keys(pages)) {
   assertStateUI(g);
   const hint = copy(g.state);
   for (const card of g.state.cards) g.click('card', card.key);
-  g.click('hint'); staleContinue.click(); assert.deepEqual(copy(g.state), hint, 'old mismatch Continue cannot dismiss current hint');
+  g.click('hint'); staleContinue?.click(); g.clock.advance(2000); assert.deepEqual(copy(g.state), hint, 'hints stay manual and old mismatch Continue cannot dismiss a hint');
   for (const lang of ['en','fr','zh']) language(g, lang);
   g.click('continue'); assert.equal(g.state.phase, 'active'); assert.equal(g.document.activeElement, g.button('hint')); assert.equal(g.state.hintIds.length, 0); assert.equal(g.state.matched.length, 1);
   g.click('card', b.id + ':en'); g.click('card', b.id + ':fr'); assert.equal(g.state.matched.length, 2); assert.equal(g.state.moves, moves + 1);
@@ -192,14 +225,14 @@ for (const mode of Object.keys(pages)) {
     if (phase === 'complete') solve(g);
     const oldCard = g.button('card', x.id + ':en'), restart = g.button('restart'), oldContinue = g.button('continue');
     const writeCount = g.writes.length; restart.click(); const reset = g.state, saved = copy(reset);
-    oldCard.click(); restart.click(); oldContinue?.click();
+    oldCard.click(); restart.click(); oldContinue?.click(); g.clock.advance(1000);
     assert.equal(g.state, reset); assert.deepEqual(copy(g.state), saved, `stale ${phase} controls ignored after reset`);
     assert.equal(g.state.phase, 'active'); assert.equal(g.state.moves, 0); assert.equal(g.state.hints, 0);
     assert.equal(g.state.selected.length, 0); assert.equal(g.state.matched.length, 0); assert.equal(g.state.hintIds.length, 0);
     assert.equal(g.writes.length, writeCount); assert.equal(g.document.activeElement, g.$('#round-title')); assertStateUI(g);
   }
 }
-console.log('PASS: nested/rapid/detached clicks, partial-match language changes, mismatch and hint Continue locks, hint without credit, all reset phases, unchanged bilingual card order and state in Chinese/English/French.');
+console.log('PASS: nested/rapid/detached clicks, partial-match language changes, automatic memory mismatch and manual bridge/sentence/hint locks, hint without credit, all reset phases, unchanged bilingual card order and state in Chinese/English/French.');
 
 for (const mode of ['bridge','sentences']) {
   const g = createGame(mode), [a,b] = g.state.pairs;
@@ -219,12 +252,124 @@ for (const mode of ['bridge','sentences']) {
   g.click('card', a.id + ':en'); assert(g.button('card', a.id + ':en').textContent.includes(a.en));
   g.click('card', b.id + ':en'); assert.equal(g.state.phase, 'mismatch'); assert.equal(g.state.moves, 1);
   assert(g.button('card', a.id + ':en').textContent.includes(a.en)); assert(g.button('card', b.id + ':en').textContent.includes(b.en));
-  g.click('continue'); assert(!g.button('card', a.id + ':en').textContent.includes(a.en));
+  assert.equal(g.button('continue'), undefined);
+  g.clock.advance(999); assert(g.button('card', a.id + ':en').textContent.includes(a.en)); assert(g.button('card', b.id + ':en').textContent.includes(b.en));
+  g.clock.advance(1); assert(!g.button('card', a.id + ':en').textContent.includes(a.en)); assert(!g.button('card', b.id + ':en').textContent.includes(b.en));
   g.click('hint'); const pair = g.state.pairs.find(p => g.state.hintIds.includes(p.id));
   for (const lang of ['en','fr','zh']) { language(g, lang); assert(g.button('card', pair.id + ':en').textContent.includes(pair.en)); assert(g.button('card', pair.id + ':fr').textContent.includes(pair.fr)); }
   g.click('continue'); assert(!g.button('card', pair.id + ':en').textContent.includes(pair.en));
 }
-console.log('PASS: bridge/sentence same-side replacement without a move; memory face-down concealment, persistent mismatch reveal, explicit hide, and one-pair bilingual hint.');
+console.log('PASS: bridge/sentence same-side replacement without a move; memory face-down concealment, one-second mismatch reveal and automatic hide, and one-pair bilingual hint.');
+
+{
+  const g = createGame('memory'), [a,b,c,d] = g.state.pairs;
+  g.click('card', a.id + ':en'); g.click('card', a.id + ':fr');
+  const detachedFirst = g.button('card', b.id + ':en'); detachedFirst.click();
+  g.clock.advance(750); assert.equal(g.clock.pending.length, 0, 'a first card has no time limit');
+  const detachedSecond = g.button('card', c.id + ':fr'); detachedSecond.click();
+  const mismatch = copy(g.state), task = g.clock.pending[0], deadline = task.due;
+  assert.equal(deadline, 1750, 'the one-second deadline starts after the second card');
+  assert.equal(g.document.activeElement, g.$('#word-feedback'));
+  assert.equal(g.$('#word-feedback').getAttribute('tabindex'), '-1');
+  assert.equal(g.button('continue'), undefined);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    detachedFirst.click(); detachedSecond.click();
+    g.click('card', b.id + ':en'); g.click('card', c.id + ':fr'); g.click('card', d.id + ':en'); g.click('hint');
+  }
+  assert.deepEqual(copy(g.state), mismatch, 'rapid repeats and third-card clicks cannot change the reveal');
+  assert.equal(g.clock.history.length, 1, 'rapid clicks cannot schedule extra callbacks');
+  g.clock.advance(400);
+  for (const lang of ['en','fr','zh']) {
+    const beforeAnnouncement = g.$('#word-announcement').textContent;
+    language(g, lang);
+    assert.equal(g.clock.pending[0], task, 'language keeps the original callback');
+    assert.equal(g.clock.pending[0].due, deadline, 'language never extends the reveal');
+    assert.equal(g.$('#word-announcement').textContent, beforeAnnouncement, 'translation does not repeat mismatch speech');
+    assert.equal(g.document.activeElement, g.$('#word-feedback'), 'translation retains feedback focus');
+  }
+  g.clock.advance(599); assert.deepEqual(copy(g.state), mismatch, 'both cards remain revealed at 999 ms');
+  assert(g.button('card', b.id + ':en').classList.contains('face-up'));
+  assert(g.button('card', c.id + ':fr').classList.contains('face-up'));
+  assert.equal(g.clock.pending.length, 1);
+  g.clock.advance(1);
+  assert.equal(g.state.phase, 'active', 'cards automatically reset at 1,000 ms');
+  assert.equal(g.state.selected.length, 0); assert.equal(g.clock.pending.length, 0);
+  assert(g.button('card', b.id + ':en').classList.contains('face-down'));
+  assert(g.button('card', c.id + ':fr').classList.contains('face-down'));
+  assert.equal(g.document.activeElement, g.button('card', c.id + ':fr'), 'keyboard player returns to the last revealed card');
+  assert.equal(g.state.moves, 2); assert.deepEqual(copy(g.state.matched), [a.id]);
+  assert(g.button('card', a.id + ':en').classList.contains('face-up'));
+  assert(g.button('card', a.id + ':fr').classList.contains('face-up'));
+  assertStateUI(g);
+  const after = copy(g.state), announcement = g.$('#word-announcement').textContent, currentCard = g.button('card', c.id + ':fr');
+  task.fn(); g.clock.advance(1001);
+  detachedFirst.click(); detachedSecond.click(); g.click('card', a.id + ':en'); g.click('card', a.id + ':fr');
+  assert.deepEqual(copy(g.state), after, 'finished callback and old/matched cards cannot apply twice');
+  assert.equal(g.button('card', c.id + ':fr'), currentCard, 'stale callback does not rerender');
+  assert.equal(g.$('#word-announcement').textContent, announcement);
+  assert.equal(g.writes.length, 0); assert.equal(g.records.length, 0);
+  g.click('card', d.id + ':en'); assert.deepEqual(copy(g.state.selected), [d.id + ':en'], 'board accepts a fresh turn after the timeout');
+}
+
+for (const action of ['restart','topic','level']) {
+  const g = createGame('memory'), [a,b] = g.state.pairs;
+  const oldFirst = g.button('card', a.id + ':en'); oldFirst.click();
+  g.click('card', b.id + ':fr'); const oldTask = g.clock.pending[0];
+  g.clock.advance(350);
+  const target = action === 'restart' ? g.button(action) : g.all(`button[data-act="${action}"]`)[1];
+  target.click();
+  assert.equal(g.clock.pending.length, 0, `${action} cancels the old timeout`);
+  assert.equal(g.state.phase, 'active'); assert.equal(g.state.moves, 0); assert.equal(g.state.selected.length, 0);
+  assert.equal(g.document.activeElement, g.$('#round-title'));
+  const [x,y] = g.state.pairs;
+  g.click('card', x.id + ':en'); g.click('card', y.id + ':fr');
+  const newer = copy(g.state), newTask = g.clock.pending[0];
+  oldTask.fn(); oldFirst.click(); target.click();
+  assert.deepEqual(copy(g.state), newer, `cancelled ${action} callback and detached controls cannot dismiss a new mismatch`);
+  assert.equal(g.clock.pending[0], newTask);
+  g.clock.advance(650); assert.deepEqual(copy(g.state), newer, 'the former deadline cannot end the new reveal');
+  g.clock.advance(349); assert.equal(g.state.phase, 'mismatch');
+  g.clock.advance(1); assert.equal(g.state.phase, 'active'); assert.equal(g.state.moves, 1); assertStateUI(g);
+}
+
+for (const persisted of [false,true]) {
+  const g = createGame('memory'), [a,b,c] = g.state.pairs;
+  g.click('card', a.id + ':en'); g.click('card', a.id + ':fr');
+  g.click('card', b.id + ':en'); g.click('card', c.id + ':fr');
+  const task = g.clock.pending[0]; g.clock.advance(250);
+  g.dispatch('pagehide', {persisted});
+  assert.equal(g.clock.pending.length, 0, 'page exit cancels the timeout');
+  assert.equal(g.state.phase, 'active', 'back/forward-cache return cannot retain a permanent lock');
+  assert.deepEqual(copy(g.state.matched), [a.id]); assert.equal(g.state.moves, 2);
+  const restored = copy(g.state); g.clock.advance(1000); task.fn(); g.dispatch('pageshow', {persisted});
+  assert.deepEqual(copy(g.state), restored); assertStateUI(g);
+  g.click('card', b.id + ':en'); g.click('card', c.id + ':fr');
+  const newer = copy(g.state); task.fn(); assert.deepEqual(copy(g.state), newer);
+  g.clock.advance(1000); assert.equal(g.state.phase, 'active'); assert.equal(g.state.moves, 3);
+}
+
+for (const selector of ['button[data-act="restart"]','button[data-act="topic"]','button[data-act="level"]','.learning-note summary','.more-word-games a']) {
+  const g = createGame('memory'), [a,b] = g.state.pairs;
+  g.click('card', a.id + ':en'); g.click('card', b.id + ':fr');
+  g.clock.advance(600); g.$(selector).focus();
+  g.clock.advance(400);
+  assert.equal(g.document.activeElement, g.$(selector), `automatic flip-back preserves ${selector} focus`);
+  assert.equal(g.state.phase, 'active');
+}
+{
+  const g = createGame('memory'), [a,b] = g.state.pairs;
+  g.click('card', a.id + ':en'); g.click('card', b.id + ':fr');
+  g.clock.advance(600);
+  const languageButton = g.all('button').find(button => button.dataset.siteLanguage === 'fr');
+  assert(languageButton); languageButton.focus(); languageButton.click();
+  assert.equal(g.document.activeElement, languageButton);
+  g.clock.advance(399); assert.equal(g.state.phase, 'mismatch');
+  g.clock.advance(1); assert.equal(g.state.phase, 'active');
+  assert.equal(g.document.activeElement, languageButton, 'automatic flip-back never steals focus from language controls outside the app');
+  assert(!/[\u3400-\u9fff]/u.test(g.$('#word-app').textContent));
+  assertStateUI(g);
+}
+console.log('PASS: deterministic 999/1,000/after-1,000 ms flip-back, original language-change deadline, third-card/repeat locks, cancellation and stale callbacks across resets/theme/size/page lifecycle, persistent matches, and timer focus preservation.');
 
 let storageCampaigns = 0;
 for (const mode of Object.keys(pages)) {
@@ -318,7 +463,8 @@ assert(/\.level-button\{[^}]*min-width\s*:\s*44px/.test(css), 'difficulty button
 assert(css.includes(':focus-visible')); assert(css.includes('@media(prefers-reduced-motion:no-preference)'));
 assert(css.includes('@media(max-width:700px)')); assert(css.includes('@media(max-width:360px)')); assert(css.includes('overflow-wrap:anywhere'));
 const gameCode = fs.readFileSync(path.join(ROOT,'assets/word-games.js'),'utf8');
-assert(!/\b(?:setTimeout|setInterval|fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/.test(gameCode), 'matching gameplay has no timers or network calls');
+assert(!/\b(?:setInterval|fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/.test(gameCode), 'matching gameplay has no recurring timers or network calls');
+assert.equal([...gameCode.matchAll(/\bsetTimeout\s*\(/g)].length, 1, 'one scoped memory flip-back scheduler');
 console.log('PASS: wrapper IDs, local assets and available cache hashes, sibling/home links, review integration, focus/reduced-motion/responsive CSS and 44px target declarations. DOM/static testing only; no browser, layout, touch or screen-reader QA claim.');
 
 for (const mode of Object.keys(pages)) for (const phase of ['selected','mismatch','hint']) for (const action of ['topic','level']) {
@@ -335,7 +481,7 @@ for (const mode of Object.keys(pages)) for (const phase of ['selected','mismatch
   assert.equal(g.state.hintIds.length, 0); assert.equal(g.writes.length, 0); assert.equal(stamps(g), 0);
   assert.equal(g.document.activeElement, g.$('#round-title'));
   if (action === 'topic') assert.equal(topic(g), destination); else assert.equal(g.state.pairs.length, Number(destination));
-  const current = copy(g.state); oldCard.click(); oldContinue?.click(); assert.deepEqual(copy(g.state), current);
+  const current = copy(g.state); oldCard.click(); oldContinue?.click(); g.clock.advance(1000); assert.deepEqual(copy(g.state), current);
   assertStateUI(g);
 }
 console.log('PASS: theme/difficulty navigation interrupts partial selection, mismatch and hint phases cleanly, with no accidental scoring or stale controls.');

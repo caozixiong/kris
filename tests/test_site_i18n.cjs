@@ -100,16 +100,29 @@ function register(g) {
   console.log('PASS foreign-source patterns: English initial strings translate and round-trip through Chinese, English and French');
 
   for (const offline of [false, true]) {
-    const home = harness(read('index.html'), { catalogs: ['assets/i18n-site.js'] });
+    const home = harness(read('index.html'), { catalogs: ['assets/i18n-site.js','assets/i18n-game-categories.js'] });
     home.context.fetch = async () => { if (offline) throw Error('offline'); return { ok: true, text: async () => read('content.md') }; };
     home.execute('script.js'); await settle();
-    assert.equal(home.all('#game-grid [data-game]').length, 14);
+    assert.equal(home.all('#game-grid [data-game]').length, 23);
     const expectedTitles={en:['Bilingual Memory','Word Bridge','Sentence Match'],fr:['Mémoire bilingue','Le pont des mots','Paires de phrases'],zh:['双语翻翻乐','单词搭桥','句子对对碰']};
     const gameCards=home.all('#game-grid [data-game]');
     home.$('#game-search').value='bilingue';home.$('#game-search').dispatch('input');
     for (const lang of ['en','fr','zh']) {home.language(lang);await settle();assert.deepEqual(gameCards.slice(0,3).map(c=>c.querySelector('h3').textContent),expectedTitles[lang]);assert.equal(gameCards.filter(c=>!c.hidden).length,3);assert.equal(home.$('#game-search').value,'bilingue');}
     home.language('fr');await settle();assert.equal(home.$('#game-results-status').textContent,'3 jeux trouvés');
-    home.$('#clear-game-search').click();home.language('zh');await settle();assert.equal(gameCards.filter(c=>!c.hidden).length,14);
+    home.$('#clear-game-search').click();home.language('zh');await settle();assert.equal(gameCards.filter(c=>!c.hidden).length,23);
+    const names={zh:['数学','中文','英文','法文'],en:['Math','Chinese','English','French'],fr:['Mathématiques','Chinois','Anglais','Français']};
+    home.$('[data-game-category="french"]').click();
+    const frenchIDs=()=>home.all('#game-grid [data-game]').filter(c=>!c.hidden).map(c=>c.getAttribute('href'));
+    const kept=frenchIDs();assert.equal(kept.length,5);
+    for(const lang of ['en','fr','zh']) {
+      home.language(lang);await settle();assert.deepEqual(frenchIDs(),kept,'subject independent from interface language');
+      assert.deepEqual(home.all('#game-categories strong').map(n=>n.textContent),names[lang]);
+      assert.equal(home.$('#game-list-title').textContent,names[lang][3]);
+      assert.equal(home.$('[data-game-category="french"]').getAttribute('aria-current'),'true');
+      if(lang!=='zh')assert(!/[\u3400-\u9fff]/u.test(home.$('#games').textContent),'all catalog and category copy translated');
+    }
+    home.$('[data-game-category="math"]').click();assert.equal(frenchIDs().length,14);
+    home.$('[data-game-category="all"]').click();assert.equal(frenchIDs().length,23);
     home.$('#show-more').click(); home.$('#resource-search').value = 'NASA'; home.$('#resource-search').dispatch('input'); await settle();
     const visible = home.all('#resource-grid .resource-card').filter(c => !c.hidden), input = home.$('#resource-search');
     assert.equal(visible.length, 1);
@@ -163,7 +176,7 @@ function register(g) {
   const deniedQuery = harness(fixture, { denyLocal: true, denySession: true, url: 'https://example.test/kris/game.html?lang=en' }); register(deniedQuery); deniedQuery.language('fr');
   const deniedReload = harness(fixture, { denyLocal: true, denySession: true, url: deniedQuery.context.location.href }); register(deniedReload);
   assert.equal(deniedReload.context.KrisI18n.language, 'fr', 'URL fallback must preserve a new selection on reload');
-  const surprise = harness(read('index.html'), { denyLocal: true, denySession: true, catalogs: ['assets/i18n-site.js'] });
+  const surprise = harness(read('index.html'), { denyLocal: true, denySession: true, catalogs: ['assets/i18n-site.js','assets/i18n-game-categories.js'] });
   surprise.context.fetch = async () => ({ ok: true, text: async () => read('content.md') }); surprise.execute('script.js'); await settle(); surprise.language('fr'); surprise.$('#surprise-button').click();
   const navigation = surprise.calls.find(call => call[0] === 'navigate'); assert(navigation, 'Surprise button should navigate');
   assert.equal(new URL(navigation[1], surprise.context.location.href).searchParams.get('lang'), 'fr', 'Programmatic game navigation must preserve a storage-denied language');
