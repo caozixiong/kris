@@ -111,6 +111,9 @@ function register(g) {
     home.language('fr'); assert.match(home.$('#results-status').textContent, /1 ressource/); assert.ok(!/[\u3400-\u9fff]/.test(home.$('h1').textContent));
     if (offline) assert.ok(!/[\u3400-\u9fff]/.test(home.$('#content-status').textContent));
   }
+  const hero = harness(read('index.html'), {catalogs:['assets/i18n-site.js']});
+  hero.language('en'); assert.match(hero.$('#hero-title').textContent, /becomes a new adventure/);
+  hero.language('fr'); assert.match(hero.$('#hero-title').textContent, /ouvre une nouvelle aventure/);
   console.log('PASS homepage: directory/fallback translations and search/filter/input state survive language changes');
 
   const session = new Map([['kris-review-admin-session','test-session-marker']]);
