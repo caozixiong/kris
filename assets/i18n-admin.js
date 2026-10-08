@@ -342,6 +342,9 @@
   ]
 });
 I.register({
+ "双语翻翻乐":["Bilingual Memory", "Mémoire bilingue"],
+ "单词搭桥":["Word Bridge", "Le pont des mots"],
+ "句子对对碰":["Sentence Match", "Paires de phrases"],
  '加法果园':['Addition Orchard','Le verger des additions'],
  '看图识字 - Chinese Character Quiz':['Chinese Picture Words','Les caractères chinois en images'],
  '汉字寻宝翻翻乐':['Chinese Character Treasure Match','Les paires de caractères chinois'],

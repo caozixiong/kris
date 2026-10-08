@@ -19,6 +19,9 @@
     '医疗健康 (Medical/Health)': { key: 'health', label: '医疗健康', icon: 'heart' }
   };
   const gameStyles = {
+    './games/bilingual-memory.html': ['lavender', 'memory', '8–10 岁 · 英法记忆'],
+    './games/word-bridge.html': ['mint', 'bridge', '8–10 岁 · 英法词汇'],
+    './games/sentence-match.html': ['peach', 'sentences', '8–10 岁 · 英法句意'],
     './games/math-orbit.html': ['mint', 'rocket', '8–10 岁 · 数学策略'],
     './games/english-ruins.html': ['lavender', 'words', '8–10 岁 · 英语探险'],
     './games/french-market.html': ['peach', 'backpack', '8–10 岁 · 法语生活'],
@@ -32,6 +35,15 @@
     './games/math_addition_subtraction.html': ['blue', 'timer', '算一算 · 练一练'],
     './games/math_visual_game.html': ['pink', 'chick', '边看边学']
   };
+  const gameSearchTerms = {
+    "./games/bilingual-memory.html": "双语翻翻乐 Bilingual Memory Mémoire bilingue 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 记忆 翻牌 memory mémoire memorisation cards cartes",
+    "./games/word-bridge.html": "单词搭桥 Word Bridge Le pont des mots 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 词汇 单词 bridge pont mots vocabulaire nouns noms",
+    "./games/sentence-match.html": "句子对对碰 Sentence Match Paires de phrases 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 句子 句意 sentence sentences phrases meaning sens"
+  };
+  const gameSearch = $('#game-search');
+  const clearGameSearch = $('#clear-game-search');
+  const gameStatus = $('#game-results-status');
+  const normalizeSearch = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
   const state = { category: 'all', expanded: false };
   const search = $('#resource-search');
   const showMore = $('#show-more');
@@ -125,6 +137,22 @@
     $('#surprise-button').hidden = gameCount === 0;
     window.KrisI18n?.refresh(resourceGrid);
     applyFilters();
+    applyGameSearch();
+  }
+
+  function applyGameSearch() {
+    const query = normalizeSearch(gameSearch.value.trim());
+    const cards = Array.from(gameGrid.querySelectorAll('[data-game]'));
+    let visible = 0;
+    for (const card of cards) {
+      const href = card.getAttribute('href');
+      const text = `${card.textContent} ${gameSearchTerms[href] || ''}`;
+      card.hidden = Boolean(query) && !normalizeSearch(text).includes(query);
+      if (!card.hidden) visible += 1;
+    }
+    clearGameSearch.hidden = gameSearch.value.length === 0;
+    gameStatus.textContent = visible ? `找到 ${visible} 个小游戏` : '没有找到小游戏，试试“英语”或“法语”吧。';
+    window.KrisI18n?.refresh(gameStatus);
   }
 
   function applyFilters() {
@@ -174,6 +202,10 @@
     const games = Array.from(gameGrid.querySelectorAll('[data-game]'));
     if (games.length) window.location.assign(window.KrisI18n?.localizeURL(games[Math.floor(Math.random() * games.length)].getAttribute('href')) || games[Math.floor(Math.random() * games.length)].getAttribute('href'));
   });
+  gameSearch.addEventListener('input', applyGameSearch);
+  clearGameSearch.addEventListener('click', () => { gameSearch.value = ''; applyGameSearch(); gameSearch.focus(); });
+  $('#game-toolbar').hidden = false;
+  applyGameSearch();
   $('#resource-toolbar').hidden = false;
   $('#surprise-button').hidden = gameGrid.childElementCount === 0;
   applyFilters();
@@ -182,10 +214,11 @@
     const dot = document.querySelector('.title-dot');
     if (dot) dot.textContent = window.KrisI18n?.language === 'zh' ? '。' : '.';
     applyFilters();
+    applyGameSearch();
   };
   if (window.KrisI18n) { window.KrisI18n.onChange(applyHomeLanguage); applyHomeLanguage(); }
 
-  fetch('content.md?v=30d81dbc76a4')
+  fetch('content.md?v=6bb83de8fc48')
     .then((response) => {
       if (!response.ok) throw new Error(`Content HTTP ${response.status}`);
       return response.text();

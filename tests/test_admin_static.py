@@ -22,5 +22,10 @@ assert all(t in source for t in ['review_admin_status','review_admin_list','revi
 assert (root/'supabase/admin-schema.sql').read_text()==next((root/'supabase/migrations').glob('*_secure_review_admin.sql')).read_text()
 assert hashlib.sha256((root/'assets/vendor/supabase-2.117.3.js').read_bytes()).hexdigest()=='d6a5c4414a5d4ce646d9c1de223aa7067d3ff664c15394ffeb7fcffc763354a3'
 assert json.loads((root/'tools/admin-vendor/package.json').read_text())['dependencies']['@supabase/supabase-js']=='2.117.3'
-assert (root/'assets/admin/games.js').read_text().count('"id":')==20
-print('PASS: admin entry, all20 game labels, strict CSP/referrer, pinned official SDK integrity, local versioned assets, existing-only email login, session-only storage, no raw HTML render, matching migration.')
+assert (root/'assets/admin/games.js').read_text().count('"id":')==23
+games=json.loads(re.search(r'Object.freeze\((\[.*?\])\);',(root/'assets/admin/games.js').read_text(),re.S)[1])
+assert len({g['id'] for g in games})==23
+for g in games:
+ page=root/g['href'].removeprefix('./');assert page.is_file()
+ widgets=html.fromstring(page.read_text()).xpath('//kris-reviews/@data-game');assert widgets==[g['id']]
+print('PASS: admin entry, all 23 game labels, strict CSP/referrer, pinned official SDK integrity, local versioned assets, existing-only email login, session-only storage, no raw HTML render, matching migration.')

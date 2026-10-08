@@ -1,5 +1,6 @@
 // No request bodies, answers, IP addresses, or database errors are logged here.
 export const GAME_IDS = Object.freeze([
+  'bilingual-memory', 'word-bridge', 'sentence-match',
   'addition_game', 'multiplication_game', 'shape_sorter_math', 'vocabulary_quiz',
   'chinese_character_quiz', 'chinese_game1', 'circuit-lab', 'english-ruins',
   'french-market', 'math-orbit', 'math1', 'math10', 'math234', 'math567',

@@ -47,7 +47,15 @@
         '当前总和:': ['Current sum:', 'Somme actuelle :'],
         '拖到这里！': ['Drop here!', 'Dépose les formes ici !'],
         '新题目': ['New problem', 'Nouvel exercice'],
-        '词汇测验': ['Vocabulary Quiz', 'Quiz de vocabulaire anglais'],
+        '词汇测验': ['Vocabulary Quiz', 'Quiz de vocabulaire'],
+        '返回首页': ['Back to home', 'Retour à l’accueil'],
+        '练习模式': ['Practice mode', 'Mode d’entraînement'],
+        '答案选项': ['Answer options', 'Réponses possibles'],
+        '英译法 · 共享词库': ['English → French · Shared word bank', 'Anglais → français · Banque de mots'],
+        '原版英语释义 · 15 词': ['Original English definitions · 15 words', 'Définitions anglaises originales · 15 mots'],
+        '原版练习：为 15 个英语单词选择正确的英语释义。': ['Original practice: choose the English definition for each of 15 English words.', 'Entraînement original : choisis la définition anglaise de chacun des 15 mots anglais.'],
+        '共享词库未能加载。你仍可练习原版 15 词；刷新页面可重试。': ['The shared word bank could not load. You can still practise the original 15 words; refresh to try again.', 'La banque de mots n’a pas pu se charger. Tu peux pratiquer les 15 mots originaux ; actualise la page pour réessayer.'],
+        '请启用 JavaScript 来玩词汇测验。': ['Please enable JavaScript to play the vocabulary quiz.', 'Active JavaScript pour jouer au quiz de vocabulaire.'],
         '检查答案': ['Check answer', 'Vérifier la réponse'],
         '下一个单词': ['Next word', 'Mot suivant'],
         '测验完成！': ['Quiz finished!', 'Quiz terminé !'],
@@ -58,6 +66,21 @@
     });
 
     i18n.registerPatterns([
+        {
+            pattern: /^从 (\d+) 个英法词汇中随机抽取 (\d+) 题。请选择对应的法语。$/,
+            en: (count, total) => `${total} random questions from ${count} English–French words. Choose the French translation.`,
+            fr: (count, total) => `${total} questions au hasard parmi ${count} mots anglais–français. Choisis la traduction française.`
+        },
+        {
+            pattern: /^题目: (\d+) \/ (\d+)$/,
+            en: (number, total) => `Question: ${number} / ${total}`,
+            fr: (number, total) => `Question : ${number} / ${total}`
+        },
+        {
+            pattern: /^答对: (\d+) \/ (\d+)$/,
+            en: (number, total) => `Correct: ${number} / ${total}`,
+            fr: (number, total) => `Bonnes réponses : ${number} / ${total}`
+        },
         {
             pattern: /^答错了，正确答案是 (\d+)$/,
             en: n => `Not quite. The correct answer is ${n}`,

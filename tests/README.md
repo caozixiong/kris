@@ -22,7 +22,7 @@ The static check refreshes the two legacy HTML fixtures before the legacy flow t
 - French: all eight exact carts, equal-total wrong-color carts, zero/five quantity limits for each product, glossary and reset. The six-item final cart is supported; the cap is per product.
 - Science: all 192 combinations of mission, six materials, switch position and prediction through real UI handlers. Observed light state follows conductivity and switch position even when the mission answer is wrong. Wrong predictions can be corrected, and configuration changes reset the observation.
 - Rendered controls retain names/types and unique IDs; intended focus changes are asserted. The persistent live region survives rerenders and receives feedback.
-- Homepage: all 29 prior directory records preserved; the new total of 33 exact source/fallback entries includes 11 game links. Tests actual markup and script for successful enhancement and offline, invalid-content and HTTP-error fallbacks, categories, Chinese/English search, expand/collapse, empty state, reset/clear focus, safe external links, and random-game destinations.
+- Homepage: all 29 prior directory records preserved; the new total of 36 exact source/fallback entries includes 14 game links. Tests actual markup and script for successful enhancement and offline, invalid-content and HTTP-error fallbacks, categories, Chinese/English search, expand/collapse, empty state, reset/clear focus, safe external links, and random-game destinations.
 - Legacy games: unchanged independent 100 ordered multiplication/口诀 fixtures; 7,800 generated questions and answer choices; production handlers for addition/multiplication including full rounds, correct/wrong/invalid inputs, learning flow, range selection, restart, bilingual state, speech, mute, missing voices, denied storage and interruption.
 - Static checks include local assets and matching SHA-256 cache keys, script order/defer, title/language/viewport/noscript markup, page/home links, focus styles, responsive breakpoints and reduced-motion CSS gating.
 
@@ -45,7 +45,7 @@ No browser/device QA claim is made by this test suite.
 
 ## Public review checks
 
-Also run `python tests/test_reviews_static.py`, `node tests/test_reviews_api.mjs` and `node tests/test_reviews_widget.cjs`. The static check covers exactly 20 actual game pages, excludes placeholder/gallery pages, verifies widget script paths/cache hashes and client-secret absence. API tests execute the deployed handler with mocked network responses and a fresh random test-only answer. Widget tests execute the actual shared frontend through the existing DOM adapter and cover gating, XSS-safe text, pending acknowledgement, offline draft retention, duplicate clicks, answer clearing, and navigation interruption. They make no browser rendering claim.
+Also run `python tests/test_reviews_static.py`, `node tests/test_reviews_api.mjs` and `node tests/test_reviews_widget.cjs`. The static check covers exactly 23 actual game pages, excludes placeholder/gallery pages, verifies widget script paths/cache hashes and client-secret absence. API tests execute the deployed handler with mocked network responses and a fresh random test-only answer. Widget tests execute the actual shared frontend through the existing DOM adapter and cover gating, XSS-safe text, pending acknowledgement, offline draft retention, duplicate clicks, answer clearing, and navigation interruption. They make no browser rendering claim.
 
 `test_reviews_database.mjs` executes the production SQL in PostgreSQL via the optional development-only `@electric-sql/pglite@0.5.8`. Set `PGLITE_MODULE` to its installed `dist/index.js` path. Tests verify RLS and column permissions using real database roles, deny public writes/RPCs and server-side publishing, check quota boundaries, expired-counter cleanup and pending capacity. See `docs/reviews.md` for deployment and moderation details.
 
@@ -71,3 +71,22 @@ node tests/test_legacy_learning_i18n_dom.cjs
 These use actual production runtime/catalogs and application handlers. They cover zh → en → fr → zh reversibility, saved language and denied-storage URL fallback, live mutations and translated attributes, all 32 adventure missions and feedback, all 20 game pages including collection modes, partial answers/cart/prediction/timer/score preservation, instructional-language content, homepage search/filter preservation, and review draft/admin session/confirmation preservation without additional network calls. Existing `test_math_flow.cjs` also checks French UI, pluralizations, fr-CA addition speech and Chinese multiplication mnemonics.
 
 `test_legacy_learning_i18n.cjs` is an optional Playwright/Chromium test for a permitted browser environment. It is separate from the dependency-free suite and must not be interpreted as a completed browser check when the environment does not allow browser launch. Use the cloud browser for published-page smoke checks; mobile visual testing remains a separate check when viewport control is available.
+
+
+## Bilingual-game catalog integration
+
+Homepage tests also cover all three new game links in fetched and offline catalogs, first-card placement, English/French/Chinese search keywords, accent-insensitive French search, empty results, clear/focus and language-switch preservation. Review API/static tests require exactly 23 canonical game IDs and matching administrator links. `test_bilingual_review_migration.mjs` applies the unchanged original migration plus the new constraint migration in local Postgres, compares the snapshot, preserves an existing row and role grants, accepts all 23 IDs and rejects an unknown ID. No remote reviews or test accounts are created.
+
+## Shared English–French word games
+
+```sh
+python tools/build_word_bank.py --check
+node tests/test_word_bank.cjs
+node tests/test_vocabulary_shared_bank.cjs
+node tests/test_word_core.cjs
+node tests/test_word_flow.cjs
+```
+
+The core checks use independent generated fixtures, every shared-bank theme, all 500 word pairs, the unchanged 32 sentence pairs, and the 32-word fallback when the shared bank is absent. They cover exact opposite-language identity matching, unique shuffled cards, duplicate/rapid clicks, explicit mismatch and hint locks, fresh rounds, sanitized progress, and repeated sampling across each topic and the whole bank. Mixed rounds reject duplicate English or French surface forms while replay coverage checks that no word is permanently hidden by filtering. `test_word_bank.cjs` also validates the canonical JSON, generated-asset parity, metadata, and the shared sampling API.
+
+The flow checks execute real wrapper HTML, application scripts, and the shared language runtime through `quest-dom.cjs`. They cover every exposed topic/difficulty, repeated completion and passport records, getter/read/write-denied storage campaigns, omitted-bank fallback storage isolation, corrupt progress, Chinese/English/French state preservation, face-down memory, hints without credit, keyboard-focus targets, persistent live announcements, stale detached controls, interrupted theme/difficulty changes, sibling/home links, review IDs, and static responsive/focus/44px target CSS. These are DOM-model and static assertions, not browser rendering, touch hit-testing, screen-reader, or device validation.

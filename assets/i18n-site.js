@@ -525,7 +525,100 @@
 });
  I.register({'找一找感兴趣的…':['Find something interesting…','Trouve ce qui t’intéresse…'],'清空搜索':['Clear search','Effacer la recherche'],'英语':['English','Anglais']});
  I.register({'英语数学游戏':['English Math Games','Jeux de maths en anglais'],'英语语言学习':['English Language Learning','Apprentissage de l’anglais'],'英语科学资源':['English Science Exploration','Ressources scientifiques en anglais']});
+ I.register({
+  "双语翻翻乐": [
+    "Bilingual Memory",
+    "Mémoire bilingue"
+  ],
+  "8–10 岁 · 英法记忆": [
+    "Ages 8–10 · English–French memory",
+    "8–10 ans · Mémoire anglais–français"
+  ],
+  "翻开卡片，找出英文和法文词语的搭档。每局 4、6 或 8 对，按主题练习，还有提示和进度记录。": [
+    "Flip hidden cards to match English and French words. Play with 4, 6 or 8 pairs, themed word sets, hints and saved progress.",
+    "Retourne les cartes pour associer les mots anglais et français. Choisis 4, 6 ou 8 paires, avec des thèmes, des indices et une progression sauvegardée."
+  ],
+  "单词搭桥": [
+    "Word Bridge",
+    "Le pont des mots"
+  ],
+  "8–10 岁 · 英法词汇": [
+    "Ages 8–10 · English–French words",
+    "8–10 ans · Mots anglais–français"
+  ],
+  "把看得见的英文和法文名词连成搭档，搭起语言小桥。每局 4、6 或 8 对，主题词库和提示陪你练习。": [
+    "Build a language bridge by matching visible English and French nouns. Choose 4, 6 or 8 pairs with themed word sets and helpful hints.",
+    "Construis un pont entre les langues en associant les noms anglais et français visibles. Choisis 4, 6 ou 8 paires avec des thèmes et des indices."
+  ],
+  "句子对对碰": [
+    "Sentence Match",
+    "Paires de phrases"
+  ],
+  "8–10 岁 · 英法句意": [
+    "Ages 8–10 · English–French sentences",
+    "8–10 ans · Phrases anglais–français"
+  ],
+  "读一读英文和法文短句，把意思相同的句子配成对。每局 3、4 或 6 对，从日常主题慢慢进阶。": [
+    "Read short English and French sentences and match their meanings. Choose 3, 4 or 6 pairs and build confidence with everyday themes.",
+    "Lis de courtes phrases en anglais et en français et associe celles qui ont le même sens. Choisis 3, 4 ou 6 paires sur des thèmes du quotidien."
+  ],
+  "新上架：英法双语翻牌、单词搭桥和句子配对！为 8–10 岁小朋友准备的文字小挑战。": [
+    "New: English–French memory cards, word bridges and sentence pairs! Little word challenges for ages 8–10.",
+    "Nouveau : cartes mémoire, ponts de mots et paires de phrases anglais–français ! Des défis de mots pour les 8–10 ans."
+  ],
+  "搜索小游戏": [
+    "Search games",
+    "Chercher un jeu"
+  ],
+  "找游戏：英语、法语、记忆…": [
+    "Find games: English, French, memory…",
+    "Trouve un jeu : anglais, français, mémoire…"
+  ],
+  "清空游戏搜索": [
+    "Clear game search",
+    "Effacer la recherche de jeux"
+  ],
+  "清空": [
+    "Clear",
+    "Effacer"
+  ],
+  "没有找到小游戏，试试“英语”或“法语”吧。": [
+    "No games found. Try “English” or “French”.",
+    "Aucun jeu trouvé. Essaie « anglais » ou « français »."
+  ]
+});
+ I.register({
+  "从共享英法词库中随机抽取卡片，把意思相同的英文和法文配成一对。3 种难度，适合 8–10 岁。": [
+    "Flip randomly selected cards from the shared English–French word bank. Match their meanings in three difficulty levels for ages 8–10.",
+    "Retourne les cartes tirées au hasard dans la banque de mots anglais–français. Associe leur sens avec trois niveaux pour les 8–10 ans."
+  ],
+  "从共享英法词库中随机抽词，点击意思相同的英文和法文伙伴。3 种难度，适合 8–10 岁。": [
+    "Match randomly selected English and French words from the shared word bank. Three difficulty levels for ages 8–10.",
+    "Associe les mots anglais et français tirés au hasard dans la banque commune. Trois niveaux pour les 8–10 ans."
+  ],
+  "配对意思相同的英文与法文短句，在日常情境中练习两种语言。适合 8–10 岁。": [
+    "Pair short English and French sentences with the same meaning and practice both languages in everyday situations. For ages 8–10.",
+    "Associe de courtes phrases anglaises et françaises de même sens et pratique les deux langues au quotidien. Pour les 8–10 ans."
+  ],
+  "跳到游戏": [
+    "Skip to game",
+    "Aller au jeu"
+  ],
+  "← 所有游戏": [
+    "← All games",
+    "← Tous les jeux"
+  ],
+  "这个互动游戏需要开启 JavaScript。你仍可返回首页阅读学习资源。": [
+    "This interactive game needs JavaScript. You can still return home to explore the learning resources.",
+    "Ce jeu interactif nécessite JavaScript. Tu peux toujours retourner à l’accueil pour explorer les ressources."
+  ],
+  "返回乐园": [
+    "Back to the playground",
+    "Retour au parc"
+  ]
+});
  I.registerPatterns([
+ {pattern:/^找到 (\d+) 个小游戏$/,en:n=>`${n} game${n==='1'?'':'s'} found`,fr:n=>`${n} jeu${n==='1'?'':'x'} trouvé${n==='1'?'':'s'}`},
  {pattern:/^共 (\d+) 个学习资源，先来探索这 (\d+) 个吧$/,en:(n,k)=>`${n} learning resources. Start with these ${k}.`,fr:(n,k)=>`${n} ressources d’apprentissage. Commence par ces ${k}.`},
  {pattern:/^找到 (\d+) 个学习资源$/,en:n=>`${n} learning resource${n==='1'?'':'s'} found`,fr:n=>`${n} ressource${n==='1'?'':'s'} d’apprentissage trouvée${n==='1'?'':'s'}`},
  {pattern:/^探索全部 (\d+) 个资源 ↓$/,en:n=>`Explore all ${n} resources ↓`,fr:n=>`Explorer les ${n} ressources ↓`}

@@ -7,7 +7,7 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const { makeDOM } = require('./quest-dom.cjs');
 const root = path.resolve(__dirname, '..');
 const files = ['games/math1.html', 'games/math_addition_subtraction.html', 'games/math_visual_game.html', 'games/chinese_character_quiz.html', 'games/chinese_game1.html', 'shape_sorter_math.html', 'vocabulary_quiz.html'];
-function create(file) {
+function create(file, options = {}) {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   const document = makeDOM(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ''));
   const proto = Object.getPrototypeOf(document.body);
@@ -34,9 +34,15 @@ function create(file) {
   const storageAPI = { getItem: k => storage.get(k) || null, setItem: (k, v) => storage.set(k, String(v)), removeItem: k => storage.delete(k) };
   const schedule = (fn, delay, interval) => { const id = ++serial; timers.set(id, { fn, at: now + delay, interval }); return id; };
   context = { document, console, URL, localStorage: storageAPI, sessionStorage: storageAPI, location: { href: 'https://test.invalid/' + file }, setTimeout: (fn, delay = 0) => schedule(fn, delay, 0), clearTimeout: id => timers.delete(id), setInterval: (fn, delay) => schedule(fn, delay, delay), clearInterval: id => timers.delete(id), addEventListener: (type, fn) => (windowEvents[type] ||= []).push(fn) };
+  if (options.seed !== undefined) {
+    let seed = options.seed >>> 0;
+    context.Math = Object.create(Math);
+    context.Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  }
   context.window = context;
   vm.createContext(context);
   for (const script of ['assets/i18n.js', 'assets/i18n-site.js', 'assets/i18n-legacy-learning.js']) vm.runInContext(fs.readFileSync(path.join(root, script), 'utf8'), context, { filename: script });
+  if (file === 'vocabulary_quiz.html' && !options.missingBank && fs.existsSync(path.join(root, 'assets/word-bank.js'))) vm.runInContext(fs.readFileSync(path.join(root, 'assets/word-bank.js'), 'utf8'), context, { filename: 'assets/word-bank.js' });
   for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) if (!/\bsrc\s*=/.test(match[1])) vm.runInContext(match[2], context, { filename: file });
   for (const fn of documentEvents.DOMContentLoaded || []) fn();
   for (const fn of windowEvents.DOMContentLoaded || []) fn();
@@ -53,11 +59,12 @@ function create(file) {
 }
 function noChineseUI(g) {
   const remaining = [];
-  function walk(node) { if (node.nodeType === 3) { if (!node.parentElement.closest('[translate="no"],[data-i18n-skip],[data-no-i18n],kris-reviews') && /[\u3400-\u9fff]/.test(node.nodeValue)) remaining.push(node.nodeValue.trim()); } else for (const child of node.childNodes) walk(child); }
+  function walk(node) { if (node.nodeType === 3) { if (!node.parentElement.closest('[translate="no"],[data-i18n-skip],[data-no-i18n],kris-reviews,noscript') && /[\u3400-\u9fff]/.test(node.nodeValue)) remaining.push(node.nodeValue.trim()); } else for (const child of node.childNodes) walk(child); }
   walk(g.document.documentElement);
   assert.deepEqual(remaining, []);
 }
 function plain(value) { return JSON.parse(JSON.stringify(value)); }
+if (require.main === module) {
 for (const file of files) {
   const g = create(file), { $, all, click, run, language, advance } = g;
   const title = $('title').textContent;
@@ -117,6 +124,7 @@ for (const file of files) {
     assert.equal($('#reset-button').getAttribute('title'), 'Nouvel exercice');
   }
   if (file === 'vocabulary_quiz.html') {
+    click('#mode-definition');
     language('fr'); click('.action-buttons button'); assert.equal($('#message').textContent, 'Choisis une réponse.');
     all('#options button').find(b => b.textContent === 'A round fruit with red or green skin.').click();
     const selected = $('#options .selected').textContent;
@@ -131,3 +139,6 @@ for (const file of files) {
   console.log(`PASS ${file}: zh/en/fr UI, real handlers, feedback and state preservation`);
 }
 console.log('PASS: DOM integration only; layout, audio and native browser behavior are not asserted.');
+
+}
+module.exports = { create, noChineseUI };

@@ -1,6 +1,6 @@
 # Moderated anonymous game reviews
 
-All 20 actual game pages load the same dependency-free, Shadow DOM-isolated widget. The surname question is checked on the server before the text form opens, and checked again for every submission. No name, account or email field is used. The existing games and home directory are unchanged apart from loading this widget; two legacy pages allow vertical scrolling so the new section is reachable.
+All 23 actual game pages load the same dependency-free, Shadow DOM-isolated widget. The surname question is checked on the server before the text form opens, and checked again for every submission. No name, account or email field is used. The existing games and home directory are unchanged apart from loading this widget; two legacy pages allow vertical scrolling so the new section is reachable.
 
 ## Owner moderation on the website
 
@@ -97,3 +97,8 @@ Run `PGLITE_MODULE=<path-to-pglite-dist/index.js> node tests/test_admin_database
 Hosted checks confirmed anonymous RPC execution is denied and a simulated authenticated nonadmin (including forged admin metadata) cannot list or mutate reviews. The allowlist starts empty. These checks do not create a test Auth account, persist synthetic feedback, expose tokens, or establish the real owner's end-to-end login.
 
 Security advisor: the only new notice is the expected RLS-without-policy information item on the closed private allowlist. Existing warnings on `public.rls_auto_enable` remain pre-existing. See [RLS no-policy explanation](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy) and [function execution warning](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
+
+
+## Adding English–French games
+
+The `add_bilingual_word_game_reviews` migration expands only `game_reviews_game_id_check` to accept `bilingual-memory`, `word-bridge` and `sentence-match`. The current schema snapshot and Edge Function allowlist include the same 23 IDs. Existing migration files, moderation behavior, quotas, grants, policies and authentication stay unchanged. Deploy the constraint migration and the matching function before publishing the new game wrappers; preserve the existing function configuration.

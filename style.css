@@ -46,3 +46,7 @@
  .closing-banner{column-gap:14px}
  .back-top{min-height:44px}
 }
+
+
+/* Game search stays separate from the external-resource filters. */
+.game-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-5px 0 22px}.game-toolbar .search-box{margin:0;flex:1;max-width:390px;min-width:min(240px,100%)}.game-toolbar input{font-size:13px}.game-toolbar .results-status{margin:0;font-size:12px}.game-toolbar .button{font-size:12px;min-height:44px;padding:8px 14px}

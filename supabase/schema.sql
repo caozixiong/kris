@@ -1,5 +1,5 @@
--- Reviewed schema proposal. Apply only to the specifically approved project.
--- This is not a generated migration or a record of a remote deployment.
+-- Current review-table schema snapshot, including the bilingual-games constraint.
+-- Migration history lives in supabase/migrations; no past migration is rewritten.
 begin;
 create schema if not exists review_private;
 revoke all on schema review_private from public, anon, authenticated;
@@ -8,6 +8,7 @@ grant usage on schema review_private to service_role;
 create table public.game_reviews (
   id uuid primary key default gen_random_uuid(),
   game_id text not null check (game_id in (
+    'bilingual-memory','word-bridge','sentence-match',
     'addition_game','multiplication_game','shape_sorter_math','vocabulary_quiz',
     'chinese_character_quiz','chinese_game1','circuit-lab','english-ruins','french-market','math-orbit',
     'math1','math10','math234','math567','math8','math9','math_addition_subtraction','math_chinese','math_english','math_visual_game'

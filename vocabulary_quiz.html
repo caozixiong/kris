@@ -10,8 +10,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
+    box-sizing: border-box;
+    padding-bottom: 24px;
     margin: 0;
     background-color: #f0f0f0;
   }
@@ -21,12 +23,32 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: min(400px, calc(100vw - 48px));
+    width: min(480px, calc(100vw - 64px));
+    margin: 20px 12px;
   }
+  button, a { touch-action: manipulation; }
+  button { min-height: 44px; }
+  button:focus-visible, a:focus-visible, #word:focus-visible {
+    outline: 3px solid #723ac4;
+    outline-offset: 3px;
+  }
+  .home-link { display: inline-block; margin-bottom: 8px; color: #1657a3; }
+  .quiz-modes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .quiz-modes button {
+    flex: 1 1 170px; padding: 10px; border: 2px solid #b8c8dd;
+    border-radius: 8px; background: #f0f5fb; color: #183b66;
+    font: inherit; cursor: pointer;
+  }
+  .quiz-modes button[aria-pressed="true"] { border-color: #1657a3; background: #dbeaff; font-weight: bold; }
+  .quiz-modes button:disabled { opacity: .6; cursor: not-allowed; }
+  .quiz-description { line-height: 1.5; color: #4a5568; }
+  .quiz-stats { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+  #bank-status { color: #884100; line-height: 1.5; }
   #word {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 20px;
+    overflow-wrap: anywhere;
   }
   .options button {
     display: block;
@@ -40,11 +62,12 @@
     font-size: 16px;
     text-align: left;
   }
-  .options button:hover {
+  .options button:disabled { cursor: default; }
+  .options button:hover:not(:disabled) {
     background-color: #d7d7d7;
   }
   .options button.selected {
-    background-color: #007bff;
+    background-color: #0866c7;
     color: white;
     border-color: #0056b3;
   }
@@ -54,7 +77,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    background-color: #28a745;
+    background-color: #197b35;
     color: white;
     font-size: 16px;
   }
@@ -62,7 +85,7 @@
     background-color: #1e7e34;
   }
   .action-buttons button#next-word {
-    background-color: #007bff;
+    background-color: #0866c7;
   }
   .action-buttons button#next-word:hover {
     background-color: #0056b3;
@@ -82,24 +105,35 @@
 <script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=6b47f21a62b6"></script>
 <link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
 <script src="assets/i18n.js?v=4bcf2a93334a"></script>
-<script src="assets/i18n-site.js?v=16d951e9ca82"></script>
-<script src="assets/i18n-legacy-learning.js?v=30d25af70bd3"></script>
+<script src="assets/i18n-site.js?v=a70fdf15f66e"></script>
+<script src="assets/i18n-legacy-learning.js?v=1c0175317570"></script>
 <script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<script src="assets/word-bank.js?v=60d2790aa3d4"></script>
 </head>
 <body>
 
-<div class="container">
+<main class="container">
+  <a class="home-link" href="index.html">返回首页</a>
   <h1>词汇测验</h1>
-  <div id="word"></div>
-  <div class="options" id="options">
-    <!-- Options will be populated by JavaScript -->
+  <div class="quiz-modes" role="group" aria-label="练习模式">
+    <button type="button" id="mode-translation" aria-pressed="true" onclick="setQuizMode('translation')">英译法 · 共享词库</button>
+    <button type="button" id="mode-definition" aria-pressed="false" onclick="setQuizMode('definition')">原版英语释义 · 15 词</button>
   </div>
+  <p id="quiz-description" class="quiz-description"></p>
+  <p id="bank-status" role="status" hidden></p>
+  <div class="quiz-stats">
+    <span id="quiz-progress"></span>
+    <span id="quiz-score"></span>
+  </div>
+  <div id="word" tabindex="-1"></div>
+  <div class="options" id="options" role="group" aria-label="答案选项" aria-describedby="word"></div>
   <div class="action-buttons">
-    <button onclick="checkAnswer()">检查答案</button>
-    <button id="next-word" onclick="nextWord()">下一个单词</button>
+    <button type="button" id="check-answer" onclick="checkAnswer()">检查答案</button>
+    <button type="button" id="next-word" onclick="nextWord()">下一个单词</button>
   </div>
-  <div id="message"></div>
-</div>
+  <div id="message" role="status" aria-live="polite" aria-atomic="true"></div>
+  <noscript>请启用 JavaScript 来玩词汇测验。</noscript>
+</main>
 
 <script>
   const vocabulary = [
@@ -120,10 +154,17 @@
     { word: "School", definition: "A place where children learn.", distractors: ["A place to play sports all day", "A store that sells toys"] }
   ];
 
+  const sharedWords = window.KrisWordBank?.words || [];
+  const translationAvailable = sharedWords.length >= 3;
+  let quizMode = translationAvailable ? 'translation' : 'definition';
+  let roundWords = [];
   let currentWordIndex = 0;
   let correctAnswer = '';
   let selectedOptionButton = null;
   let quizFinished = false;
+  let answerChecked = false;
+  let correctCount = 0;
+  let questionVersion = 0;
 
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -133,85 +174,178 @@
     return array;
   }
 
-  function displayWord() {
-    if (currentWordIndex >= vocabulary.length) {
+  function normalizeLabel(value) {
+    return String(value).normalize('NFC').toLocaleLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim();
+  }
+
+  function translationDistractors(entry) {
+    // Prefer matching word type and topic. If a future bank has a rare type,
+    // borrow other types only when needed to keep every entry playable.
+    const allowed = sharedWords.filter(candidate => candidate.id !== entry.id &&
+      normalizeLabel(candidate.en) !== normalizeLabel(entry.en) &&
+      normalizeLabel(candidate.fr) !== normalizeLabel(entry.fr) &&
+      normalizeLabel(candidate.lemmaFr || candidate.fr) !== normalizeLabel(entry.lemmaFr || entry.fr));
+    const groups = [
+      allowed.filter(candidate => candidate.pos === entry.pos && candidate.theme === entry.theme),
+      allowed.filter(candidate => candidate.pos === entry.pos && candidate.theme !== entry.theme),
+      allowed.filter(candidate => candidate.pos !== entry.pos)
+    ];
+    const seen = new Set([normalizeLabel(entry.fr)]), chosen = [];
+    for (const group of groups) {
+      for (const candidate of shuffleArray(group)) {
+        const label = normalizeLabel(candidate.fr);
+        if (seen.has(label)) continue;
+        seen.add(label);
+        chosen.push(candidate);
+        if (chosen.length === 2) return chosen;
+      }
+    }
+    return chosen;
+  }
+
+  function refreshQuizText() {
+    window.KrisI18n?.refresh();
+  }
+
+  function setQuizMode(mode) {
+    if (!['translation', 'definition'].includes(mode) || (mode === 'translation' && !translationAvailable)) return;
+    if (quizMode === mode && roundWords.length) return;
+    quizMode = mode;
+    startQuiz(true);
+  }
+
+  function startQuiz(focusQuestion = false) {
+    roundWords = quizMode === 'translation' ? window.KrisWordBank.sample(Math.min(15, sharedWords.length)) : vocabulary.slice();
+    currentWordIndex = 0;
+    correctCount = 0;
+    quizFinished = false;
+    document.getElementById('mode-translation').setAttribute('aria-pressed', String(quizMode === 'translation'));
+    document.getElementById('mode-definition').setAttribute('aria-pressed', String(quizMode === 'definition'));
+    document.getElementById('mode-translation').disabled = !translationAvailable;
+    const status = document.getElementById('bank-status');
+    status.hidden = translationAvailable;
+    status.textContent = translationAvailable ? '' : '共享词库未能加载。你仍可练习原版 15 词；刷新页面可重试。';
+    document.getElementById('quiz-description').textContent = quizMode === 'translation' ?
+      `从 ${sharedWords.length} 个英法词汇中随机抽取 ${roundWords.length} 题。请选择对应的法语。` :
+      '原版练习：为 15 个英语单词选择正确的英语释义。';
+    displayWord(focusQuestion);
+  }
+
+  function displayWord(focusQuestion = false) {
+    questionVersion++;
+    answerChecked = false;
+    selectedOptionButton = null;
+    const word = document.getElementById('word');
+    const optionsContainer = document.getElementById('options');
+    const message = document.getElementById('message');
+    optionsContainer.innerHTML = '';
+    message.textContent = '';
+    message.className = '';
+    document.getElementById('quiz-score').textContent = `答对: ${correctCount} / ${roundWords.length}`;
+    document.getElementById('quiz-progress').textContent = `题目: ${Math.min(currentWordIndex + 1, roundWords.length)} / ${roundWords.length}`;
+
+    if (currentWordIndex >= roundWords.length) {
       quizFinished = true;
-      document.getElementById('word').removeAttribute('translate');
-      document.getElementById('word').textContent = "测验完成！";
-      document.getElementById('options').innerHTML = '';
-      document.getElementById('message').textContent = '你已完成所有单词！';
-      document.querySelector('.action-buttons button').style.display = 'none'; // Hide check answer
+      correctAnswer = '';
+      word.removeAttribute('translate');
+      word.removeAttribute('lang');
+      word.textContent = '测验完成！';
+      message.textContent = '你已完成所有单词！';
+      document.getElementById('check-answer').style.display = 'none';
       document.getElementById('next-word').textContent = '重新测验';
-      currentWordIndex = 0; // Reset for restart
+      refreshQuizText();
+      if (focusQuestion) document.getElementById('next-word').focus();
       return;
     }
 
     quizFinished = false;
-    document.getElementById('word').setAttribute('translate', 'no');
-    document.querySelector('.action-buttons button').style.display = 'inline-block'; // Show check answer
+    word.setAttribute('translate', 'no');
+    word.setAttribute('lang', 'en');
+    document.getElementById('check-answer').style.display = 'inline-block';
+    document.getElementById('check-answer').disabled = false;
     document.getElementById('next-word').textContent = '下一个单词';
+    const currentEntry = roundWords[currentWordIndex];
+    let options;
+    if (quizMode === 'translation') {
+      word.textContent = currentEntry.en;
+      correctAnswer = currentEntry.fr;
+      options = [currentEntry, ...translationDistractors(currentEntry)].map(entry => ({ label: entry.fr, id: entry.id }));
+    } else {
+      word.textContent = currentEntry.word;
+      correctAnswer = currentEntry.definition;
+      options = [currentEntry.definition, ...currentEntry.distractors].map(label => ({ label }));
+    }
 
-
-    const currentEntry = vocabulary[currentWordIndex];
-    document.getElementById('word').textContent = currentEntry.word;
-    correctAnswer = currentEntry.definition;
-
-    const optionsArray = [currentEntry.definition, ...currentEntry.distractors];
-    const shuffledOptions = shuffleArray(optionsArray);
-
-    const optionsContainer = document.getElementById('options');
-    optionsContainer.innerHTML = '';
-    shuffledOptions.forEach(optionText => {
+    const version = questionVersion;
+    shuffleArray(options).forEach(option => {
       const button = document.createElement('button');
-      button.textContent = optionText;
-      button.dataset.answer = optionText;
+      button.type = 'button';
+      button.textContent = option.label;
+      button.dataset.answer = option.label;
+      if (option.id) button.dataset.wordId = option.id;
       button.setAttribute('translate', 'no');
-      button.onclick = () => selectOption(button, optionText);
+      button.setAttribute('lang', quizMode === 'translation' ? 'fr' : 'en');
+      button.setAttribute('aria-pressed', 'false');
+      button.onclick = () => {
+        if (version === questionVersion) selectOption(button, option.label);
+      };
       optionsContainer.appendChild(button);
     });
-
-    document.getElementById('message').textContent = '';
-    selectedOptionButton = null;
+    refreshQuizText();
+    if (focusQuestion) optionsContainer.querySelector('button')?.focus();
   }
 
   function selectOption(buttonElement, optionText) {
+    if (quizFinished || answerChecked || !document.getElementById('options').contains(buttonElement)) return;
     if (selectedOptionButton) {
       selectedOptionButton.classList.remove('selected');
+      selectedOptionButton.setAttribute('aria-pressed', 'false');
     }
     selectedOptionButton = buttonElement;
     selectedOptionButton.classList.add('selected');
+    selectedOptionButton.setAttribute('aria-pressed', 'true');
+    document.getElementById('message').textContent = '';
   }
 
   function checkAnswer() {
+    if (quizFinished || answerChecked) return;
     const messageElement = document.getElementById('message');
     if (!selectedOptionButton) {
       messageElement.textContent = '请选择一个选项。';
       messageElement.className = 'incorrect';
+      document.querySelector('#options button')?.focus();
+      refreshQuizText();
       return;
     }
 
+    answerChecked = true;
     const userAnswer = selectedOptionButton.dataset.answer;
     if (userAnswer === correctAnswer) {
+      correctCount++;
       messageElement.textContent = '正确！';
       messageElement.className = 'correct';
     } else {
       messageElement.textContent = `不正确。正确答案是：“${correctAnswer}”`;
       messageElement.className = 'incorrect';
     }
+    document.querySelectorAll('#options button').forEach(button => { button.disabled = true; });
+    document.getElementById('check-answer').disabled = true;
+    document.getElementById('quiz-score').textContent = `答对: ${correctCount} / ${roundWords.length}`;
+    refreshQuizText();
+    document.getElementById('next-word').focus();
   }
 
   function nextWord() {
     if (quizFinished) {
-        currentWordIndex = 0;
-        displayWord();
-        return;
+      startQuiz(true);
+      return;
     }
     currentWordIndex++;
-    displayWord();
+    displayWord(true);
   }
 
-  // Initialize the first word when the page loads
-  window.onload = displayWord;
+  // Interface-language changes only translate text, never resample the round.
+  window.onload = () => startQuiz();
 </script>
 
 <kris-reviews data-game="vocabulary_quiz"></kris-reviews></body>

@@ -12,18 +12,26 @@ async function load(mode){
 }
 (async()=>{
  for(const mode of ['success','offline','bad','http']){
-  const g=await load(mode);assert.equal(g.requests.length,1);assert.equal(g.$('#game-count').textContent,'11');assert.equal(g.all('#game-grid [data-game]').length,11);assert.equal(g.cards().length,19);assert.equal(g.all('#family-grid .resource-card').length,3);assert.equal(g.visible().length,6);assert.equal(g.$('#resource-toolbar').hidden,false);
+  const g=await load(mode);assert.equal(g.requests.length,1);assert.equal(g.$('#game-count').textContent,'14');assert.equal(g.all('#game-grid [data-game]').length,14);assert.equal(g.cards().length,19);assert.equal(g.all('#family-grid .resource-card').length,3);assert.equal(g.visible().length,6);assert.equal(g.$('#resource-toolbar').hidden,false);
+  const gameVisible=()=>g.all('#game-grid [data-game]').filter(c=>!c.hidden);
+  const gameSearch=text=>{g.$('#game-search').value=text;g.$('#game-search').dispatch('input');};
+  assert.equal(g.$('#game-toolbar').hidden,false);
+  assert.deepEqual(gameVisible().slice(0,3).map(c=>c.getAttribute('href')),['./games/bilingual-memory.html','./games/word-bridge.html','./games/sentence-match.html']);
+  for (const term of ['anglais','français','francais','English','FRENCH','双语']) {gameSearch(term);assert.equal(gameVisible().length,3,term);}
+  for (const [term,id] of [['memory','bilingual-memory'],['memoire','bilingual-memory'],['bridge','word-bridge'],['pont des mots','word-bridge'],['sentence','sentence-match'],['paires de phrases','sentence-match']]) {gameSearch(term);assert.deepEqual(gameVisible().map(c=>c.getAttribute('href')),[`./games/${id}.html`],term);}
+  gameSearch('not-a-word-xxxxx');assert.equal(gameVisible().length,0);assert.match(g.$('#game-results-status').textContent,/没有找到/);
+  g.$('#clear-game-search').click();assert.equal(gameVisible().length,14);assert.equal(g.document.activeElement,g.$('#game-search'));assert.equal(g.$('#clear-game-search').hidden,true);
   g.$('#show-more').click();assert.equal(g.visible().length,19);assert.equal(g.$('#show-more').getAttribute('aria-expanded'),'true');g.$('#show-more').click();assert.equal(g.visible().length,6);
   for(const [category,count]of [['games',5],['reading',6],['science',6],['tools',2]]){g.select(category);assert.equal(g.visible().length,count);assert.equal(g.all('[data-filter]').filter(x=>x.getAttribute('aria-pressed')==='true').length,1);}
   g.select('all');g.search('nasa');assert.equal(g.visible().length,1);g.search('NASA');assert.equal(g.visible().length,1);g.select('reading');assert.equal(g.visible().length,0);assert.equal(g.$('#empty-state').hidden,false);g.$('#reset-filters').click();assert.equal(g.visible().length,6);assert.equal(g.$('#resource-search').value,'');assert.equal(g.document.activeElement,g.$('[data-filter="all"]'));
   g.search('洪恩');assert.equal(g.visible().length,1);g.$('#clear-search').click();assert.equal(g.visible().length,6);assert.equal(g.document.activeElement,g.$('#resource-search'));assert.equal(g.$('#clear-search').hidden,true);
   for(let i=0;i<100;i++)g.$('#surprise-button').click();const games=g.all('#game-grid [data-game]').map(x=>x.getAttribute('href'));assert.equal(g.destinations.length,100);assert(g.destinations.every(url=>games.includes(url)));
-  for(const file of ['math-orbit','english-ruins','french-market','circuit-lab'])assert(games.includes(`./games/${file}.html`));assert.equal(new Set(games).size,11);
+  for(const file of ['math-orbit','english-ruins','french-market','circuit-lab','bilingual-memory','word-bridge','sentence-match'])assert(games.includes(`./games/${file}.html`));assert.equal(new Set(games).size,14);
   for(const a of [...g.cards(),...g.all('#family-grid .resource-card')]){assert.equal(a.getAttribute('target'),'_blank');assert.equal(a.getAttribute('rel'),'noopener noreferrer');}
   if(mode==='success')assert(g.$('#content-status').hidden);else{assert.equal(g.$('#content-status').hidden,false);assert(g.$('#content-status').textContent.includes('已显示现有内容'));}
  }
  const helpers=source.slice(source.indexOf('  const localURL'),source.indexOf('  function createGame'));
  const parse=input=>vm.runInNewContext(`${helpers};parseDirectory(input)`,{input});
- const parsed=parse(directory);assert.equal(parsed.length,33);assert.equal(parsed.filter(e=>e.url.startsWith('./')).length,11);assert.equal(parsed.filter(e=>e.subgroup).length,9);assert.equal(parse(directory+'\n* [Unsafe](javascript:alert(1)) - block\n* [Unsafe2](data:text/html,test) - block').length,33);assert.throws(()=>parse('unreadable'));
- console.log('PASS: production homepage actual markup and handlers; success/offline/malformed/HTTP failure modes; all 33 entries/11 game links; search, categories, expand/reset/focus, external-link safety and random navigation; original fallback survives all failures. DOM adapter only.');
+ const parsed=parse(directory);assert.equal(parsed.length,36);assert.equal(parsed.filter(e=>e.url.startsWith('./')).length,14);assert.equal(parsed.filter(e=>e.subgroup).length,9);assert.equal(parse(directory+'\n* [Unsafe](javascript:alert(1)) - block\n* [Unsafe2](data:text/html,test) - block').length,36);assert.throws(()=>parse('unreadable'));
+ console.log('PASS: production homepage actual markup and handlers; success/offline/malformed/HTTP failure modes; all 36 entries/14 game links; search, categories, expand/reset/focus, external-link safety and random navigation; original fallback survives all failures. DOM adapter only.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -33,7 +33,7 @@ async function noChineseUI(page) {
     const texts = [], walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_TEXT);
     while (walker.nextNode()) {
       const n = walker.currentNode;
-      if (n.parentElement.closest('script,style,[translate="no"],[data-i18n-skip],[data-no-i18n],kris-reviews')) continue;
+      if (n.parentElement.closest('script,style,[translate="no"],[data-i18n-skip],[data-no-i18n],kris-reviews,noscript')) continue;
       if (/[\u3400-\u9fff]/.test(n.nodeValue)) texts.push(n.nodeValue.trim());
     }
     return texts;
@@ -168,6 +168,7 @@ async function noChineseUI(page) {
       assert.equal(await page.locator('#current-sum-display-addition').count(), 1);
     }
     if (file === 'vocabulary_quiz.html') {
+      await page.locator('#mode-definition').click();
       await language(page, 'fr');
       await page.locator('.action-buttons button').first().click();
       assert.equal(await text(page, '#message'), 'Choisis une réponse.');

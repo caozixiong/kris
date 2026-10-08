@@ -40,6 +40,9 @@ function makeDOM(html){
   contains(n){return n===this||this.childNodes.some(c=>c.contains(n));}
   matches(selector){
    if(selector.includes(','))return selector.split(',').some(s=>this.matches(s.trim()));
+   const exclusions=[...selector.matchAll(/:not\(([^()]+)\)/g)];
+   if(exclusions.some(([,excluded])=>this.matches(excluded)))return false;
+   selector=selector.replace(/:not\([^()]+\)/g,'');
    const attrs=[...selector.matchAll(/\[([\w-]+)(?:="([^"]*)")?\]/g)];let simple=selector.replace(/\[[^\]]+\]/g,'');
    if(attrs.some(([,key,value])=>!(key in this.attributes)||(value!==undefined&&this.attributes[key]!==value)))return false;
    const tag=simple.match(/^[\w-]+/);if(tag&&this.tagName!==tag[0].toUpperCase())return false;
