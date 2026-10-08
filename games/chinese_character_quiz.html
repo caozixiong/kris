@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>看图识字 - Chinese Character Quiz</title>
+    <title>看图识字</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Marker Felt', '楷体', sans-serif;
@@ -93,7 +93,13 @@
             margin-top: 15px;
         }
     </style>
-<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="../assets/i18n-legacy-learning.js?v=30d25af70bd3"></script>
+<script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body>
     <div id="game-container">
         <h1>看图识字</h1>
@@ -143,6 +149,7 @@
         function createOptionButton(character) {
             const button = document.createElement('button');
             button.textContent = character;
+            button.setAttribute('translate', 'no');
             button.classList.add('option-button');
             button.addEventListener('click', () => selectAnswer(character));
             return button;
@@ -167,7 +174,7 @@
             const currentQuestion = questions[currentQuestionIndex];
 
             // Display image
-            imageContainer.innerHTML = `<img src="${currentQuestion.image}" alt="Quiz Image" style="max-width: 100%; max-height: 100%;">`;
+            imageContainer.innerHTML = `<img src="${currentQuestion.image}" alt="题目图片" style="max-width: 100%; max-height: 100%;">`;
 
             // Create and display option buttons
             currentQuestion.options.forEach(option => {
@@ -184,7 +191,7 @@
 
             if (selectedCharacter === currentQuestion.correctAnswer) {
                 score++;
-                feedbackMessage.textContent = "太棒了! (Great!)";
+                feedbackMessage.textContent = "太棒了!";
                 feedbackMessage.className = 'correct';
             } else {
                 feedbackMessage.textContent = `错误! 正确的是: ${currentQuestion.correctAnswer}`;

@@ -154,7 +154,13 @@
         }
 
     </style>
-<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body>
 
     <div id="game-selector-area">
@@ -199,6 +205,7 @@
                     <span class="cauldron-icon">🔮</span>
                     <span id="game5-val1" class="ingredient">3</span>
                     <span id="game5-op1">+</span>
+                    <span id="game5-val2" class="ingredient" style="display:none;"></span>
                     <span id="game5-qmark" class="missing-ingredient">?</span>
                     <span id="game5-op2">=</span>
                     <span id="game5-total" class="potion-total">7</span>
@@ -406,6 +413,7 @@
             elements: {},
             init: function() {
                 this.elements.val1 = this.hostElement.querySelector('#game5-val1');
+                this.elements.val2 = this.hostElement.querySelector('#game5-val2');
                 this.elements.op1 = this.hostElement.querySelector('#game5-op1');
                 this.elements.qmark = this.hostElement.querySelector('#game5-qmark');
                 this.elements.op2 = this.hostElement.querySelector('#game5-op2');
@@ -642,8 +650,8 @@
                 if (scenarioType === 1 || (!canBuyItem1 && !canBuyItem2)) { // "What can you buy?"
                     questionText = "What can you afford?";
                     if (canBuyBoth) { this.state.correctAnswer = "Both"; options.push("Both");}
-                    if (canBuyItem1) { options.push(this.state.item1.name); if(!canBuyBoth && canBuyItem1 && !options.includes(this.state.item1.name)) this.state.correctAnswer = this.state.item1.name;} // If only one, it's correct
-                    if (canBuyItem2) { options.push(this.state.item2.name); if(!canBuyBoth && canBuyItem2 && !options.includes(this.state.item2.name)) this.state.correctAnswer = this.state.item2.name;}
+                    if (canBuyItem1) { options.push(this.state.item1.name); if(!canBuyBoth && canBuyItem1 && !canBuyItem2) this.state.correctAnswer = this.state.item1.name;} // If only one, it's correct
+                    if (canBuyItem2) { options.push(this.state.item2.name); if(!canBuyBoth && canBuyItem2 && !canBuyItem1) this.state.correctAnswer = this.state.item2.name;}
                     
                     if (!canBuyItem1 && !canBuyItem2) {this.state.correctAnswer = "Nothing"; options.push("Nothing");}
                     else if (!canBuyBoth && canBuyItem1 && canBuyItem2) { // Can buy individually but not both
@@ -674,8 +682,8 @@
                 } else { // Fallback to "What can you buy?" if specific change questions are not viable
                      questionText = "What can you afford?";
                     if (canBuyBoth) { this.state.correctAnswer = "Both"; options.push("Both");}
-                    if (canBuyItem1) { options.push(this.state.item1.name); if(!canBuyBoth && canBuyItem1 && !options.includes(this.state.item1.name)) this.state.correctAnswer = this.state.item1.name;}
-                    if (canBuyItem2) { options.push(this.state.item2.name); if(!canBuyBoth && canBuyItem2 && !options.includes(this.state.item2.name)) this.state.correctAnswer = this.state.item2.name;}
+                    if (canBuyItem1) { options.push(this.state.item1.name); if(!canBuyBoth && canBuyItem1 && !canBuyItem2) this.state.correctAnswer = this.state.item1.name;}
+                    if (canBuyItem2) { options.push(this.state.item2.name); if(!canBuyBoth && canBuyItem2 && !canBuyItem1) this.state.correctAnswer = this.state.item2.name;}
                      if (!canBuyItem1 && !canBuyItem2) {this.state.correctAnswer = "Nothing"; options.push("Nothing");}
                      else if (!canBuyBoth && canBuyItem1 && canBuyItem2) {
                         this.state.correctAnswer = `${this.state.item1.name} OR ${this.state.item2.name}`;
@@ -721,7 +729,7 @@
                 // For "OR" scenario, check if selected is one of the items
                 if (String(this.state.correctAnswer).includes("OR")) {
                      const items = this.state.correctAnswer.split(" OR ");
-                     isCorrect = items.includes(selectedChoice);
+                     isCorrect = selectedChoice === this.state.correctAnswer || items.includes(selectedChoice);
                 } else if (typeof this.state.correctAnswer === 'number') { // Change question
                     isCorrect = parseInt(selectedChoice) === this.state.correctAnswer;
                 } else { // String comparison for item names/Both/Nothing

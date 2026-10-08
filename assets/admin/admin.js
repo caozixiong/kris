@@ -10,7 +10,7 @@
  let client, userId = null, authorized = false, offset = 0, total = 0, selectedStatus = 'pending';
  let epoch = 0, requestId = 0, loading = false, mutating = false, authBusy = false, disposed = false, logoutBusy = false, locked = false, activeConfirm = null, sendTimer = null;
  function notice(message, error = false) { $('notice').textContent = message; $('notice').classList.toggle('error', error); }
- function node(tag, text, className) { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; if (className) el.className = className; return el; }
+ function node(tag, text, className) { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; if (className) el.className = className; if (className === 'review-body') el.setAttribute('data-i18n-skip',''); return el; }
  function clearPrivateView() {
   authorized = false; userId = null; epoch++; requestId++; total = 0; activeConfirm = null;
   $('review-list').replaceChildren(); $('workspace').hidden = true; $('account').hidden = true;

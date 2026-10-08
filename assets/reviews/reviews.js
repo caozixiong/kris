@@ -30,9 +30,14 @@
       this.$('#review').addEventListener('input', () => { this.$('#count').textContent = `${this.$('#review').value.length} / 500`; });
       this._onPageHide = () => { this._generation = (this._generation || 0) + 1; this.lock(); this.setBusy(false); };
       window.addEventListener('pagehide', this._onPageHide);
+      if (window.KrisI18n) {
+        this._stopI18n = window.KrisI18n.watch(root);
+        this._offLanguage = window.KrisI18n.onChange(() => {this.$('section').lang = window.KrisI18n.locale;});
+        this.$('section').lang = window.KrisI18n.locale;
+      }
       this.load();
     }
-    disconnectedCallback() { window.removeEventListener('pagehide', this._onPageHide); }
+    disconnectedCallback() { window.removeEventListener('pagehide', this._onPageHide); this._stopI18n?.(); this._offLanguage?.(); }
     status(message, error = false) { this.$('#status').textContent = message; this.$('#status').setAttribute('data-error', String(error)); }
     setBusy(value) { this._busy = value; ['#verify', '#submit', '#cancel'].forEach(id => { this.$(id).disabled = value; }); }
     lock() { this._answer = ''; this.$('#answer').value = ''; this.$('#gate').hidden = false; this.$('#compose').hidden = true; }
@@ -68,7 +73,7 @@
           const item = document.createElement('li'); item.className = 'review';
           const byline = document.createElement('div'); byline.className = 'byline'; byline.textContent = '匿名玩家';
           if (/^\d{4}-\d{2}-\d{2}$/.test(review.date)) { const date = document.createElement('time'); date.setAttribute('datetime', review.date); date.textContent = review.date; byline.append(date); }
-          const text = document.createElement('p'); text.textContent = review.body.slice(0, 500);
+          const text = document.createElement('p'); text.setAttribute('data-i18n-skip',''); text.textContent = review.body.slice(0, 500);
           item.append(byline, text); list.append(item);
         });
         this.$('#list-state').textContent = list.children.length ? '' : '还没有公开评价。来分享你的第一份游戏体验吧！';

@@ -347,7 +347,13 @@
         #game10-host .times-symbol { margin: 0 0.2em; font-weight: bold; }
 
     </style>
-<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body>
     <div class="main-container">
         <div id="game-selector-area">
@@ -652,9 +658,9 @@
                 <div class="game-container">
                     <h1>Practice within 20</h1>
                     <div class="timer-controls">
-                        <span>Time Limit: <span class="timer-value" id="game9-timer-value">10</span>s</span>
-                        <button id="game9-decrease-timer">-</button>
-                        <button id="game9-increase-timer">+</button>
+                        <span>Time Limit: <span class="timer-value" id="game9-timer-value">10</span> <span>秒</span></span>
+                        <button id="game9-decrease-timer" aria-label="减少时间">-</button>
+                        <button id="game9-increase-timer" aria-label="增加时间">+</button>
                     </div>
                     <div class="problem-area">
                         <span id="game9-problem-display">Click "Start Game"</span>
@@ -685,9 +691,9 @@
                  <div class="game-container">
                     <h1>Fun Visual Math</h1>
                     <div class="timer-controls">
-                        <span>Time Limit: <span class="timer-value" id="game10-timer-value">10</span>s</span>
-                        <button id="game10-decrease-timer">-</button>
-                        <button id="game10-increase-timer">+</button>
+                        <span>Time Limit: <span class="timer-value" id="game10-timer-value">10</span> <span>秒</span></span>
+                        <button id="game10-decrease-timer" aria-label="减少时间">-</button>
+                        <button id="game10-increase-timer" aria-label="增加时间">+</button>
                     </div>
                     <div class="theme-selector">
                         <span>Choose Theme:</span>
@@ -1748,16 +1754,16 @@ document.addEventListener('DOMContentLoaded', function() {
         state: { score: 0, timerDuration: 10, timerInterval: null, timeLeft: 0, gameActive: false, currentProblem: {} },
         elements: {},
         init: function() {
-            this.elements.timerValueDisplay = this.hostElement.querySelector('#game9-timer-value');
-            this.elements.decreaseTimerBtn = this.hostElement.querySelector('#game9-decrease-timer');
-            this.elements.increaseTimerBtn = this.hostElement.querySelector('#game9-increase-timer');
-            this.elements.problemDisplay = this.hostElement.querySelector('#game9-problem-display');
-            this.elements.answerButtons = [ this.hostElement.querySelector('#game9-ans1'), this.hostElement.querySelector('#game9-ans2'), this.hostElement.querySelector('#game9-ans3') ];
-            this.elements.timeLeftDisplay = this.hostElement.querySelector('#game9-time-left');
-            this.elements.scoreDisplay = this.hostElement.querySelector('#game9-score');
-            this.elements.feedbackMessage = this.hostElement.querySelector('#game9-feedback-message');
-            this.elements.startGameBtn = this.hostElement.querySelector('#game9-start-game');
-            this.elements.nextQuestionBtn = this.hostElement.querySelector('#game9-next-question');
+            this.elements.timerValueDisplay = this.hostElement.querySelector(`#${this.id}-timer-value`);
+            this.elements.decreaseTimerBtn = this.hostElement.querySelector(`#${this.id}-decrease-timer`);
+            this.elements.increaseTimerBtn = this.hostElement.querySelector(`#${this.id}-increase-timer`);
+            this.elements.problemDisplay = this.hostElement.querySelector(`#${this.id}-problem-display`);
+            this.elements.answerButtons = [ this.hostElement.querySelector(`#${this.id}-ans1`), this.hostElement.querySelector(`#${this.id}-ans2`), this.hostElement.querySelector(`#${this.id}-ans3`) ];
+            this.elements.timeLeftDisplay = this.hostElement.querySelector(`#${this.id}-time-left`);
+            this.elements.scoreDisplay = this.hostElement.querySelector(`#${this.id}-score`);
+            this.elements.feedbackMessage = this.hostElement.querySelector(`#${this.id}-feedback-message`);
+            this.elements.startGameBtn = this.hostElement.querySelector(`#${this.id}-start-game`);
+            this.elements.nextQuestionBtn = this.hostElement.querySelector(`#${this.id}-next-question`);
             
             this.state.score = 0;
             this.state.gameActive = false;

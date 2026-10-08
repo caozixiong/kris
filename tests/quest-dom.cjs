@@ -15,7 +15,9 @@ function makeDOM(html){
   get children(){return this.childNodes.filter(n=>n.nodeType===1);}
   get childElementCount(){return this.children.length;}
   get className(){return this.attributes.class||'';}set className(s){this.attributes.class=s;}
-  get id(){return this.attributes.id||'';}
+  get id(){return this.attributes.id||'';}set id(v){this.attributes.id=String(v);}
+  get nodeValue(){return this.nodeType===3?this.value:null;}set nodeValue(v){if(this.nodeType===3)this.value=String(v);}
+  get lang(){return this.attributes.lang||'';}set lang(v){this.attributes.lang=String(v);}
   get href(){return this.getAttribute('href');}set href(v){this.setAttribute('href',v);}
   get target(){return this.getAttribute('target');}set target(v){this.setAttribute('target',v);}
   get rel(){return this.getAttribute('rel');}set rel(v){this.setAttribute('rel',v);}
@@ -24,7 +26,7 @@ function makeDOM(html){
   get disabled(){return 'disabled' in this.attributes;}set disabled(v){v?this.attributes.disabled='':delete this.attributes.disabled;}
   get hidden(){return 'hidden' in this.attributes;}set hidden(v){v?this.attributes.hidden='':delete this.attributes.hidden;}
   get textContent(){return this.nodeType===3?this.value:this.childNodes.map(n=>n.textContent).join('');}
-  set textContent(v){this.replaceChildren(new Node('#text',{},String(v)));}
+  set textContent(v){if(this.nodeType===3)this.value=String(v);else this.replaceChildren(new Node('#text',{},String(v)));}
   get innerHTML(){return this._html||'';}
   set innerHTML(source){this._html=source;this.replaceChildren(...parse(source));}
   insertAdjacentHTML(position,source){if(position!=='beforeend')throw Error('Unsupported DOM adapter operation');this.append(...parse(source));}
@@ -33,9 +35,11 @@ function makeDOM(html){
   getAttribute(k){return this.attributes[k]??null;}
   hasAttribute(k){return k in this.attributes;}
   append(...items){for(const n of items){if(n.tagName==='#FRAGMENT'){this.append(...n.childNodes);continue;}n.parentElement=this;this.childNodes.push(n);}}
+  prepend(...items){for(const n of items)n.parentElement=this;this.childNodes.unshift(...items);}
   replaceChildren(...items){if(document?.activeElement&&this.contains(document.activeElement))document.activeElement=document.body;for(const n of this.childNodes)n.parentElement=null;this.childNodes=[];this.append(...items);}
   contains(n){return n===this||this.childNodes.some(c=>c.contains(n));}
   matches(selector){
+   if(selector.includes(','))return selector.split(',').some(s=>this.matches(s.trim()));
    const attrs=[...selector.matchAll(/\[([\w-]+)(?:="([^"]*)")?\]/g)];let simple=selector.replace(/\[[^\]]+\]/g,'');
    if(attrs.some(([,key,value])=>!(key in this.attributes)||(value!==undefined&&this.attributes[key]!==value)))return false;
    const tag=simple.match(/^[\w-]+/);if(tag&&this.tagName!==tag[0].toUpperCase())return false;
@@ -66,17 +70,18 @@ function makeDOM(html){
   return fragment.childNodes;
  }
  const fragment=new Node('#fragment');fragment.append(...parse(html));
- document={documentElement:fragment.querySelector('html'),querySelector:s=>fragment.querySelector(s),querySelectorAll:s=>fragment.querySelectorAll(s),createElement:t=>new Node(t),createDocumentFragment:()=>new Node('#fragment'),activeElement:null};
+ document={readyState:'loading',listeners:{},addEventListener(type,fn){(this.listeners[type]??=[]).push(fn);},dispatch(type){for(const fn of this.listeners[type]||[])fn({type});},getElementById:id=>fragment.querySelector('#'+id),documentElement:fragment.querySelector('html'),querySelector:s=>fragment.querySelector(s),querySelectorAll:s=>fragment.querySelectorAll(s),createElement:t=>new Node(t),createDocumentFragment:()=>new Node('#fragment'),activeElement:null};
  document.body=document.querySelector('body');document.activeElement=document.body;
  return document;
 }
 function createQuest(kind,options={}){
  const filename=path.join(ROOT,'games',pages[kind]+'.html'),document=makeDOM(fs.readFileSync(filename,'utf8'));
- const store=options.store||new Map(),writes=[];const localStorage={getItem:k=>{if(options.deniedRead)throw Error('Storage blocked');return store.get(k)??null;},setItem:(k,v)=>{if(options.deniedWrite)throw Error('Storage blocked');writes.push([k,v]);store.set(k,v);}};
+ const store=options.store||new Map(),writes=[];const localStorage={getItem:k=>{if(options.deniedRead)throw Error('Storage blocked');return store.get(k)??null;},setItem:(k,v)=>{if(options.deniedWrite)throw Error('Storage blocked');if(k!=='kris-language-check')writes.push([k,v]);store.set(k,v);},removeItem:k=>store.delete(k)};
  let seed=12345;const math=Object.create(Math);math.random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- const context={document,console,Math:math};context.window=context;
+ const context={document,console,Math:math,URL,location:{href:'https://example.test/games/'+pages[kind]+'.html',origin:'https://example.test'},addEventListener(){}};context.window=context;
  Object.defineProperty(context,'localStorage',{get(){if(options.deniedGetter)throw Error('Storage access denied');return localStorage;}});
- vm.createContext(context);for(const script of document.querySelectorAll('script[src]'))vm.runInContext(fs.readFileSync(path.resolve(path.dirname(filename),script.getAttribute('src').split('?')[0]),'utf8'),context,{filename:script.getAttribute('src')});
+ vm.createContext(context);const scripts=document.querySelectorAll('script[src]');for(const script of [...scripts.filter(s=>!s.hasAttribute('defer')),...scripts.filter(s=>s.hasAttribute('defer'))])vm.runInContext(fs.readFileSync(path.resolve(path.dirname(filename),script.getAttribute('src').split('?')[0]),'utf8'),context,{filename:script.getAttribute('src')});
+ document.readyState='interactive';document.dispatch('DOMContentLoaded');
  const $=s=>document.querySelector(s),all=s=>document.querySelectorAll(s);
  const button=(act,value='')=>$(`button[data-act="${act}"][data-value="${value}"]`);
  const click=(act,value='')=>{const b=button(act,value);if(!b)throw Error(`Missing ${kind} button ${act}:${value}`);b.click();};

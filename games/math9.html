@@ -61,7 +61,13 @@
             }
         }
     </style>
-<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="../assets/reviews/config.js?v=09163975f7cc"></script><script defer src="../assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-comic">
     <!-- 导航栏 -->
     <nav class="bg-primary/90 text-white shadow-lg sticky top-0 z-50">
@@ -75,7 +81,7 @@
                     <i class="fa-solid fa-star text-yellow-300 mr-1"></i>
                     <span id="score-display" class="font-bold">分数: 0</span>
                 </div>
-                <button id="help-btn" class="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all">
+                <button id="help-btn" aria-label="游戏帮助" class="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all">
                     <i class="fa-solid fa-question text-white"></i>
                 </button>
             </div>
@@ -94,21 +100,21 @@
                     加入超人和变形金刚的队伍，通过解决数学问题来拯救世界！答对越多问题，获得的能量就越多！
                 </p>
                 <div class="flex flex-wrap justify-center gap-4 mt-8">
-                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                    <div data-game-mode="addition" role="button" tabindex="0" class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
                         <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-3">
                             <i class="fa-solid fa-plus text-primary text-3xl"></i>
                         </div>
                         <h3 class="font-bold text-lg mb-1">加法挑战</h3>
                         <p class="text-center text-dark/70">10以内的加法题目</p>
                     </div>
-                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                    <div data-game-mode="subtraction" role="button" tabindex="0" class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
                         <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-3">
                             <i class="fa-solid fa-minus text-accent text-3xl"></i>
                         </div>
                         <h3 class="font-bold text-lg mb-1">减法挑战</h3>
                         <p class="text-center text-dark/70">10以内的减法题目</p>
                     </div>
-                    <div class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
+                    <div data-game-mode="mixed" role="button" tabindex="0" class="card-hover bg-white rounded-xl shadow-lg p-4 w-64 flex flex-col items-center">
                         <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-3">
                             <i class="fa-solid fa-random text-secondary text-3xl"></i>
                         </div>
@@ -301,7 +307,7 @@
             <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full transform transition-all scale-95 opacity-0" id="help-content">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-2xl font-bold text-primary">游戏帮助</h3>
-                    <button id="close-help" class="text-dark/50 hover:text-dark">
+                    <button id="close-help" aria-label="关闭帮助" class="text-dark/50 hover:text-dark">
                         <i class="fa-solid fa-times text-xl"></i>
                     </button>
                 </div>
@@ -408,7 +414,7 @@
             // The original 'maxNumber = 5 + gameState.level;' can be left if it's used elsewhere,
             // but for num1, num2, and answer generation, QUESTION_MAX_VALUE is the constraint.
 
-            let operation = gameState.gameMode;
+            let operation = gameState.gameMode === 'addition' ? '+' : gameState.gameMode === 'subtraction' ? '-' : 'mixed';
             if (gameState.gameMode === 'mixed') {
                 operation = Math.random() < 0.5 ? '+' : '-';
             }
@@ -702,14 +708,13 @@
         });
         
         // 为难度选择添加事件
-        document.querySelectorAll('.card-hover').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (card.querySelector('h3').textContent.includes('加法')) {
-                    startGame('addition');
-                } else if (card.querySelector('h3').textContent.includes('减法')) {
-                    startGame('subtraction');
-                } else {
-                    startGame('mixed');
+        document.querySelectorAll('[data-game-mode]').forEach(card => {
+            const chooseMode = () => startGame(card.dataset.gameMode);
+            card.addEventListener('click', chooseMode);
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    chooseMode();
                 }
             });
         });

@@ -30,6 +30,30 @@
       unsupported: '这个浏览器不支持朗读。可以看着文字一起读，游戏照常进行。', failed: '语音暂时没响，点「再听一次」试试；也可以看着文字读。', noVoice: '设备暂未提供这种语言的语音，请看文字朗读，或在设备上添加相应语音。',
       rangeTitle: '更换范围会开始新一轮', replayTitle: '重新朗读这一题', mutedReplay: '先打开声音，再播放', unsupportedReplay: '浏览器不支持语音'
     },
+    fr: {
+      home: 'Retour au parc', playground: 'Parc des découvertes', soundOn: 'Son activé', soundOff: 'Son coupé', addition: 'Verger des additions', multiplication: 'Planète des multiplications',
+      mission: 'Ta petite mission', stars: 'étoiles', rangeLabel: 'Entraînement', restart: 'Recommencer ↻', hint: '💡 Un petit indice',
+      typeAnswer: 'Tu peux aussi écrire ta réponse', check: 'Vérifier', learn: 'Découvrons la réponse', replay: '🔊 Réécouter', next: 'Suivante →', finish: 'Voir tes étoiles →',
+      playAgain: 'Une autre partie ↻', otherGames: 'Découvrir les autres jeux', review: 'Touche une réponse pour la réécouter', footer: 'Fais grandir ta curiosité',
+      gentle: 'Prends ton temps. Réfléchis, compte et savoure chaque petite découverte.',
+      description: multiply ? 'Forme des groupes d’étoiles, apprends une formule en chinois et illumine une planète.' : 'Réunis les fruits de deux paniers et collectionne les étoiles.',
+      all: 'Tables mélangées · 1 à 10', easy: 'Pour commencer · 1 à 10', challenge: 'Un peu plus loin · 1 à 20', table: n => `Table de ${n} · de ×1 à ×10`,
+      round: n => `Question ${n} / ${total}`, completed: 'Partie terminée', progress: (n, state) => `Question ${n} : ${state === 'correct' ? 'étoile gagnée' : state === 'learned' ? 'réponse découverte ensemble' : state === 'current' ? 'en cours' : 'à venir'}`,
+      sceneTag: multiply ? 'Compte un groupe à la fois' : 'Réunis tous les fruits',
+      sceneTitle: (a, b) => multiply ? `${a} ${a === 1 ? 'groupe' : 'groupes'} de ${b} ${b === 1 ? 'étoile' : 'étoiles'}` : 'Combien y a-t-il de fruits en tout ?',
+      sceneInstruction: multiply ? 'Touche chaque groupe et regarde le total augmenter.' : 'Touche chaque panier et regarde le total augmenter.',
+      group: (i, b) => `Groupe ${i}, ${b} ${b === 1 ? 'étoile' : 'étoiles'}`, basket: (i, n) => `Panier ${i}, ${n} ${n === 1 ? 'fruit' : 'fruits'}`, groupShort: n => `Groupe ${n}`, basketShort: n => `Panier ${n}`,
+      counting: (n, sum) => multiply ? `${n} ${n === 1 ? 'groupe allumé' : 'groupes allumés'}, ${sum} ${sum === 1 ? 'étoile' : 'étoiles'} en tout` : `${n} ${n === 1 ? 'panier compté' : 'paniers comptés'}, ${sum} ${sum === 1 ? 'fruit' : 'fruits'} en tout`,
+      countingStart: 'Touche une image pour compter.', thinking: 'RÉFLÉCHIS · COMPTE · CHOISIS', help: 'Choisis une réponse ou écris-la ci-dessous.', choiceLabel: 'Choisir une réponse',
+      invalid: 'Écris d’abord un nombre entier.', wrong: 'Presque ! Touche les images et compte encore une fois.', correct: 'Bravo ! Tu as gagné une étoile de plus ★', learned: 'Nous avons trouvé ensemble. Continue tes découvertes !',
+      resultLabel: (a, b) => multiply ? (a === 10 || b === 10 ? 'Lis le calcul en chinois' : 'Écoute la formule de multiplication en chinois') : 'Dis le calcul à voix haute pour t’en souvenir',
+      summaryTitle: 'Bravo, mission accomplie !', summaryCopy: n => `${total} questions explorées et ${n} ${n === 1 ? 'étoile gagnée' : 'étoiles gagnées'}. Chaque essai te fait progresser !`,
+      hintMultiply: (a, b) => `Il y a ${b} ${b === 1 ? 'étoile' : 'étoiles'} par groupe. Additionne ce nombre ${a} fois : ${Array(a).fill(b).join(' + ')}.`,
+      hintAddition: (a, b) => { const high = Math.max(a, b), low = Math.min(a, b), gap = 10 - high % 10; return high % 10 && low >= gap ? `Rejoins la dizaine suivante : ajoute ${gap} à ${high}, puis ajoute les ${low - gap} restants.` : `Pars de ${high}, puis compte encore ${low}.`; },
+      ready: 'Les réponses sont lues à voix haute. Touche « Réécouter » pour les entendre à nouveau.', starting: 'Préparation de la voix…', speaking: 'Écoute, puis répète à voix haute.', muted: 'Le son est coupé. Tu peux toujours lire les réponses.',
+      unsupported: 'Ce navigateur ne peut pas lire à voix haute. Lis les mots et continue à jouer.', failed: 'La lecture n’a pas démarré. Touche « Réécouter » ou lis les mots à voix haute.', noVoice: 'Aucune voix dans cette langue n’est disponible sur cet appareil. Lis le texte ou ajoute la voix correspondante à ton appareil.',
+      rangeTitle: 'Changer d’entraînement commence une nouvelle partie', replayTitle: 'Relire cette réponse à voix haute', mutedReplay: 'Active le son pour écouter', unsupportedReplay: 'Lecture vocale indisponible'
+    },
     en: {
       home: 'Back home', playground: 'Playground', soundOn: 'Sound on', soundOff: 'Muted', addition: 'Addition Orchard', multiplication: 'Multiplication Planet',
       mission: 'Your little mission', stars: 'stars', rangeLabel: 'Practice', restart: 'Start over ↻', hint: '💡 Try a hint',
@@ -40,10 +64,10 @@
       all: 'Mixed practice · 1–10', easy: 'Easy practice · 1–10', challenge: 'Extra challenge · 1–20', table: n => `${n} times table · ×1 to ×10`,
       round: n => `Question ${n} / ${total}`, completed: 'Round complete', progress: (n, state) => `Question ${n}: ${state === 'correct' ? 'star earned' : state === 'learned' ? 'learned together' : state === 'current' ? 'in progress' : 'up next'}`,
       sceneTag: multiply ? 'Count a group at a time' : 'Bring the fruit together',
-      sceneTitle: (a, b) => multiply ? `${a} groups, ${b} stars in each` : 'How much fruit in both baskets?',
+      sceneTitle: (a, b) => multiply ? `${a} ${a === 1 ? 'group' : 'groups'}, ${b} ${b === 1 ? 'star' : 'stars'} in each` : 'How much fruit in both baskets?',
       sceneInstruction: multiply ? 'Tap each group and watch the total grow.' : 'Tap each basket and watch the total grow.',
-      group: (i, b) => `Group ${i}, ${b} stars`, basket: (i, n) => `Basket ${i}, ${n} pieces of fruit`, groupShort: n => `Group ${n}`, basketShort: n => `Basket ${n}`,
-      counting: (n, sum) => multiply ? `${n} groups lit up, ${sum} stars in all` : `${n} baskets counted, ${sum} pieces of fruit`,
+      group: (i, b) => `Group ${i}, ${b} ${b === 1 ? 'star' : 'stars'}`, basket: (i, n) => `Basket ${i}, ${n} ${n === 1 ? 'piece' : 'pieces'} of fruit`, groupShort: n => `Group ${n}`, basketShort: n => `Basket ${n}`,
+      counting: (n, sum) => multiply ? `${n} ${n === 1 ? 'group' : 'groups'} lit up, ${sum} ${sum === 1 ? 'star' : 'stars'} in all` : `${n} ${n === 1 ? 'basket' : 'baskets'} counted, ${sum} ${sum === 1 ? 'piece' : 'pieces'} of fruit`,
       countingStart: 'Tap a picture to count along.', thinking: 'THINK · COUNT · CHOOSE', help: 'Choose an answer, or type it below.', choiceLabel: 'Choose an answer',
       invalid: 'Please enter a whole number first.', wrong: 'Not quite yet. Tap the pictures and count again!', correct: 'You got it! One more star for you ★', learned: 'We learned this one together. Keep exploring!',
       resultLabel: (a, b) => multiply ? (a === 10 || b === 10 ? 'Say the equation in Chinese' : 'Listen to the Chinese times-table rhyme') : 'Say it together and remember your discovery',
@@ -57,7 +81,7 @@
   };
   const readPreference = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; } };
   const savePreference = (key, value) => { try { localStorage.setItem(key, value); } catch (_) {} };
-  let language = readPreference('kris-math-language', 'zh') === 'en' ? 'en' : 'zh';
+  let language = window.KrisI18n?.language || 'zh';
   let muted = readPreference('kris-math-muted', 'false') === 'true';
   let range = multiply ? 'all' : '20';
   let deck = [], round = 0, stars = 0, results = [], solved = false, completed = false;
@@ -68,9 +92,10 @@
   function resultText(question) {
     return multiply ? M.mnemonic(question.a, question.b) : language === 'zh'
       ? `${M.chineseNumber(question.a)}加${M.chineseNumber(question.b)}等于${M.chineseNumber(question.answer)}`
+      : language === 'fr' ? `${question.a} plus ${question.b} égale ${question.answer}`
       : `${question.a} plus ${question.b} equals ${question.answer}`;
   }
-  function sayResult(question) { speech.speak(resultText(question), multiply || language === 'zh' ? 'zh-CN' : 'en-US'); }
+  function sayResult(question) { speech.speak(resultText(question), multiply || language === 'zh' ? 'zh-CN' : language === 'fr' ? 'fr-CA' : 'en-US'); }
   function updateSound() {
     $('mute').setAttribute('aria-pressed', String(muted));
     $('mute').textContent = (muted ? '🔇 ' : '🔊 ') + t()[muted ? 'soundOff' : 'soundOn'];
@@ -154,7 +179,7 @@
       $('result-label').textContent = t().resultLabel(q.a, q.b);
       $('result-equation').textContent = `${q.a} ${multiply ? '×' : '+'} ${q.b} = ${q.answer}`;
       $('mnemonic').textContent = resultText(q);
-      $('mnemonic').lang = multiply || language === 'zh' ? 'zh-CN' : 'en';
+      $('mnemonic').lang = multiply || language === 'zh' ? 'zh-CN' : language === 'fr' ? 'fr-CA' : 'en';
       $('next').textContent = t()[round === total - 1 ? 'finish' : 'next'];
     }
     updateSound();
@@ -247,8 +272,9 @@
       const equation = document.createElement('strong');
       equation.textContent = `${q.a} ${multiply ? '×' : '+'} ${q.b} = ${q.answer}`;
       const rhyme = document.createElement('span');
+      rhyme.setAttribute('data-i18n-skip', '');
       rhyme.textContent = resultText(q);
-      rhyme.lang = multiply || language === 'zh' ? 'zh-CN' : 'en';
+      rhyme.lang = multiply || language === 'zh' ? 'zh-CN' : language === 'fr' ? 'fr-CA' : 'en';
       button.append(equation, rhyme);
       button.addEventListener('click', () => sayResult(q));
       $('review-list').append(button);
@@ -270,15 +296,14 @@
     }
   }
   function applyLanguage() {
-    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = language === 'zh' ? 'zh-CN' : language === 'fr' ? 'fr-CA' : 'en';
     document.title = t()[mode] + ' · Kris';
     document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t()[node.dataset.i18n]; });
     $('game-title').textContent = t()[mode] + ' ✦';
     $('game-description').textContent = t().description;
-    $('journey').setAttribute('aria-label', language === 'zh' ? '练习进度' : 'Practice progress');
-    $('language').textContent = language === 'zh' ? 'EN' : '中文';
-    $('language').lang = language === 'zh' ? 'en' : 'zh-CN';
-    $('language').setAttribute('aria-label', language === 'zh' ? 'Switch to English' : '切换到中文');
+    $('journey').setAttribute('aria-label', language === 'zh' ? '练习进度' : language === 'fr' ? 'Progression de l’entraînement' : 'Practice progress');
+    const description = document.querySelector?.('meta[name="description"]');
+    if (description) description.setAttribute('content', t().description);
     $('range').replaceChildren();
     const settings = multiply ? [['all', t().all], ...Array.from({ length: 10 }, (_, i) => [String(i + 1), t().table(i + 1)])] : [['10', t().easy], ['20', t().challenge]];
     settings.forEach(([value, text]) => { const option = document.createElement('option'); option.value = value; option.textContent = text; $('range').append(option); });
@@ -295,10 +320,9 @@
   $('restart').addEventListener('click', () => restart(true));
   $('play-again').addEventListener('click', () => restart(true));
   $('range').addEventListener('change', () => { range = $('range').value; restart(); });
-  $('language').addEventListener('click', () => {
+  window.KrisI18n?.onChange(() => {
     speech.stop();
-    language = language === 'zh' ? 'en' : 'zh';
-    savePreference('kris-math-language', language);
+    language = window.KrisI18n.language;
     speechState = muted ? 'muted' : speech.supported ? 'ready' : 'unsupported';
     applyLanguage(); renderProgress(); if (completed) renderSummary(); else renderQuestion();
   });

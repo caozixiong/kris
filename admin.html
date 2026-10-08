@@ -13,7 +13,12 @@
  <script defer src="assets/vendor/supabase-2.117.3.js?v=d6a5c4414a5d"></script>
  <script defer src="assets/admin/config.js?v=ac50aae4bc69"></script>
  <script defer src="assets/admin/games.js?v=639a13a6aa6c"></script>
- <script defer src="assets/admin/admin.js?v=0b58f2c560d3"></script>
+ <script defer src="assets/admin/admin.js?v=664a4778cfcc"></script>
+
+<link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
+<script src="assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="assets/i18n-admin.js?v=cacaffd6b806"></script>
 </head>
 <body>
  <a class="skip-link" href="#main">跳到主要内容</a>
@@ -27,7 +32,7 @@
    <p class="fine-print">在收到邮件的同一台设备上打开链接即可登录。此页不开放注册；普通访客无法进入审核区。登录只保存在当前标签页，使用后请退出。</p>
   </section>
   <section class="panel denied" id="denied" hidden><h2>这个账号没有管理权限</h2><p>只有站点管理员授权的账号才能查看和审核评价。你可以退出后，改用管理员邮箱登录。</p></section>
-  <div class="account" id="account" hidden><p><span class="online-dot" aria-hidden="true"></span><span id="account-label"></span></p><button class="quiet" id="logout" type="button">退出登录</button></div>
+  <div class="account" id="account" hidden><p><span class="online-dot" aria-hidden="true"></span><span id="account-label" data-i18n-skip></span></p><button class="quiet" id="logout" type="button">退出登录</button></div>
   <section id="workspace" aria-label="评价审核区" hidden>
    <div class="toolbar"><div class="filters" aria-label="按审核状态筛选"><button type="button" class="filter" data-status="pending" aria-pressed="true">待审核 <span data-count="pending">0</span></button><button type="button" class="filter" data-status="approved" aria-pressed="false">已通过 <span data-count="approved">0</span></button><button type="button" class="filter" data-status="rejected" aria-pressed="false">已拒绝 <span data-count="rejected">0</span></button><button type="button" class="filter" data-status="all" aria-pressed="false">全部 <span data-count="all">0</span></button></div><div class="list-tools"><label for="game-filter" class="sr-only">筛选游戏</label><select id="game-filter"><option value="">所有游戏</option></select><button class="quiet" type="button" id="refresh">刷新列表</button></div></div>
    <div class="list-heading"><h2 id="list-title">待审核评价</h2><p id="list-summary"></p></div>

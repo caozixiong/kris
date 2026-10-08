@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shape Sorter Math</title>
+    <title>形状加减法</title>
     <style>
         body {
             font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
@@ -23,8 +23,8 @@
             align-items: center;
             width: 90%;
             max-width: 800px;
-            height: 90vh;
-            max-height: 600px;
+            min-height: 600px;
+            height: auto;
             background-color: #f0f8ff; /* AliceBlue */
             border-radius: 20px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
@@ -37,6 +37,9 @@
             margin-bottom: 15px;
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding-right: 42px;
         }
 
         .mode-button {
@@ -241,27 +244,33 @@
             background-color: #e0a800;
         }
     </style>
-<script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
+<script src="assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="assets/i18n-legacy-learning.js?v=30d25af70bd3"></script>
+<script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body>
 
 <div class="game-container">
     <div class="mode-switcher">
-        <button id="addition-mode-btn" class="mode-button active">Addition Mode</button>
-        <button id="subtraction-mode-btn" class="mode-button">Subtraction Mode</button>
+        <button id="addition-mode-btn" class="mode-button active">加法模式</button>
+        <button id="subtraction-mode-btn" class="mode-button">减法模式</button>
     </div>
 
     <div class="target-section">
-        <span id="target-label">Target Sum</span>
+        <span id="target-label">目标总和</span>
         <span id="target-number">5</span>
         <div id="subtraction-details" style="display: none;">
-            <span class="subtraction-info">Initial Sum: <span id="initial-sum-display">0</span></span>
-            <span class="subtraction-info">Current Sum: <span id="current-sum-display-subtraction">0</span></span>
+            <span class="subtraction-info">初始总和: <span id="initial-sum-display">0</span></span>
+            <span class="subtraction-info">当前总和: <span id="current-sum-display-subtraction">0</span></span>
         </div>
     </div>
 
     <div class="sorting-machine-area" id="sorting-machine">
         <!-- Content dynamically changes: "Drop here" or shapes for subtraction -->
-        <div class="machine-content" id="machine-text-content">Drop here! <span id="current-sum-display-addition">Sum: 0</span></div>
+        <div class="machine-content" id="machine-text-content">拖到这里！ <span id="current-sum-display-addition">总和: 0</span></div>
     </div>
 
     <div id="feedback-message"></div>
@@ -270,7 +279,7 @@
         <!-- Shapes for addition mode will be dynamically generated here -->
     </div>
 
-    <button id="reset-button" title="New Problem">&#x21bb;</button> <!-- Unicode for reload arrow -->
+    <button id="reset-button" title="新题目" aria-label="新题目">&#x21bb;</button> <!-- Unicode for reload arrow -->
 </div>
 
 <script>
@@ -377,12 +386,12 @@
             subtractionModeBtn.classList.remove('active');
             subtractionDetailsDisplay.style.display = 'none';
             shapesArea.style.display = 'flex'; // Show shapes pool
-            targetLabel.textContent = "Target Sum";
+            targetLabel.textContent = "目标总和";
             // Restore machine content for addition
             const machineContentDiv = document.createElement('div');
             machineContentDiv.classList.add('machine-content');
             machineContentDiv.id = 'machine-text-content'; // for consistency if needed elsewhere
-            machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
+            machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
             sortingMachine.appendChild(machineContentDiv);
             // Re-assign additionSumDisplay as it's recreated
             window.additionSumDisplay = document.getElementById('current-sum-display-addition'); 
@@ -394,7 +403,7 @@
             additionModeBtn.classList.remove('active');
             subtractionDetailsDisplay.style.display = 'block';
             shapesArea.style.display = 'none'; // Hide shapes pool
-            targetLabel.textContent = "Target to Reach";
+            targetLabel.textContent = "目标数值";
             sortingMachine.style.justifyContent = 'flex-start'; // Align shapes to start
             sortingMachine.style.alignItems = 'flex-start'; // Align shapes to start
             initSubtractionMode();
@@ -498,7 +507,7 @@
 
     function updateAdditionSumDisplay() {
         if (window.additionSumDisplay) { // Check if it exists (it's removed/added on mode switch)
-             window.additionSumDisplay.textContent = `Sum: ${currentSumInMachineAddition}`;
+             window.additionSumDisplay.textContent = `总和: ${currentSumInMachineAddition}`;
         }
     }
 
@@ -624,7 +633,7 @@
             const machineContentDiv = document.createElement('div');
             machineContentDiv.classList.add('machine-content');
             machineContentDiv.id = 'machine-text-content';
-            machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
+            machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
             sortingMachine.appendChild(machineContentDiv);
             window.additionSumDisplay = document.getElementById('current-sum-display-addition');
             sortingMachine.style.justifyContent = 'center';
@@ -644,13 +653,13 @@
         subtractionModeBtn.classList.remove('active');
         subtractionDetailsDisplay.style.display = 'none';
         shapesArea.style.display = 'flex';
-        targetLabel.textContent = "Target Sum";
+        targetLabel.textContent = "目标总和";
         
         const machineContentDiv = document.createElement('div');
         machineContentDiv.classList.add('machine-content');
         machineContentDiv.id = 'machine-text-content';
-        machineContentDiv.innerHTML = `Drop here! <span id="current-sum-display-addition">Sum: 0</span>`;
-        sortingMachine.appendChild(machineContentDiv);
+        machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
+        sortingMachine.replaceChildren(machineContentDiv);
         window.additionSumDisplay = document.getElementById('current-sum-display-addition');
         sortingMachine.style.justifyContent = 'center';
         sortingMachine.style.alignItems = 'center';

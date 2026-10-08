@@ -56,3 +56,18 @@ Run `python tests/test_admin_static.py`, `node tests/test_admin_ui.cjs`, `node t
 An actual owner email-link sign-in and a real review moderation remain separate deployment checks; local fixtures cannot establish email delivery. The admin role starts empty until the separately approved real Auth account exists and its UID is bound through trusted owner access.
 
 `test_admin_auth_sdk.cjs` uses the actual pinned Supabase AuthClient in isolated browser-like contexts with mocked HTTP and BroadcastChannel. It verifies callback history cleanup before network access, expired-link messaging, isolated-tab magic-link sign-in, and permanent local UI locks after successful or failed logout. It does not contact real accounts or establish real-browser behavior.
+
+## Three-language regression checks
+
+Run after `python tools/update_asset_hashes.py`:
+
+```sh
+node tests/test_site_i18n.cjs
+node tests/test_quest_i18n.cjs
+node tests/test_legacy_math_i18n.cjs
+node tests/test_legacy_learning_i18n_dom.cjs
+```
+
+These use actual production runtime/catalogs and application handlers. They cover zh → en → fr → zh reversibility, saved language and denied-storage URL fallback, live mutations and translated attributes, all 32 adventure missions and feedback, all 20 game pages including collection modes, partial answers/cart/prediction/timer/score preservation, instructional-language content, homepage search/filter preservation, and review draft/admin session/confirmation preservation without additional network calls. Existing `test_math_flow.cjs` also checks French UI, pluralizations, fr-CA addition speech and Chinese multiplication mnemonics.
+
+`test_legacy_learning_i18n.cjs` is an optional Playwright/Chromium test for a permitted browser environment. It is separate from the dependency-free suite and must not be interpreted as a completed browser check when the environment does not allow browser launch. Use the cloud browser for published-page smoke checks; mobile visual testing remains a separate check when viewport control is available.

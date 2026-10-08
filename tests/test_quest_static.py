@@ -21,8 +21,10 @@ for kind,name in pages.items():
  filename=R/'games'/f'{name}.html';doc=html.fromstring(filename.read_text());assert doc.get('lang')=='zh-CN';assert doc.xpath('//body')[0].get('data-quest')==kind
  ids=doc.xpath('//@id');assert len(ids)==len(set(ids));assert doc.xpath('//meta[@name="viewport"]');assert doc.xpath('//noscript');assert doc.xpath('//main[@id="quest-app"]')
  assert doc.xpath('//*[@id="quest-announcement" and @aria-live="polite"]');assert not doc.xpath('//*[@id="quest-app"]//*[@id="quest-announcement"]'),'live region must survive root rerenders'
- assert [x.get('src').split('?')[0] for x in doc.xpath('//script[@src]')]==['../assets/quest-data.js','../assets/quest-core.js','../assets/quest.js','../assets/reviews/config.js','../assets/reviews/reviews.js']
- assert all('defer' in x.attrib for x in doc.xpath('//script[@src]'))
+ scripts=doc.xpath('//script[@src]')
+ assert [x.get('src').split('?')[0] for x in scripts if '/i18n' not in x.get('src')]==['../assets/quest-data.js','../assets/quest-core.js','../assets/quest.js','../assets/reviews/config.js','../assets/reviews/reviews.js']
+ assert all('defer' in x.attrib for x in scripts if '/i18n' not in x.get('src'))
+ assert [Path(x.get('src').split('?')[0]).name for x in scripts if '/i18n' in x.get('src')]==['i18n.js','i18n-site.js','i18n-adventures.js','i18n-reviews.js']
  for el in doc.xpath('//script[@src]|//link[@href]'):
   src=el.get('src') or el.get('href');assert not src.startswith(('http','//'));asset=(filename.parent/src.split('?')[0]).resolve();assert asset.is_file(),asset
   if '?v=' in src:assert src.split('?v=')[1]==hashlib.sha256(asset.read_bytes()).hexdigest()[:12],src

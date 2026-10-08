@@ -143,12 +143,15 @@
             background-color: #0353b4;
         }
     </style>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-gallery.js?v=80013682628b"></script>
 </head>
 <body>
     <h1>递归图片画廊</h1>
     
     <button id="debugToggle" class="debug-toggle">显示调试信息</button>
-    <div id="debugInfo" class="debug-info"></div>
+    <div id="debugInfo" data-i18n-skip class="debug-info"></div>
     
     <div id="breadcrumb" class="breadcrumb">
         <a href="#" data-path="">首页</a>
@@ -185,28 +188,20 @@
             // 当前路径
             let currentPath = '';
             
-            // 记录调试信息的函数
-            function logDebug(message, data = null) {
-                const timestamp = new Date().toLocaleTimeString();
-                let logMessage = `[${timestamp}] ${message}`;
-                
-                if (data) {
-                    if (typeof data === 'object') {
-                        try {
-                            logMessage += "\n" + JSON.stringify(data, null, 2);
-                        } catch (e) {
-                            logMessage += "\n[无法序列化数据]";
-                        }
-                    } else {
-                        logMessage += "\n" + data;
-                    }
-                }
-                
-                debugInfoElement.textContent += logMessage + "\n\n";
-                // 自动滚动到底部
+            // Keep diagnostic data intact while localizing its display labels.
+            const debugEntries = [];
+            function renderDebug() {
+                debugInfoElement.textContent = debugEntries.map(entry => {
+                    const time = new Date(entry.time).toLocaleTimeString(window.KrisI18n?.locale);
+                    return `[${time}] ${window.KrisI18n?.translate(entry.message) || entry.message}` + (entry.data === null ? '' : '\n' + (typeof entry.data === 'object' ? JSON.stringify(entry.data, null, 2) : entry.data));
+                }).join('\n\n');
                 debugInfoElement.scrollTop = debugInfoElement.scrollHeight;
-                console.log(message, data);
             }
+            function logDebug(message, data = null) {
+                debugEntries.push({time: Date.now(), message, data});
+                renderDebug(); console.log(message, data);
+            }
+            window.KrisI18n?.onChange(renderDebug);
             
             // 初始化
             logDebug("页面加载完成，开始初始化");
@@ -421,8 +416,8 @@
                 // 添加图片加载错误处理
                 img.onerror = function() {
                     logDebug(`图片加载失败: ${image.path}`);
-                    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="16" text-anchor="middle" fill="%23999">加载失败</text></svg>';
-                    img.style.background = '#f0f0f0';
+                    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="16" text-anchor="middle" fill="%23999">×</text></svg>';
+                    img.alt = '加载失败'; img.style.background = '#f0f0f0';
                 };
                 
                 img.onload = function() {

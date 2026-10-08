@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-<title>Vocabulary Quiz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>词汇测验</title>
 <style>
   body {
     font-family: sans-serif;
@@ -19,7 +21,7 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 400px;
+    width: min(400px, calc(100vw - 48px));
   }
   #word {
     font-size: 28px;
@@ -77,18 +79,24 @@
     color: red;
   }
 </style>
-<script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=d20492aad6b8"></script></head>
+<script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=6b47f21a62b6"></script>
+<link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
+<script src="assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="assets/i18n-site.js?v=16d951e9ca82"></script>
+<script src="assets/i18n-legacy-learning.js?v=30d25af70bd3"></script>
+<script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
+</head>
 <body>
 
 <div class="container">
-  <h1>Vocabulary Quiz</h1>
+  <h1>词汇测验</h1>
   <div id="word"></div>
   <div class="options" id="options">
     <!-- Options will be populated by JavaScript -->
   </div>
   <div class="action-buttons">
-    <button onclick="checkAnswer()">Check Answer</button>
-    <button id="next-word" onclick="nextWord()">Next Word</button>
+    <button onclick="checkAnswer()">检查答案</button>
+    <button id="next-word" onclick="nextWord()">下一个单词</button>
   </div>
   <div id="message"></div>
 </div>
@@ -115,6 +123,7 @@
   let currentWordIndex = 0;
   let correctAnswer = '';
   let selectedOptionButton = null;
+  let quizFinished = false;
 
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -126,17 +135,21 @@
 
   function displayWord() {
     if (currentWordIndex >= vocabulary.length) {
-      document.getElementById('word').textContent = "Quiz Finished!";
+      quizFinished = true;
+      document.getElementById('word').removeAttribute('translate');
+      document.getElementById('word').textContent = "测验完成！";
       document.getElementById('options').innerHTML = '';
-      document.getElementById('message').textContent = 'You have completed all the words!';
+      document.getElementById('message').textContent = '你已完成所有单词！';
       document.querySelector('.action-buttons button').style.display = 'none'; // Hide check answer
-      document.getElementById('next-word').textContent = 'Restart Quiz';
+      document.getElementById('next-word').textContent = '重新测验';
       currentWordIndex = 0; // Reset for restart
       return;
     }
 
+    quizFinished = false;
+    document.getElementById('word').setAttribute('translate', 'no');
     document.querySelector('.action-buttons button').style.display = 'inline-block'; // Show check answer
-    document.getElementById('next-word').textContent = 'Next Word';
+    document.getElementById('next-word').textContent = '下一个单词';
 
 
     const currentEntry = vocabulary[currentWordIndex];
@@ -151,6 +164,8 @@
     shuffledOptions.forEach(optionText => {
       const button = document.createElement('button');
       button.textContent = optionText;
+      button.dataset.answer = optionText;
+      button.setAttribute('translate', 'no');
       button.onclick = () => selectOption(button, optionText);
       optionsContainer.appendChild(button);
     });
@@ -170,23 +185,23 @@
   function checkAnswer() {
     const messageElement = document.getElementById('message');
     if (!selectedOptionButton) {
-      messageElement.textContent = 'Please select an option.';
+      messageElement.textContent = '请选择一个选项。';
       messageElement.className = 'incorrect';
       return;
     }
 
-    const userAnswer = selectedOptionButton.textContent;
+    const userAnswer = selectedOptionButton.dataset.answer;
     if (userAnswer === correctAnswer) {
-      messageElement.textContent = 'Correct!';
+      messageElement.textContent = '正确！';
       messageElement.className = 'correct';
     } else {
-      messageElement.textContent = `Incorrect. The correct answer was: "${correctAnswer}"`;
+      messageElement.textContent = `不正确。正确答案是：“${correctAnswer}”`;
       messageElement.className = 'incorrect';
     }
   }
 
   function nextWord() {
-    if (document.getElementById('next-word').textContent === 'Restart Quiz') {
+    if (quizFinished) {
         currentWordIndex = 0;
         displayWord();
         return;

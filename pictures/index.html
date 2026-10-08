@@ -94,6 +94,9 @@
             }
         }
     </style>
+<link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
+<script src="../assets/i18n.js?v=4bcf2a93334a"></script>
+<script src="../assets/i18n-gallery.js?v=80013682628b"></script>
 </head>
 <body>
     <header>
@@ -199,7 +202,7 @@
                     document.getElementById('gallery').innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #e74c3c;">
                             <h2>加载失败</h2>
-                            <p>${error.message}</p>
+                            <p>无法加载 gallery.md 文件</p>
                             <p>请确保 gallery.md 文件存在且内容格式正确</p>
                         </div>
                     `;

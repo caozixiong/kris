@@ -123,6 +123,7 @@
     familyGrid.replaceChildren(family);
     $('#game-count').textContent = String(gameCount);
     $('#surprise-button').hidden = gameCount === 0;
+    window.KrisI18n?.refresh(resourceGrid);
     applyFilters();
   }
 
@@ -171,11 +172,18 @@
   showMore.addEventListener('click', () => { state.expanded = !state.expanded; applyFilters(); });
   $('#surprise-button').addEventListener('click', () => {
     const games = Array.from(gameGrid.querySelectorAll('[data-game]'));
-    if (games.length) window.location.assign(games[Math.floor(Math.random() * games.length)].getAttribute('href'));
+    if (games.length) window.location.assign(window.KrisI18n?.localizeURL(games[Math.floor(Math.random() * games.length)].getAttribute('href')) || games[Math.floor(Math.random() * games.length)].getAttribute('href'));
   });
   $('#resource-toolbar').hidden = false;
   $('#surprise-button').hidden = gameGrid.childElementCount === 0;
   applyFilters();
+
+  const applyHomeLanguage = () => {
+    const dot = document.querySelector('.title-dot');
+    if (dot) dot.textContent = window.KrisI18n?.language === 'zh' ? '。' : '.';
+    applyFilters();
+  };
+  if (window.KrisI18n) { window.KrisI18n.onChange(applyHomeLanguage); applyHomeLanguage(); }
 
   fetch('content.md?v=30d81dbc76a4')
     .then((response) => {

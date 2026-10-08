@@ -1,0 +1,15 @@
+/* Shared, always reachable language controls; isolated from legacy game rules. */
+#kris-language-bar{position:sticky;top:0;z-index:10000;box-sizing:border-box;flex:0 0 auto;align-self:stretch;width:100%;max-width:none;margin:0 0 12px;padding:8px 12px;background:#fcf9f0f5;border-bottom:1px solid #dce2d0;box-shadow:0 2px 12px #253d2710;line-height:1.2;font:16px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;user-select:none;backdrop-filter:blur(12px)}
+#kris-language-bar .kris-language-inner{display:flex;justify-content:flex-end;align-items:center;gap:6px;max-width:1180px;margin:0 auto}
+#kris-language-bar button{appearance:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;position:static;min-width:68px;width:auto;min-height:44px;height:auto;margin:0;padding:10px 14px;border:1px solid #cad5bc;border-radius:999px;background:#fffdf8;color:#34533e;box-shadow:none;font:600 15px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:0;white-space:nowrap;transform:none;cursor:pointer}
+#kris-language-bar button[aria-pressed="true"]{background:#345941;color:white;border-color:#345941}
+#kris-language-bar button:hover{background:#e4ebdb;color:#294c35;transform:none}
+#kris-language-bar button:focus-visible{outline:3px solid #c58112;outline-offset:3px}
+html{scroll-padding-top:80px}html[lang="fr-CA"] .hero h1,html[lang="en"] .hero h1{font-size:clamp(2.4rem,5vw,4.8rem)}
+@media(max-width:480px){#kris-language-bar{padding:7px 8px}#kris-language-bar .kris-language-inner{justify-content:center}#kris-language-bar button{min-width:78px;padding:10px 12px}.main-nav{flex-wrap:wrap}.game-tag{white-space:normal}.header-note{display:none}.filter-button{white-space:normal}}
+/* Translated headings and mission names may span more than one line. */
+html[lang="en"] .highlight,html[lang="fr-CA"] .highlight{white-space:normal}
+@media(max-width:600px){html[lang="en"] .hero h1,html[lang="fr-CA"] .hero h1{font-size:clamp(2rem,8vw,2.8rem);line-height:1.16}html[lang="en"] .highlight svg,html[lang="fr-CA"] .highlight svg{display:none}}
+.skip-link:focus,.skip-link:focus-visible{z-index:10001}
+html[lang="en"] .site-header .brand,html[lang="fr-CA"] .site-header .brand{max-width:100%;min-width:0}
+html[lang="en"] .site-header .brand>span:last-child,html[lang="fr-CA"] .site-header .brand>span:last-child{min-width:0;overflow-wrap:anywhere}

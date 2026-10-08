@@ -10,3 +10,10 @@
 
 .word.placed:disabled,.material.selected:disabled,.switch-button.selected:disabled,.predict-button.selected:disabled{opacity:1}
 .word{min-width:44px}.quest-brand{min-height:44px}.science-sources a{min-height:44px}
+/* Mission names and translated controls may be longer than the Chinese originals. */
+.map-stop small,.primary-button,.secondary-button,.quiet-button,.hint-button,.material,.predict-button,.switch-button{overflow-wrap:anywhere}
+html[lang="en"] .map-stop small,html[lang^="fr"] .map-stop small{line-height:1.35}
+html[lang^="fr"] .svg-label{font-size:13px}
+@media(max-width:600px){html[lang^="fr"] .quest-nav,html[lang="en"] .quest-nav{flex-wrap:wrap}html[lang^="fr"] .market-toolbar{align-items:flex-start;gap:10px}html[lang^="fr"] .market-toolbar strong{white-space:normal}}
+
+.map-stop small{white-space:normal;overflow-wrap:anywhere}
