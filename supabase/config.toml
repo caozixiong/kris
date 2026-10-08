@@ -1,0 +1,3 @@
+# This public endpoint verifies the review answer itself. No Supabase account is required.
+[functions.game-reviews]
+verify_jwt = false

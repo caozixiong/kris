@@ -1,0 +1,7 @@
+.env
+.env.*
+supabase/functions/.env
+supabase/.temp/
+node_modules/
+tests/addition_game.html.json
+tests/multiplication_game.html.json

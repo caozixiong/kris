@@ -42,3 +42,9 @@ Before claiming device-level visual/accessibility QA, check:
 - Existing math games on iPhone: answer/read/replay/mute/language/full-round narration, including 7×7 and 10×10.
 
 No browser/device QA claim is made by this test suite.
+
+## Public review checks
+
+Also run `python tests/test_reviews_static.py`, `node tests/test_reviews_api.mjs` and `node tests/test_reviews_widget.cjs`. The static check covers exactly 20 actual game pages, excludes placeholder/gallery pages, verifies widget script paths/cache hashes and client-secret absence. API tests execute the deployed handler with mocked network responses and a fresh random test-only answer. Widget tests execute the actual shared frontend through the existing DOM adapter and cover gating, XSS-safe text, pending acknowledgement, offline draft retention, duplicate clicks, answer clearing, and navigation interruption. They make no browser rendering claim.
+
+`test_reviews_database.mjs` executes the production SQL in PostgreSQL via the optional development-only `@electric-sql/pglite@0.5.8`. Set `PGLITE_MODULE` to its installed `dist/index.js` path. Tests verify RLS and column permissions using real database roles, deny public writes/RPCs and server-side publishing, check quota boundaries, expired-counter cleanup and pending capacity. See `docs/reviews.md` for deployment and moderation details.
