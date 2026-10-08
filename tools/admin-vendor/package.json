@@ -1,0 +1,7 @@
+{
+  "name": "kris-admin-vendor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "vendor": "node vendor.cjs" },
+  "dependencies": { "@supabase/supabase-js": "2.117.3" }
+}

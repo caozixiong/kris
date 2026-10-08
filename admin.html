@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="robots" content="noindex,nofollow">
+ <meta name="referrer" content="no-referrer">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src https://oxzudyliysixpflfxsye.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
+ <meta name="theme-color" content="#fcf9f0">
+ <title>评价管理 · Kris 的奇妙乐园</title>
+ <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+ <link rel="stylesheet" href="assets/admin/admin.css?v=209a5787dddf">
+ <script defer src="assets/vendor/supabase-2.117.3.js?v=d6a5c4414a5d"></script>
+ <script defer src="assets/admin/config.js?v=ac50aae4bc69"></script>
+ <script defer src="assets/admin/games.js?v=639a13a6aa6c"></script>
+ <script defer src="assets/admin/admin.js?v=0b58f2c560d3"></script>
+</head>
+<body>
+ <a class="skip-link" href="#main">跳到主要内容</a>
+ <header class="page-header wrap"><a class="brand" href="./"><span aria-hidden="true">K<span>✦</span></span><div><strong>Kris 的奇妙乐园</strong><small>家长管理</small></div></a><a class="back-link" href="./">← 返回乐园</a></header>
+ <main class="wrap" id="main">
+  <section class="intro"><span class="eyebrow">给每一份小小反馈，一点认真回应</span><h1>游戏评价管理</h1><p>先读一读，再决定哪些评价和大家见面。</p></section>
+  <p class="notice" id="notice" role="status" aria-live="polite">正在检查登录状态…</p>
+  <section class="login panel" id="login" aria-labelledby="login-title" hidden>
+   <span class="panel-icon" aria-hidden="true">✉</span><h2 id="login-title">管理员登录</h2><p>使用已获授权的邮箱，接收一次性登录链接。</p>
+   <form id="login-form"><label for="email">管理员邮箱</label><input id="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" placeholder="you@example.com"><button class="primary" id="send-link" type="submit">发送登录链接</button></form>
+   <p class="fine-print">在收到邮件的同一台设备上打开链接即可登录。此页不开放注册；普通访客无法进入审核区。登录只保存在当前标签页，使用后请退出。</p>
+  </section>
+  <section class="panel denied" id="denied" hidden><h2>这个账号没有管理权限</h2><p>只有站点管理员授权的账号才能查看和审核评价。你可以退出后，改用管理员邮箱登录。</p></section>
+  <div class="account" id="account" hidden><p><span class="online-dot" aria-hidden="true"></span><span id="account-label"></span></p><button class="quiet" id="logout" type="button">退出登录</button></div>
+  <section id="workspace" aria-label="评价审核区" hidden>
+   <div class="toolbar"><div class="filters" aria-label="按审核状态筛选"><button type="button" class="filter" data-status="pending" aria-pressed="true">待审核 <span data-count="pending">0</span></button><button type="button" class="filter" data-status="approved" aria-pressed="false">已通过 <span data-count="approved">0</span></button><button type="button" class="filter" data-status="rejected" aria-pressed="false">已拒绝 <span data-count="rejected">0</span></button><button type="button" class="filter" data-status="all" aria-pressed="false">全部 <span data-count="all">0</span></button></div><div class="list-tools"><label for="game-filter" class="sr-only">筛选游戏</label><select id="game-filter"><option value="">所有游戏</option></select><button class="quiet" type="button" id="refresh">刷新列表</button></div></div>
+   <div class="list-heading"><h2 id="list-title">待审核评价</h2><p id="list-summary"></p></div>
+   <p class="review-tip">请拒绝包含姓名、联系方式或其他个人信息的评价。通过后会公开显示在对应游戏下方。</p>
+   <div id="review-list" class="review-list" aria-busy="false"></div>
+   <div class="empty panel" id="empty" hidden><span aria-hidden="true">✧</span><h3 id="empty-title">还没有待审核的评价</h3><p id="empty-copy">新的游戏评价会先来到这里，等待你审核。</p></div>
+   <nav class="pagination" aria-label="评价列表分页"><button type="button" class="quiet" id="previous" disabled>上一页</button><span id="page-label">第 1 页</span><button type="button" class="quiet" id="next" disabled>下一页</button></nav>
+  </section>
+  <noscript><p class="notice error">评价管理需要开启 JavaScript。</p></noscript>
+ </main>
+ <footer class="wrap footer"><p>每条评价都经过审核，才会与小朋友们见面。</p><a href="./">Kris 的奇妙乐园 ✦</a></footer>
+</body>
+</html>

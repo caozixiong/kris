@@ -1,0 +1,2 @@
+# Preserve the byte-identical, integrity-tested official npm bundle.
+assets/vendor/supabase-2.117.3.js -whitespace
