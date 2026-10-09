@@ -130,7 +130,7 @@
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
 <script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
-<link rel="stylesheet" href="../assets/learning-worlds.css?v=effeea9a9f7c">
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=e44e81050185">
 </head>
 <body class="learning-world memory-world">
     <div class="header">
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  function hideCard(card){card.classList.remove('flipped');card.querySelector('.card-front').setAttribute('aria-hidden','true');card.setAttribute('aria-label',`未翻开的卡片 ${card.dataset.position}`);}
  function update(){ $('score').textContent=currentScore;$('attempts').textContent=currentAttempts;}
  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
- function initializeGame(){version++;timers.forEach(clearTimeout);timers=[];cards=[];flippedCards=[];matchedPairs=0;currentScore=0;currentAttempts=0;lockBoard=false;board.innerHTML='';board.classList.remove('board-locked');$('win-message').style.display='none';$('memory-collection').innerHTML='';$('memory-status').textContent='先翻汉字或图片，再寻找它的朋友。';update();activeData=shuffle(gameData.slice()).slice(0,pairCount);board.style.gridTemplateColumns='repeat(auto-fit, minmax(70px, 1fr))';
+ function initializeGame(){version++;timers.forEach(clearTimeout);timers=[];cards=[];flippedCards=[];matchedPairs=0;currentScore=0;currentAttempts=0;lockBoard=false;board.innerHTML='';board.classList.remove('board-locked');$('win-message').style.display='none';$('memory-collection').innerHTML='';$('memory-status').textContent='先翻汉字或图片，再寻找它的朋友。';update();activeData=shuffle(gameData.slice()).slice(0,pairCount);board.dataset.pairs=String(pairCount);
  const generation=version;shuffle(activeData.flatMap(item=>[{...item,type:'hanzi'},{...item,type:'image'}])).forEach((item,i)=>{const card=document.createElement('button');card.type='button';card.className='card';card.dataset.id=item.id;card.dataset.type=item.type;card.dataset.position=i+1;card.setAttribute('aria-label',`未翻开的卡片 ${i+1}`);
  const front=document.createElement('div');front.className='card-face card-front';front.setAttribute('translate','no');front.setAttribute('lang','zh');front.setAttribute('aria-hidden','true');if(item.type==='hanzi')front.textContent=item.hanzi;else front.innerHTML=`<img src="../assets/learning-pictures/${item.image}.svg" alt="${item.hanzi}" width="160" height="160">`;
  const back=document.createElement('div');back.className='card-face card-back';back.setAttribute('aria-hidden','true');card.appendChild(front);card.appendChild(back);card.addEventListener('click',()=>{if(generation===version)handleCardClick(card,item);});cards.push(card);board.appendChild(card);});refresh();}

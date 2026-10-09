@@ -71,7 +71,9 @@ for(const file of ['games/math_addition_subtraction.html','games/math_visual_gam
  const g=create('games/chinese_game1.html',{seed:36});
  for(const size of [6,12,20]){
   if(size!==6)g.click('#pairs-'+size);
-  const cards=g.all('.card');assert.equal(cards.length,size*2);assert(cards.every(c=>c.tagName==='BUTTON'));
+  const cards=g.all('.card');assert.equal(cards.length,size*2);
+  assert.equal(g.$('#game-board').dataset.pairs,String(size),'Board width follows selected pair count');
+  assert.equal(g.$('#game-board').style.gridTemplateColumns,undefined,'Responsive columns are controlled by CSS, never fixed inline');assert(cards.every(c=>c.tagName==='BUTTON'));
   assert(cards.every(c=>c.querySelector('.card-front').getAttribute('aria-hidden')==='true'));
   const a=cards[0],b=cards.find(c=>c.dataset.id!==a.dataset.id);a.click();b.click();
   const ids=cards.map(c=>c.dataset.id);languages(g,()=>g.all('.card').map(c=>[c.dataset.id,c.className]));
@@ -122,4 +124,12 @@ for(const missingBank of [false,true]){
 }
 const css=fs.readFileSync(path.join(__dirname,'../assets/learning-worlds.css'),'utf8');
 for(const rule of ['min-height:44px','focus-visible','prefers-reduced-motion','max-width:360px','repeat(auto-fit,minmax(70px,1fr))'])assert(css.includes(rule));
+// Absolute faces of native buttons must start at the card origin. Without
+// inset, the native button's static inline position displaces faces half a row.
+assert.match(css,/\.memory-world \.card-face\s*\{[^}]*inset\s*:\s*0\s*;/);
+assert.match(css,/\.memory-world \.game-board\s*\{[^}]*max-width\s*:\s*360px\s*;/);
+for(const [pairs,width] of [[12,520],[20,700]]) {
+  const selector=`.memory-world .game-board[data-pairs="${pairs}"] { max-width:${width}px; }`;
+  assert(css.includes(selector),'Balanced responsive board width for '+pairs+' pairs');
+}
 console.log('PASS learning worlds: all seven campaigns, every mode, local pictures, nonpunitive reminders, manual progress, native controls, stale locks,1000 solvable robots, trilingual state and targeted vocabulary replay. DOM/static checks only.');

@@ -57,8 +57,11 @@
 #picture-reading { font-size:24px; color:#3d6249; min-height:40px; }
 .memory-world { background:#f3ecd8; padding-bottom:30px; justify-content:flex-start; }
 .memory-world .header { margin:12px; width:min(840px,calc(100% - 24px)); }
-.memory-world .game-board { width:min(840px,calc(100% - 24px)); grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:10px; }
+.memory-world .game-board { width:calc(100% - 24px); max-width:360px; grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:10px; }
+.memory-world .game-board[data-pairs="12"] { max-width:520px; }
+.memory-world .game-board[data-pairs="20"] { max-width:700px; }
 .memory-world .card { width:100%; height:auto; aspect-ratio:1; padding:0; margin:0; border:0; background:none; font-family:'KaiTi','楷体',serif; }
+.memory-world .card-face { inset:0; }
 .memory-world .card-back { background:repeating-linear-gradient(45deg,#4c6e68 0 12px,#567972 12px 24px); border:4px solid #e4cb97; }
 .memory-world .card-back::before { content:'✦'; font-size:32px; }
 .memory-world .card-front { border:3px solid #d7bd86; }
