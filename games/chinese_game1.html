@@ -128,12 +128,13 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world memory-world">
     <div class="header">
-        <h1>汉字寻宝翻翻乐</h1>
+        <a class="home-link" href="../index.html">返回首页</a><h1>汉字寻宝翻翻乐</h1><span class="world-icon" aria-hidden="true">🏮</span><p class="world-intro">翻开一张汉字卡，再找它的图画朋友。把找到的汉字收藏进灯笼小巷。</p><div class="world-controls" aria-label="卡片数量"><button id="pairs-6" aria-pressed="true">6 对 · 小巷</button><button id="pairs-12" aria-pressed="false">12 对 · 花园</button><button id="pairs-20" aria-pressed="false">20 对 · 全部汉字</button></div><div id="memory-collection" translate="no" lang="zh"></div><p id="memory-status" role="status" aria-live="polite"></p>
         <p>得分: <span id="score">0</span> | 尝试次数: <span id="attempts">0</span></p>
         <button id="restart-button">重新开始</button>
     </div>
@@ -148,14 +149,10 @@
         <button id="play-again-button">再玩一次</button>
     </div>
 
-    <audio id="flip-sound" src="sounds/flip.mp3" preload="auto"></audio>
-    <audio id="match-sound" src="sounds/match.mp3" preload="auto"></audio>
-    <audio id="no-match-sound" src="sounds/nomatch.mp3" preload="auto"></audio>
-    <audio id="win-sound" src="sounds/win.mp3" preload="auto"></audio>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const gameData = [
+
+document.addEventListener('DOMContentLoaded',()=>{
+ const gameData=[
                 // 确保图片文件名与实际文件名一致，并且在 images/ 目录下
                 // id 用于配对，确保每个汉字-图片组合的id相同
                 { hanzi: "一", image: "one", id: 1 },
@@ -179,199 +176,29 @@
                 { hanzi: "目", image: "eye", id: 19 },
                 { hanzi: "手", image: "hand", id: 20 },
             ];
+ const $=id=>document.getElementById(id),board=$('game-board');
+ let cards=[],flippedCards=[],matchedPairs=0,currentScore=0,currentAttempts=0,lockBoard=false,pairCount=6,version=0,timers=[],activeData=[];
+ function refresh(){window.KrisI18n?.refresh();}
+ function schedule(fn,delay){const generation=version;timers.push(setTimeout(()=>{if(generation===version)fn();},delay));}
+ function hideCard(card){card.classList.remove('flipped');card.querySelector('.card-front').setAttribute('aria-hidden','true');card.setAttribute('aria-label',`未翻开的卡片 ${card.dataset.position}`);}
+ function update(){ $('score').textContent=currentScore;$('attempts').textContent=currentAttempts;}
+ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+ function initializeGame(){version++;timers.forEach(clearTimeout);timers=[];cards=[];flippedCards=[];matchedPairs=0;currentScore=0;currentAttempts=0;lockBoard=false;board.innerHTML='';board.classList.remove('board-locked');$('win-message').style.display='none';$('memory-collection').innerHTML='';$('memory-status').textContent='先翻汉字或图片，再寻找它的朋友。';update();activeData=shuffle(gameData.slice()).slice(0,pairCount);board.style.gridTemplateColumns='repeat(auto-fit, minmax(70px, 1fr))';
+ const generation=version;shuffle(activeData.flatMap(item=>[{...item,type:'hanzi'},{...item,type:'image'}])).forEach((item,i)=>{const card=document.createElement('button');card.type='button';card.className='card';card.dataset.id=item.id;card.dataset.type=item.type;card.dataset.position=i+1;card.setAttribute('aria-label',`未翻开的卡片 ${i+1}`);
+ const front=document.createElement('div');front.className='card-face card-front';front.setAttribute('translate','no');front.setAttribute('lang','zh');front.setAttribute('aria-hidden','true');if(item.type==='hanzi')front.textContent=item.hanzi;else front.innerHTML=`<img src="../assets/learning-pictures/${item.image}.svg" alt="${item.hanzi}" width="160" height="160">`;
+ const back=document.createElement('div');back.className='card-face card-back';back.setAttribute('aria-hidden','true');card.appendChild(front);card.appendChild(back);card.addEventListener('click',()=>{if(generation===version)handleCardClick(card,item);});cards.push(card);board.appendChild(card);});refresh();}
+ function handleCardClick(card,item){if(lockBoard||card.classList.contains('flipped')||card.classList.contains('matched')||!cards.includes(card))return;card.classList.add('flipped');card.querySelector('.card-front').setAttribute('aria-hidden','false');card.setAttribute('aria-label',(item.type==='hanzi'?'汉字卡: ':'图片卡: ')+item.hanzi);flippedCards.push(card);
+ if(flippedCards.length<2){$('memory-status').textContent='再翻一张，找出配对。';refresh();return;}
+ currentAttempts++;lockBoard=true;board.classList.add('board-locked');const [a,b]=flippedCards;
+ if(a.dataset.id===b.dataset.id){a.classList.add('matched');b.classList.add('matched');a.disabled=true;b.disabled=true;matchedPairs++;currentScore+=10;const stamp=document.createElement('span');stamp.textContent=item.hanzi;$('memory-collection').appendChild(stamp);$('memory-status').textContent=`找到 ${matchedPairs} / ${pairCount} 对！`;flippedCards=[];schedule(()=>{lockBoard=false;board.classList.remove('board-locked');},200);
+ if(matchedPairs===pairCount){$('final-attempts').textContent=currentAttempts;$('win-message').style.display='flex';$('play-again-button').focus();}}
+ else{$('memory-status').textContent='记住这两个位置，再试一次。';schedule(()=>{hideCard(a);hideCard(b);flippedCards=[];lockBoard=false;board.classList.remove('board-locked');a.focus();refresh();},1000);}
+ update();refresh();}
+ for(const n of [6,12,20])$('pairs-'+n).addEventListener('click',()=>{if(pairCount===n)return;pairCount=n;for(const size of [6,12,20])$('pairs-'+size).setAttribute('aria-pressed',String(size===n));initializeGame();board.querySelector('button')?.focus();});
+ $('restart-button').addEventListener('click',initializeGame);$('play-again-button').addEventListener('click',()=>{initializeGame();board.querySelector('button')?.focus();});
+ window.addEventListener('pagehide',()=>{version++;timers.forEach(clearTimeout);});window.addEventListener('pageshow',e=>{if(e.persisted)initializeGame();});initializeGame();
+});
 
-            const gameBoard = document.getElementById('game-board');
-            const scoreDisplay = document.getElementById('score');
-            const attemptsDisplay = document.getElementById('attempts');
-            const restartButton = document.getElementById('restart-button');
-            const playAgainButton = document.getElementById('play-again-button');
-            const winMessage = document.getElementById('win-message');
-            const finalAttemptsDisplay = document.getElementById('final-attempts');
-
-            const flipSound = document.getElementById('flip-sound');
-            const matchSound = document.getElementById('match-sound');
-            const noMatchSound = document.getElementById('no-match-sound');
-            const winSound = document.getElementById('win-sound');
-
-            let cards = []; // 存放所有卡片DOM元素
-            let flippedCards = []; // 存放当前翻开的卡片
-            let matchedPairs = 0; // 记录已匹配的对数
-            let currentScore = 0;
-            let currentAttempts = 0;
-            let lockBoard = false; // 防止在检查配对时快速点击
-
-            const IMAGE_PATH = 'images/'; // 图片文件夹路径
-            const IMAGE_EXTENSION = '.svg'; // 或者 .png, .jpg 等，确保与你的图片文件扩展名一致
-
-            function createCardElement(item, type) {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                card.dataset.id = item.id; // 用于配对的唯一标识，来自gameData
-                card.dataset.type = type; // 'hanzi' or 'image'
-
-                const cardFront = document.createElement('div');
-                cardFront.classList.add('card-face', 'card-front');
-                cardFront.setAttribute('translate', 'no');
-
-                if (type === 'hanzi') {
-                    cardFront.textContent = item.hanzi;
-                } else { // type === 'image'
-                    const img = document.createElement('img');
-                    img.src = `${IMAGE_PATH}${item.image}${IMAGE_EXTENSION}`;
-                    img.alt = item.hanzi; // 图片的alt文本设为对应汉字
-                    cardFront.appendChild(img);
-                }
-
-                const cardBack = document.createElement('div');
-                cardBack.classList.add('card-face', 'card-back');
-
-                card.appendChild(cardFront);
-                card.appendChild(cardBack);
-
-                card.addEventListener('click', () => handleCardClick(card));
-                return card;
-            }
-
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            }
-
-            function initializeGame() {
-                gameBoard.innerHTML = ''; // 清空旧卡片
-                cards = [];
-                flippedCards = [];
-                matchedPairs = 0;
-                currentScore = 0;
-                currentAttempts = 0;
-                lockBoard = false;
-                winMessage.style.display = 'none';
-                gameBoard.classList.remove('board-locked');
-
-                updateScoreAndAttempts();
-
-                // 创建卡片对数据 (一个汉字卡，一个图片卡，它们共享相同的id)
-                let gameCardsData = [];
-                gameData.forEach(item => {
-                    // 每个item代表一个汉字-图片对
-                    gameCardsData.push({ ...item, cardType: 'hanzi' }); // 复制item并添加cardType
-                    gameCardsData.push({ ...item, cardType: 'image' });
-                });
-
-                shuffleArray(gameCardsData);
-
-                // 动态调整列数
-                const numTotalCards = gameCardsData.length;
-                let columns = 5; // 默认5列
-                if (numTotalCards === 40) columns = 8; // 20对=40张卡片 (8x5)
-                else if (numTotalCards === 20) columns = 5; // 10对=20张卡片 (5x4)
-                else if (numTotalCards <= 12) columns = 4; // 6对=12张 (4x3)
-                
-                // 计算行数，确保能放下所有卡片
-                let rows = Math.ceil(numTotalCards / columns);
-                gameBoard.style.gridTemplateColumns = `repeat(${columns}, 100px)`;
-                // gameBoard.style.gridTemplateRows = `repeat(${rows}, 100px)`; // 可选，如果高度也想固定
-
-
-                gameCardsData.forEach(itemData => {
-                    // itemData现在包含 id, hanzi, image, cardType
-                    const cardElement = createCardElement(itemData, itemData.cardType);
-                    cards.push(cardElement);
-                    gameBoard.appendChild(cardElement);
-                });
-            }
-
-            function handleCardClick(card) {
-                if (lockBoard || card.classList.contains('flipped') || card.classList.contains('matched')) {
-                    return;
-                }
-
-                try {
-                    flipSound.currentTime = 0;
-                    flipSound.play().catch(e => console.log("Flip sound play error:", e));
-                } catch(e) { console.log("Error playing flip sound:", e); }
-
-
-                card.classList.add('flipped');
-                flippedCards.push(card);
-
-                if (flippedCards.length === 2) {
-                    lockBoard = true;
-                    gameBoard.classList.add('board-locked');
-                    currentAttempts++;
-                    updateScoreAndAttempts();
-                    checkForMatch();
-                }
-            }
-
-            function checkForMatch() {
-                const [card1, card2] = flippedCards;
-                // 它们有相同的 dataset.id 且一个是汉字一个是图片，则匹配
-                // (此版简化为只要id相同即可，因为我们确保id相同的卡片是一个汉字一个图片)
-                const isMatch = card1.dataset.id === card2.dataset.id;
-
-                if (isMatch) {
-                    try{
-                        matchSound.currentTime = 0;
-                        matchSound.play().catch(e => console.log("Match sound play error:", e));
-                    } catch(e) { console.log("Error playing match sound:", e); }
-
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
-                    matchedPairs++;
-                    currentScore += 10;
-                    flippedCards = [];
-                    unlockBoardAfterDelay(); // 稍微延迟解锁，避免问题
-                    if (matchedPairs === gameData.length) { // gameData.length 是指汉字-图片对的数量
-                        gameOver();
-                    }
-                } else {
-                    try {
-                        noMatchSound.currentTime = 0;
-                        noMatchSound.play().catch(e => console.log("No-match sound play error:", e));
-                    } catch(e) { console.log("Error playing no-match sound:", e); }
-                    
-                    setTimeout(() => {
-                        card1.classList.remove('flipped');
-                        card2.classList.remove('flipped');
-                        flippedCards = [];
-                        unlockBoardAfterDelay();
-                    }, 1000);
-                }
-                updateScoreAndAttempts();
-            }
-            
-            function unlockBoardAfterDelay() {
-                // 这个函数确保在CSS过渡和可能的音频播放后解锁板子
-                setTimeout(() => {
-                    lockBoard = false;
-                    gameBoard.classList.remove('board-locked');
-                }, 200); // 200ms是一个经验值，可以根据需要调整
-            }
-
-
-            function updateScoreAndAttempts() {
-                scoreDisplay.textContent = currentScore;
-                attemptsDisplay.textContent = currentAttempts;
-            }
-
-            function gameOver() {
-                try {
-                    winSound.play().catch(e => console.log("Win sound play error:", e));
-                } catch(e) { console.log("Error playing win sound:", e); }
-
-                finalAttemptsDisplay.textContent = currentAttempts;
-                winMessage.style.display = 'flex';
-            }
-
-            restartButton.addEventListener('click', initializeGame);
-            playAgainButton.addEventListener('click', initializeGame);
-
-            // 初始加载游戏
-            initializeGame();
-        });
-    </script>
+</script>
 <kris-reviews data-game="chinese_game1"></kris-reviews></body>
 </html>

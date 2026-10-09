@@ -128,13 +128,15 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-legacy-math.js?v=f9bb052879ce"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/legacy-math-arcade.css?v=38993439bddf">
+<script src="../assets/legacy-math-arcade.js?v=af821b38f925"></script>
 </head>
 <body>
     <div class="container">
         <h1>小朋友算术游戏</h1>
-        
+
         <div class="settings">
             <div class="operation-toggle">
                 <label><input type="checkbox" id="addition" checked> 加法</label>
@@ -142,7 +144,7 @@
                 <label><input type="checkbox" id="multiplication" checked> 乘法</label>
             </div>
         </div>
-        
+
         <div class="game-area">
             <div class="problem" id="problem">6 + 3 = ?</div>
             <div class="options" id="options">
@@ -150,17 +152,17 @@
             </div>
             <div class="message" id="message"></div>
         </div>
-        
+
         <div class="score">得分: <span id="score">0</span></div>
         <div class="stars" id="stars"></div>
-        
+
         <div class="controls">
             <button class="btn" id="next-btn">下一题</button>
         </div>
     </div>
-    
+
     <div class="celebration" id="celebration"></div>
-    
+
     <script>
         // 游戏状态
         const gameState = {
@@ -169,7 +171,7 @@
             currentAnswer: null,
             operations: ['addition', 'subtraction', 'multiplication']
         };
-        
+
         // 获取DOM元素
         const problemElement = document.getElementById('problem');
         const optionsElement = document.getElementById('options');
@@ -178,52 +180,55 @@
         const starsElement = document.getElementById('stars');
         const nextButton = document.getElementById('next-btn');
         const celebrationElement = document.getElementById('celebration');
-        
+
         // 操作选项
         const additionCheckbox = document.getElementById('addition');
         const subtractionCheckbox = document.getElementById('subtraction');
         const multiplicationCheckbox = document.getElementById('multiplication');
-        
+
+        const arcade = KrisMathArcade.make({host:document.querySelector('.container'),kind:'arithmetic',read:()=>({...gameState.currentProblem,kind:'arithmetic',answer:gameState.currentAnswer})});
         // 初始化游戏
         function initGame() {
             gameState.score = 0;
             scoreElement.textContent = '0';
             starsElement.textContent = '';
             updateProblem();
-            
+
             // 添加事件监听器
             nextButton.addEventListener('click', updateProblem);
             additionCheckbox.addEventListener('change', checkOperations);
             subtractionCheckbox.addEventListener('change', checkOperations);
             multiplicationCheckbox.addEventListener('change', checkOperations);
         }
-        
+
         // 检查选择的运算种类
         function checkOperations() {
             gameState.operations = [];
             if (additionCheckbox.checked) gameState.operations.push('addition');
             if (subtractionCheckbox.checked) gameState.operations.push('subtraction');
             if (multiplicationCheckbox.checked) gameState.operations.push('multiplication');
-            
+
             // 确保至少选择一种运算
             if (gameState.operations.length === 0) {
                 additionCheckbox.checked = true;
                 gameState.operations.push('addition');
             }
-            
+
             updateProblem();
         }
-        
+
         // 生成新题目
         function updateProblem() {
+            arcade.cancel();
+            gameState.answered = false;
             messageElement.textContent = '';
             messageElement.className = 'message';
-            
+
             // 随机选择运算类型
             const operationType = gameState.operations[Math.floor(Math.random() * gameState.operations.length)];
-            
+
             let num1, num2, answer, operator;
-            
+
             switch (operationType) {
                 case 'addition':
                     num1 = Math.floor(Math.random() * 10);
@@ -245,52 +250,57 @@
                     operator = '×';
                     break;
             }
-            
+
             // 更新题目显示
             problemElement.textContent = `${num1} ${operator} ${num2} = ?`;
-            
+
             // 保存当前答案
             gameState.currentAnswer = answer;
-            
+            gameState.currentProblem = {a:num1,b:num2,op:operator};
+
             // 生成选项
             generateOptions(answer);
+            arcade.begin();
         }
-        
+
         // 生成答案选项
         function generateOptions(correctAnswer) {
             // 清空选项
             optionsElement.innerHTML = '';
-            
+
             // 创建一个包含正确答案的数组
             const options = [correctAnswer];
-            
+
             // 添加3个不同的错误选项
             while (options.length < 4) {
                 // 在正确答案附近生成一个随机数(-3到+3范围内)
                 let offset = Math.floor(Math.random() * 7) - 3;
                 let wrongAnswer = correctAnswer + offset;
-                
+
                 // 确保错误答案是非负的且不重复
                 if (wrongAnswer >= 0 && !options.includes(wrongAnswer) && wrongAnswer !== correctAnswer) {
                     options.push(wrongAnswer);
                 }
             }
-            
+
             // 打乱选项顺序
             shuffleArray(options);
-            
+
             // 创建选项按钮
             options.forEach(option => {
                 const button = document.createElement('button');
                 button.className = 'option';
                 button.textContent = option;
-                button.addEventListener('click', () => checkAnswer(option));
+                button.addEventListener('click', () => { if (optionsElement.contains(button)) checkAnswer(option); });
                 optionsElement.appendChild(button);
             });
         }
-        
+
         // 检查答案
         function checkAnswer(selectedAnswer) {
+            if (gameState.answered) return;
+            gameState.answered = true;
+            arcade.answer(selectedAnswer === gameState.currentAnswer);
             if (selectedAnswer === gameState.currentAnswer) {
                 // 答对了
                 messageElement.textContent = '答对了！';
@@ -304,7 +314,7 @@
                 messageElement.textContent = '答错了，再试一次！';
                 messageElement.className = 'message wrong';
             }
-            
+
             // 禁用所有选项按钮
             const optionButtons = document.querySelectorAll('.option');
             optionButtons.forEach(button => {
@@ -315,38 +325,39 @@
                     button.style.backgroundColor = '#fa5252'; // 错误选择标红
                 }
             });
-            
+
             // 延迟后进入下一题
             if (selectedAnswer === gameState.currentAnswer) {
-                setTimeout(updateProblem, 1500);
+                arcade.later(updateProblem, 1500);
             }
         }
-        
+
         // 更新星星显示
         function updateStars() {
             starsElement.textContent = '★'.repeat(Math.min(5, Math.floor(gameState.score / 5)));
         }
-        
+
         // 庆祝动画
         function celebrate() {
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
             celebrationElement.style.display = 'block';
             celebrationElement.innerHTML = '';
-            
+
             // 创建30个彩色碎片
             for (let i = 0; i < 30; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
-                
+
                 // 随机位置
                 confetti.style.left = Math.random() * 100 + '%';
                 confetti.style.top = '-10px';
-                
+
                 // 随机颜色
                 const colors = ['#ff6b6b', '#5c7cfa', '#40c057', '#fcc419', '#7950f2'];
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
+
                 celebrationElement.appendChild(confetti);
-                
+
                 // 动画
                 const animation = confetti.animate([
                     { top: '-10px', transform: 'rotate(0deg)' },
@@ -355,7 +366,7 @@
                     duration: 1000 + Math.random() * 1000,
                     easing: 'cubic-bezier(.37,0,.63,1)'
                 });
-                
+
                 animation.onfinish = () => {
                     confetti.remove();
                     // 当所有碎片都消失时，隐藏庆祝元素
@@ -365,7 +376,7 @@
                 };
             }
         }
-        
+
         // 打乱数组顺序 (Fisher-Yates洗牌算法)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -374,7 +385,7 @@
             }
             return array;
         }
-        
+
         // 启动游戏
         window.addEventListener('DOMContentLoaded', initGame);
     </script>

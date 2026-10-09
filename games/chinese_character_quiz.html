@@ -97,131 +97,48 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world picture-world">
     <div id="game-container">
-        <h1>看图识字</h1>
+        <a class="home-link" href="../index.html">返回首页</a><h1>看图识字</h1><span class="world-icon" aria-hidden="true">🎨</span><p class="world-intro">走进图画小镇，找到图片对应的汉字。每答一题，收藏一张词语卡！</p><div id="picture-trail" class="journey-trail" aria-label="旅程进度"></div>
         <div id="image-container">
             <!-- Placeholder for image -->
         </div>
         <div id="options-container">
             <!-- Placeholder for options -->
         </div>
-        <div id="feedback-message">
+        <div id="picture-reading" translate="no" lang="zh"></div><button class="world-action" id="picture-next" hidden>下一题</button><div id="feedback-message" role="status" aria-live="polite">
             <!-- Placeholder for feedback -->
         </div>
         <div id="score-display">得分: 0</div>
     </div>
 
     <script>
-        // Game Data (Placeholder)
-        const questions = [
-            {
-                image: "../pictures/placeholder_apple.png",
-                options: ["苹果", "香蕉", "橙子", "西瓜"],
-                correctAnswer: "苹果"
-            },
-            {
-                image: "../pictures/placeholder_car.png",
-                options: ["火车", "飞机", "汽车", "月亮"],
-                correctAnswer: "汽车"
-            },
-            {
-                image: "../pictures/placeholder_banana.png", // Assuming a placeholder for banana
-                options: ["香蕉", "草莓", "桃子", "葡萄"],
-                correctAnswer: "香蕉"
-            }
-        ];
 
-        // DOM Element References
-        const imageContainer = document.getElementById('image-container');
-        const optionsContainer = document.getElementById('options-container');
-        const feedbackMessage = document.getElementById('feedback-message');
-        const scoreDisplay = document.getElementById('score-display');
+const questions=[
+ {image:'../assets/learning-pictures/apple.svg',options:['苹果','香蕉','橙子','西瓜'],correctAnswer:'苹果',reading:'píng guǒ'},
+ {image:'../assets/learning-pictures/car.svg',options:['火车','飞机','汽车','月亮'],correctAnswer:'汽车',reading:'qì chē'},
+ {image:'../assets/learning-pictures/banana.svg',options:['香蕉','草莓','桃子','葡萄'],correctAnswer:'香蕉',reading:'xiāng jiāo'},
+ {image:'../assets/learning-pictures/moon.svg',options:['月亮','太阳','星星','白云'],correctAnswer:'月亮',reading:'yuè liang'},
+ {image:'../assets/learning-pictures/fish.svg',options:['小鱼','小鸟','小猫','小狗'],correctAnswer:'小鱼',reading:'xiǎo yú'},
+ {image:'../assets/learning-pictures/tree.svg',options:['大树','小草','花朵','石头'],correctAnswer:'大树',reading:'dà shù'}
+];
+const imageContainer=document.getElementById('image-container'),optionsContainer=document.getElementById('options-container'),feedbackMessage=document.getElementById('feedback-message'),scoreDisplay=document.getElementById('score-display'),pictureNext=document.getElementById('picture-next');
+let currentQuestionIndex=0,score=0,pictureAnswered=false,pictureVersion=0;
+function createOptionButton(character){const b=document.createElement('button');b.type='button';b.textContent=character;b.setAttribute('translate','no');b.setAttribute('lang','zh');b.className='option-button';const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion)selectAnswer(character);});return b;}
+function loadQuestion(){pictureVersion++;pictureAnswered=false;optionsContainer.innerHTML='';feedbackMessage.textContent='';feedbackMessage.className='';pictureNext.hidden=true;document.getElementById('picture-reading').textContent='';
+ document.getElementById('picture-trail').innerHTML=questions.map((q,i)=>`<span class="journey-stop ${i<currentQuestionIndex?'earned':i===currentQuestionIndex?'current':''}">${i<currentQuestionIndex?'★':i+1}</span>`).join('');
+ if(currentQuestionIndex>=questions.length){imageContainer.innerHTML='<span class="world-icon" aria-hidden="true">🏘️</span>';feedbackMessage.textContent=`游戏结束! 你的总分是: ${score} / ${questions.length}`;feedbackMessage.className='correct';const b=document.createElement('button');b.type='button';b.className='option-button';b.textContent='再玩一次';const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion)initGame();});optionsContainer.appendChild(b);b.focus();return;}
+ const q=questions[currentQuestionIndex];imageContainer.innerHTML=`<img src="${q.image}" alt="题目图片" width="200" height="200">`;
+ const choices=q.options.slice();for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}choices.forEach(c=>optionsContainer.appendChild(createOptionButton(c)));
+}
+function selectAnswer(character){if(pictureAnswered||currentQuestionIndex>=questions.length)return;const q=questions[currentQuestionIndex];if(!q.options.includes(character))return;pictureAnswered=true;const correct=character===q.correctAnswer;if(correct)score++;feedbackMessage.textContent=correct?'太棒了!':`错误! 正确的是: ${q.correctAnswer}`;feedbackMessage.className=correct?'correct':'wrong';scoreDisplay.textContent=`得分: ${score}`;document.getElementById('picture-reading').textContent=q.correctAnswer+' · '+q.reading;optionsContainer.querySelectorAll('button').forEach(b=>{b.disabled=true;b.classList.toggle('chosen-correct',b.textContent===q.correctAnswer);});pictureNext.hidden=false;pictureNext.focus();}
+function initGame(){currentQuestionIndex=0;score=0;scoreDisplay.textContent='得分: 0';loadQuestion();}
+pictureNext.addEventListener('click',()=>{if(!pictureAnswered)return;currentQuestionIndex++;loadQuestion();optionsContainer.querySelector('button')?.focus();});window.addEventListener('DOMContentLoaded',initGame);
 
-        // Game State Variables
-        let currentQuestionIndex = 0;
-        let score = 0;
-
-        // Function to create an option button
-        function createOptionButton(character) {
-            const button = document.createElement('button');
-            button.textContent = character;
-            button.setAttribute('translate', 'no');
-            button.classList.add('option-button');
-            button.addEventListener('click', () => selectAnswer(character));
-            return button;
-        }
-
-        // Function to load a question
-        function loadQuestion() {
-            // Clear previous options and feedback
-            optionsContainer.innerHTML = '';
-            feedbackMessage.textContent = '';
-            feedbackMessage.className = ''; // Clear existing classes
-
-            if (currentQuestionIndex >= questions.length) {
-                // Game Over
-                imageContainer.innerHTML = ''; // Clear image
-                feedbackMessage.textContent = `游戏结束! 你的总分是: ${score} / ${questions.length}`;
-                feedbackMessage.classList.add('correct'); // Use 'correct' style for final score
-                optionsContainer.innerHTML = '<button class="option-button" onclick="initGame()">再玩一次</button>'; // Play Again button
-                return;
-            }
-
-            const currentQuestion = questions[currentQuestionIndex];
-
-            // Display image
-            imageContainer.innerHTML = `<img src="${currentQuestion.image}" alt="题目图片" style="max-width: 100%; max-height: 100%;">`;
-
-            // Create and display option buttons
-            currentQuestion.options.forEach(option => {
-                const button = createOptionButton(option);
-                optionsContainer.appendChild(button);
-            });
-        }
-
-        // Function to handle answer selection
-        function selectAnswer(selectedCharacter) {
-            const currentQuestion = questions[currentQuestionIndex];
-            const buttons = optionsContainer.querySelectorAll('.option-button');
-            buttons.forEach(button => button.disabled = true); // Disable buttons after an answer
-
-            if (selectedCharacter === currentQuestion.correctAnswer) {
-                score++;
-                feedbackMessage.textContent = "太棒了!";
-                feedbackMessage.className = 'correct';
-            } else {
-                feedbackMessage.textContent = `错误! 正确的是: ${currentQuestion.correctAnswer}`;
-                feedbackMessage.className = 'wrong';
-            }
-
-            // Update score display
-            scoreDisplay.textContent = `得分: ${score}`;
-
-            // Move to next question or end game
-            currentQuestionIndex++;
-
-            setTimeout(() => {
-                buttons.forEach(button => button.disabled = false); // Re-enable buttons
-                loadQuestion();
-            }, 1500); // Delay before loading next question
-        }
-
-        // Function to initialize/reset the game
-        function initGame() {
-            currentQuestionIndex = 0;
-            score = 0;
-            scoreDisplay.textContent = `得分: ${score}`;
-            feedbackMessage.textContent = '';
-            feedbackMessage.className = '';
-            loadQuestion();
-        }
-
-        // Initial Game Load
-        window.addEventListener('DOMContentLoaded', initGame);
-    </script>
+</script>
 <kris-reviews data-game="chinese_character_quiz"></kris-reviews></body>
 </html>

@@ -106,15 +106,16 @@
 <link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
 <script src="assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
 <script src="assets/word-bank.js?v=60d2790aa3d4"></script>
+<link rel="stylesheet" href="assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world word-world">
 
 <main class="container">
   <a class="home-link" href="index.html">返回首页</a>
-  <h1>词汇测验</h1>
+  <h1>词汇测验</h1><span class="world-icon" aria-hidden="true">🧳</span><p class="world-intro">带着词语护照去旅行！每五个词到达一站，最后可以重练需要帮助的词。</p><div id="word-passport" class="journey-trail" aria-label="词语护照"></div><p id="passport-note"></p>
   <div class="quiz-modes" role="group" aria-label="练习模式">
     <button type="button" id="mode-translation" aria-pressed="true" onclick="setQuizMode('translation')">英译法 · 共享词库</button>
     <button type="button" id="mode-definition" aria-pressed="false" onclick="setQuizMode('definition')">原版英语释义 · 15 词</button>
@@ -127,7 +128,7 @@
   </div>
   <div id="word" tabindex="-1"></div>
   <div class="options" id="options" role="group" aria-label="答案选项" aria-describedby="word"></div>
-  <div class="action-buttons">
+  <button class="world-action" id="review-words" hidden onclick="reviewMissedWords()">重练这些词</button><div class="action-buttons">
     <button type="button" id="check-answer" onclick="checkAnswer()">检查答案</button>
     <button type="button" id="next-word" onclick="nextWord()">下一个单词</button>
   </div>
@@ -165,6 +166,19 @@
   let answerChecked = false;
   let correctCount = 0;
   let questionVersion = 0;
+  let wordOutcomes = [], missedWords = [];
+  function updatePassport() {
+    document.getElementById('word-passport').innerHTML = roundWords.map((entry,i) => `<span class="journey-stop ${wordOutcomes[i] === true ? 'earned' : ''} ${i === currentWordIndex && !quizFinished ? 'current' : ''}">${wordOutcomes[i] === true ? '★' : i + 1}</span>`).join('');
+    document.getElementById('passport-note').textContent = `旅行站点 ${Math.min(Math.floor(currentWordIndex / 5) + 1, Math.ceil(roundWords.length / 5))} / ${Math.ceil(roundWords.length / 5)}`;
+    document.getElementById('review-words').hidden = !quizFinished || missedWords.length === 0;
+  }
+  function reviewMissedWords() {
+    if (!quizFinished || !missedWords.length) return;
+    roundWords = missedWords.slice(); missedWords = []; wordOutcomes = [];
+    currentWordIndex = 0; correctCount = 0; quizFinished = false;
+    document.getElementById('quiz-description').textContent = `再练 ${roundWords.length} 个词，把它们记得更牢！`;
+    displayWord(true);
+  }
 
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -204,6 +218,7 @@
   }
 
   function refreshQuizText() {
+    updatePassport();
     window.KrisI18n?.refresh();
   }
 
@@ -217,6 +232,7 @@
   function startQuiz(focusQuestion = false) {
     roundWords = quizMode === 'translation' ? window.KrisWordBank.sample(Math.min(15, sharedWords.length)) : vocabulary.slice();
     currentWordIndex = 0;
+    wordOutcomes = []; missedWords = [];
     correctCount = 0;
     quizFinished = false;
     document.getElementById('mode-translation').setAttribute('aria-pressed', String(quizMode === 'translation'));
@@ -328,7 +344,8 @@
       messageElement.textContent = `不正确。正确答案是：“${correctAnswer}”`;
       messageElement.className = 'incorrect';
     }
-    document.querySelectorAll('#options button').forEach(button => { button.disabled = true; });
+    wordOutcomes[currentWordIndex] = userAnswer === correctAnswer;
+    document.querySelectorAll('#options button').forEach(button => { button.disabled = true; button.classList.toggle('revealed-correct',button.dataset.answer === correctAnswer); });
     document.getElementById('check-answer').disabled = true;
     document.getElementById('quiz-score').textContent = `答对: ${correctCount} / ${roundWords.length}`;
     refreshQuizText();
@@ -340,6 +357,7 @@
       startQuiz(true);
       return;
     }
+    if (wordOutcomes[currentWordIndex] !== true) missedWords.push(roundWords[currentWordIndex]);
     currentWordIndex++;
     displayWord(true);
   }

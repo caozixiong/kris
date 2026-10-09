@@ -100,3 +100,20 @@ The homepage lists all 23 actual game pages in both the embedded and fetched cat
 `test_word_flow.cjs` uses a deterministic clock with the real production handlers: mismatched memory cards stay face-up through 999 ms, turn back at 1,000 ms, and do not change again afterward. It verifies blocked third/repeated clicks, preserved matches and scores, unchanged deadlines on language switches, timer cancellation on restart/theme/size/page exit, stale callbacks and detached clicks, back/forward-cache return, and focus preservation. Bridge/sentence mismatches and hints still use their original manual Continue action.
 
 These automated tests model the DOM and statically inspect responsive CSS. They do not establish mobile-device rendering or screen-reader timing. No backend, authentication, permissions or review data is modified by these changes.
+
+## All-game experience refresh
+
+After refreshing cache keys with `python tools/update_asset_hashes.py`, run the existing suites above plus:
+
+```sh
+node tests/test_all_games_experience.cjs
+node tests/test_quest_experience.cjs
+node tests/test_legacy_math_arcade.cjs
+node tests/test_learning_worlds.cjs
+```
+
+The independent all-game harness boots all 23 actual wrappers and inspects every mode of the three-, four-, and ten-game math collections. New regression cases cover impossible shape pools using an independent subset-sum oracle over 1,000 rounds, malformed number input, repeated answer/Next clicks, stale callbacks after navigation, native answer controls, and language-state preservation. `docs/game-experience-review.md` contains the page-by-page before/after audit.
+
+Mechanic-specific checks cover route-node rewinding, English sentence runes and relics, correct French quantity phrases and removable baskets, all 12 unique circuit observations, match-built word scenes and score-neutral pair review, all 400 addition ten-frame pairs and all 100 multiplication transpositions, garden marking, real 0–20 object groups, calm/optional-reminder rounds, all 24 original local illustrations, six Chinese picture prompts, 6/12/20-pair Chinese memory, shape undo, and vocabulary mistake-only retry. Bilingual-memory mismatch remains exactly 1,000 ms, with timer cancellation and hidden-word accessibility checks.
+
+These suites execute production scripts in the dependency-free DOM model. They do not launch a browser or establish device rendering, native touch/keyboard behavior, screen-reader announcements or actual speech output. Optional Playwright/device and local PostgreSQL suites remain separate checks. The experience update does not change review/backend/authentication files.

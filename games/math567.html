@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>First Grade Math Adventures V2</title>
     <style>
         /* Global Styles - keeping most from previous, with potential minor tweaks */
@@ -52,7 +52,7 @@
         #score-area span { background-color: rgba(255,255,255,0.85); padding: 8px 12px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         .game-host-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        
+
         /* --- Styles for Game 2 (Shapes Math 1 - Original) --- */
         /* These styles are largely unchanged from your previous working version */
         .game23-more-challenging-btn { margin-bottom: 10px; padding: 10px 15px; font-size: 16px; background-color: #ffc107; color: black; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.2s; }
@@ -81,7 +81,7 @@
         @keyframes emoji-pop { 0% {transform: scale(0.5); opacity:0;} 70% {transform: scale(1.1); opacity:1;} 100% {transform: scale(1); opacity:1;} }
 
         /* --- Styles for Game 5 (Potion - Missing Addend) --- */
-        #game5-host .game-container { background: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(to bottom, #6a11cb, #2575fc); padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; max-width: 480px; width: 95%; text-align: center;}
+        #game5-host .game-container { background: radial-gradient(circle at 18% 22%,#ffffff75 0 2px,transparent 3px), radial-gradient(circle at 80% 65%,#ffffff50 0 2px,transparent 3px), linear-gradient(to bottom, #6a11cb, #2575fc); padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; max-width: 480px; width: 95%; text-align: center;}
         #game5-host .problem-area { font-size: 2.2em; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; }
         #game5-host .ingredient, #game5-host .missing-ingredient, #game5-host .potion-total { background-color: rgba(255,255,255,0.2); padding: 10px 15px; border-radius: 10px; margin: 5px; display: inline-block; min-width: 40px; }
         #game5-host .missing-ingredient { background-color: rgba(255,255,0,0.3); border: 2px dashed yellow; } /* Highlight missing */
@@ -92,7 +92,7 @@
         #game5-host .potion-option:hover { transform: scale(1.05); background-color: #f50057; }
 
         /* --- Styles for Game 6 (Alien Rescue - Jumps) --- */
-        #game6-host .game-container { background: url('https://www.transparenttextures.com/patterns/starring.png'), #0c0e30; /* Darker space */ padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: #e0e0e0; max-width: 520px; width: 95%; text-align: center; }
+        #game6-host .game-container { background: radial-gradient(circle at 15% 25%,#c3d0ff 0 2px,transparent 3px), radial-gradient(circle at 82% 12%,#ffe7a3 0 2px,transparent 3px), radial-gradient(circle at 62% 82%,#c3d0ff 0 1px,transparent 2px), #0c0e30; /* Darker space */ padding: 20px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: #e0e0e0; max-width: 520px; width: 95%; text-align: center; }
         #game6-host .mission-info { font-size: 1.3em; margin-bottom: 15px; background-color: rgba(255,255,255,0.1); padding:10px; border-radius: 8px;}
         #game6-host .alien-status { display: flex; justify-content: space-around; align-items: center; margin-bottom: 15px; }
         #game6-host .alien-icon { font-size: 3.5em; animation: float 3s infinite ease-in-out; }
@@ -124,7 +124,7 @@
         #game-over-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-size: 2em; text-align: center; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0s 0.5s; }
         #game-over-overlay.show { opacity: 1; visibility: visible; transition: opacity 0.5s ease; }
         #game-over-overlay button { font-size: 0.8em; padding: 10px 20px; margin-top: 20px; background-color: #ffc107; color: black; border: none; border-radius: 8px; cursor: pointer; }
-        
+
         /* Media Queries (Adjust if needed for new layouts) */
         @media (max-width: 500px) {
             body { padding: 10px; }
@@ -158,8 +158,10 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-legacy-math.js?v=f9bb052879ce"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/legacy-math-arcade.css?v=38993439bddf">
+<script src="../assets/legacy-math-arcade.js?v=af821b38f925"></script>
 </head>
 <body>
 
@@ -248,7 +250,7 @@
                 <div class="game-result-text" id="game6-result-text"></div>
             </div>
         </div>
-        
+
         <!-- Game 7 Host (Fruit Stand - Money Decisions) -->
         <div id="game7-host" class="game-host-container" style="display: none;">
             <div class="game-container">
@@ -341,13 +343,13 @@
                 if (activeGame.init) activeGame.init();
             }
         }
-        
+
         function showGameResult(gameElements, isSuccess, customText = null) { // Allow custom text for more complex feedback
             gamePausedForFeedback = true;
             gameElements.resultDiv.classList.remove('show'); // Ensure it's hidden
              // Add a slight delay for the removal to process if it was already showing, then add 'show'
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => { // Nested to ensure proper sequencing
+            activeGame.later(() => {
+                activeGame.later(() => { // Nested to ensure proper sequencing
                     if (isSuccess) {
                         const goodEmojis = ['😄🌸', '🎉✨', '👍💖', '🌟😊', '🥳🎈'];
                         gameElements.resultEmoji.textContent = goodEmojis[getRandomInt(0, goodEmojis.length-1)];
@@ -372,7 +374,7 @@
             config: { shapeTypes: ['🍎', '⭐', '🌈', '🎈', '🚀', '🌻', '🎁', '🍦', '🦄', '🍕'], maxShapes: 5, INITIAL_TIMER_DURATION: 10, MIN_TIMER_DURATION: 2, },
             state: { currentShape1: '', currentShape2: '', count1: 0, count2: 0, sumCount: 0, selectedNumbers: [null, null, null], timerInterval: null, timeLeft: 0, centisecondsLeft: 0, currentTimerDuration: 0 },
             elements: {},
-            init: function() { 
+            init: function() {
                 this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION;
                 this.elements.shapeGroup1 = this.hostElement.querySelector('#game2-shape-group-1');
                 this.elements.shapeGroup2 = this.hostElement.querySelector('#game2-shape-group-2');
@@ -387,19 +389,20 @@
                 this.elements.timerDisplay = this.hostElement.querySelector('#game2-timer');
                 this.elements.moreChallengingBtn = this.hostElement.querySelector('#game2-more-challenging-btn');
                 this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging); // Remove old if any
-                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
+                this.elements.moreChallengingBtn.onclick = this.handleMoreChallenging.bind(this);
                 this.startGameCycle();
             },
-            handleMoreChallenging: function() { if (isGameOver()) return; if (this.state.currentTimerDuration > this.config.MIN_TIMER_DURATION) { this.state.currentTimerDuration--; } else { this.elements.moreChallengingBtn.textContent = `Min Time (${this.config.MIN_TIMER_DURATION}s)!`; setTimeout(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000); } this.cleanupTimer(); this.startGameCycle(); },
+            handleMoreChallenging: function() { if (isGameOver()) return; if (this.state.currentTimerDuration > this.config.MIN_TIMER_DURATION) { this.state.currentTimerDuration--; } else { this.elements.moreChallengingBtn.textContent = `Min Time (${this.config.MIN_TIMER_DURATION}s)!`; this.later(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000); } this.cleanupTimer(); this.startGameCycle(); },
             startGameCycle: function() { if (isGameOver()) return; gamePausedForFeedback = false; this.state.selectedNumbers = [null, null, null]; this.clearShapesAndOptions(); const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length); let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); while (shapeIndex2 === shapeIndex1) { shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length); } this.state.currentShape1 = this.config.shapeTypes[shapeIndex1]; this.state.currentShape2 = this.config.shapeTypes[shapeIndex2]; this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1; this.state.sumCount = this.state.count1 + this.state.count2; this.displayShapes(this.elements.shapeGroup1, this.state.currentShape1, this.state.count1); this.displayShapes(this.elements.shapeGroup2, this.state.currentShape2, this.state.count2); this.elements.icon1.textContent = this.state.currentShape1; this.elements.icon2.textContent = this.state.currentShape2; this.generateNumberOptions(this.elements.options1, this.state.count1, 0); this.generateNumberOptions(this.elements.options2, this.state.count2, 1); this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2); this.startTimer(); },
             displayShapes: function(container, shapeType, count) { container.innerHTML = ''; for (let i = 0; i < count; i++) { const shapeElem = document.createElement('div'); shapeElem.className = 'game23-shape'; shapeElem.textContent = shapeType; container.appendChild(shapeElem); } },
             clearShapesAndOptions: function() { this.elements.shapeGroup1.innerHTML = ''; this.elements.shapeGroup2.innerHTML = ''; this.elements.options1.innerHTML = ''; this.elements.options2.innerHTML = ''; this.elements.optionsSum.innerHTML = ''; },
-            generateNumberOptions: function(container, correctNumber, rowIndex) { container.innerHTML = ''; const numbers = [correctNumber]; const maxPossibleOption = this.config.maxShapes * 2; while (numbers.length < 3) { let randomNum = Math.floor(Math.random() * Math.min(10, maxPossibleOption)) + 1; if (Math.random() > 0.5) { randomNum = Math.floor(Math.random() * maxPossibleOption) + 1; } if (!numbers.includes(randomNum) && randomNum > 0) { numbers.push(randomNum); } } shuffleArray(numbers); numbers.forEach(num => { const optionElem = document.createElement('div'); optionElem.className = 'game23-number-option'; optionElem.textContent = num; optionElem.addEventListener('click', () => { if (gamePausedForFeedback || isGameOver()) return; this.selectNumber(optionElem, num, rowIndex, container); }); container.appendChild(optionElem); }); },
+            generateNumberOptions: function(container, correctNumber, rowIndex) { container.innerHTML = ''; const numbers = [correctNumber]; const maxPossibleOption = this.config.maxShapes * 2; while (numbers.length < 3) { let randomNum = Math.floor(Math.random() * Math.min(10, maxPossibleOption)) + 1; if (Math.random() > 0.5) { randomNum = Math.floor(Math.random() * maxPossibleOption) + 1; } if (!numbers.includes(randomNum) && randomNum > 0) { numbers.push(randomNum); } } shuffleArray(numbers); numbers.forEach(num => { const optionElem = document.createElement('button');
+                optionElem.type = 'button'; optionElem.className = 'game23-number-option'; optionElem.textContent = num; optionElem.addEventListener('click', () => { if (!document.documentElement.contains(optionElem)) return; if (gamePausedForFeedback || isGameOver()) return; this.selectNumber(optionElem, num, rowIndex, container); }); container.appendChild(optionElem); }); },
             selectNumber: function(element, number, rowIndex, container) { const siblings = container.getElementsByClassName('game23-number-option'); for (let i = 0; i < siblings.length; i++) { siblings[i].classList.remove('selected', 'wrong'); } element.classList.add('selected'); this.state.selectedNumbers[rowIndex] = number; if (this.state.selectedNumbers.every(num => num !== null)) { this.checkAnswer(); } },
-            checkAnswer: function() { if (gamePausedForFeedback || isGameOver()) return; this.cleanupTimer(); gamePausedForFeedback = true; const isFirstCorrect = this.state.selectedNumbers[0] === this.state.count1; const isSecondCorrect = this.state.selectedNumbers[1] === this.state.count2; const isSumCorrect = this.state.selectedNumbers[2] === this.state.sumCount; const allCorrect = isFirstCorrect && isSecondCorrect && isSumCorrect; const canContinue = recordAttempt(allCorrect); if (allCorrect) { showGameResult(this.elements, true); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 1500); } else { showGameResult(this.elements, false); if (!isFirstCorrect && this.state.selectedNumbers[0] !== null) this.markWrongOption(this.elements.options1, this.state.selectedNumbers[0]); if (!isSecondCorrect && this.state.selectedNumbers[1] !== null) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]); if (!isSumCorrect && this.state.selectedNumbers[2] !== null) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.resetSelectionsForRetry(); else gamePausedForFeedback = false; }, 1500); } },
+            checkAnswer: function() { if (gamePausedForFeedback || isGameOver()) return; this.cleanupTimer(); gamePausedForFeedback = true; const isFirstCorrect = this.state.selectedNumbers[0] === this.state.count1; const isSecondCorrect = this.state.selectedNumbers[1] === this.state.count2; const isSumCorrect = this.state.selectedNumbers[2] === this.state.sumCount; const allCorrect = isFirstCorrect && isSecondCorrect && isSumCorrect; const canContinue = recordAttempt(allCorrect); if (allCorrect) { showGameResult(this.elements, true); this.later(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 1500); } else { showGameResult(this.elements, false); if (!isFirstCorrect && this.state.selectedNumbers[0] !== null) this.markWrongOption(this.elements.options1, this.state.selectedNumbers[0]); if (!isSecondCorrect && this.state.selectedNumbers[1] !== null) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]); if (!isSumCorrect && this.state.selectedNumbers[2] !== null) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]); this.later(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.resetSelectionsForRetry(); else gamePausedForFeedback = false; }, 1500); } },
             markWrongOption: function(container, selectedValue) { const options = container.getElementsByClassName('game23-number-option'); for(let option of options) { if (parseInt(option.textContent) === selectedValue && option.classList.contains('selected')) { option.classList.add('wrong'); break; } } },
             resetSelectionsForRetry: function() { gamePausedForFeedback = false; this.state.selectedNumbers = [null, null, null]; const allOptions = this.hostElement.getElementsByClassName('game23-number-option'); for (let i = 0; i < allOptions.length; i++) { allOptions[i].classList.remove('selected', 'wrong'); } if (!isGameOver()) this.startTimer(); },
-            startTimer: function() { if (isGameOver()) return; this.state.timeLeft = this.state.currentTimerDuration; this.state.centisecondsLeft = 0; this.updateTimerDisplay(); this.cleanupTimer(); this.state.timerInterval = setInterval(() => { this.state.centisecondsLeft -= 10; if (this.state.centisecondsLeft < 0) { this.state.centisecondsLeft = 90; this.state.timeLeft--; } this.updateTimerDisplay(); if (this.state.timeLeft < 0) { this.cleanupTimer(); gamePausedForFeedback = true; const canContinue = recordAttempt(false); showGameResult(this.elements, false, "Time's Up!"); setTimeout(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 2000); } }, 100); },
+            startTimer: function() { if (isGameOver()) return; this.state.timeLeft = this.state.currentTimerDuration; this.state.centisecondsLeft = 0; this.updateTimerDisplay(); this.cleanupTimer(); this.state.timerInterval = setInterval(() => { this.state.centisecondsLeft -= 10; if (this.state.centisecondsLeft < 0) { this.state.centisecondsLeft = 90; this.state.timeLeft--; } this.updateTimerDisplay(); if (this.state.timeLeft < 0) { this.cleanupTimer(); gamePausedForFeedback = true; const canContinue = recordAttempt(false); showGameResult(this.elements, false, "Time's Up!"); this.later(() => { this.elements.resultDiv.classList.remove('show'); if (canContinue) this.startGameCycle(); else gamePausedForFeedback = false; }, 2000); } }, 100); },
             updateTimerDisplay: function() { const displaySeconds = String(Math.max(0, this.state.timeLeft)).padStart(2, '0'); const displayCentiseconds = String(Math.max(0, this.state.centisecondsLeft)).padStart(2, '0'); this.elements.timerDisplay.textContent = `${displaySeconds}:${displayCentiseconds}`; },
             cleanupTimer: function() { if (this.state.timerInterval) clearInterval(this.state.timerInterval); this.state.timerInterval = null; },
             cleanup: function() { this.cleanupTimer(); if (this.elements.resultDiv) this.elements.resultDiv.classList.remove('show'); gamePausedForFeedback = false; }
@@ -427,7 +430,7 @@
             startGameCycle: function() {
                 if (isGameOver()) return;
                 gamePausedForFeedback = false;
-                
+
                 this.state.val1 = getRandomInt(1, 8); // Keep numbers small for missing addend
                 this.state.val2 = getRandomInt(1, 8);
                 this.state.total = this.state.val1 + this.state.val2;
@@ -473,10 +476,11 @@
                 shuffleArray(options);
 
                 options.forEach(opt => {
-                    const button = document.createElement('div');
+                    const button = document.createElement('button');
+                button.type = 'button';
                     button.classList.add('potion-option');
                     button.textContent = opt;
-                    button.addEventListener('click', () => this.checkAnswer(opt));
+                    button.addEventListener('click', () => { if (document.documentElement.contains(button)) this.checkAnswer(opt); });
                     this.elements.optionsGrid.appendChild(button);
                 });
             },
@@ -485,7 +489,7 @@
                 const isCorrect = selectedAnswer === this.state.missingVal;
                 const canContinue = recordAttempt(isCorrect);
                 showGameResult(this.elements, isCorrect);
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.resultDiv.classList.remove('show');
                     if (canContinue) this.startGameCycle();
                     else gamePausedForFeedback = false;
@@ -528,7 +532,7 @@
                 gamePausedForFeedback = false;
                 this.state.jumpVal = getRandomInt(1, 3);
                 this.state.jumpOp = Math.random() < 0.5 ? '+' : '-';
-                
+
                 let numJumps = getRandomInt(2, 4); // Number of jumps to make the problem
                 this.state.correctJumps = numJumps;
 
@@ -566,11 +570,12 @@
                 shuffleArray(options);
 
                 options.forEach(opt => {
-                    const button = document.createElement('div');
+                    const button = document.createElement('button');
+                button.type = 'button';
                     button.classList.add('jump-option');
                     button.textContent = `${opt} Jump${opt > 1 ? 's':''}`;
                     button.dataset.jumps = opt; // Store the jump count
-                    button.addEventListener('click', () => this.checkAnswer(parseInt(button.dataset.jumps)));
+                    button.addEventListener('click', () => { if (document.documentElement.contains(button)) this.checkAnswer(parseInt(button.dataset.jumps)); });
                     this.elements.jumpOptions.appendChild(button);
                 });
             },
@@ -579,7 +584,7 @@
                 const isCorrect = selectedJumps === this.state.correctJumps;
                 const canContinue = recordAttempt(isCorrect);
                 showGameResult(this.elements, isCorrect);
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.resultDiv.classList.remove('show');
                     if (canContinue) this.startGameCycle();
                     else gamePausedForFeedback = false;
@@ -635,14 +640,14 @@
                 this.elements.item2Icon.textContent = this.state.item2.icon;
                 this.elements.item2Name.textContent = this.state.item2.name;
                 this.elements.item2Price.textContent = `${this.state.item2.price} coins`;
-                
+
                 this.generatePurchaseScenario();
             },
             generatePurchaseScenario: function() {
                 const canBuyItem1 = this.state.playerMoney >= this.state.item1.price;
                 const canBuyItem2 = this.state.playerMoney >= this.state.item2.price;
                 const canBuyBoth = this.state.playerMoney >= (this.state.item1.price + this.state.item2.price);
-                
+
                 let scenarioType = getRandomInt(1,3); // 3 types of questions
                 let options = [];
                 let questionText = "";
@@ -652,7 +657,7 @@
                     if (canBuyBoth) { this.state.correctAnswer = "Both"; options.push("Both");}
                     if (canBuyItem1) { options.push(this.state.item1.name); if(!canBuyBoth && canBuyItem1 && !canBuyItem2) this.state.correctAnswer = this.state.item1.name;} // If only one, it's correct
                     if (canBuyItem2) { options.push(this.state.item2.name); if(!canBuyBoth && canBuyItem2 && !canBuyItem1) this.state.correctAnswer = this.state.item2.name;}
-                    
+
                     if (!canBuyItem1 && !canBuyItem2) {this.state.correctAnswer = "Nothing"; options.push("Nothing");}
                     else if (!canBuyBoth && canBuyItem1 && canBuyItem2) { // Can buy individually but not both
                         this.state.correctAnswer = `${this.state.item1.name} OR ${this.state.item2.name}`; // Special case for display
@@ -691,7 +696,7 @@
                          options = options.filter(opt => opt !== this.state.item1.name && opt !== this.state.item2.name);
                     }
                 }
-                
+
                 this.elements.questionDisplay.textContent = questionText;
                 this.displayChoiceOptions(options.filter((v,i,a)=>a.indexOf(v)===i)); // Unique options
             },
@@ -711,15 +716,16 @@
                     finalOptions = Array.from(new Set(finalOptions));
                 }
                 if(finalOptions.length > 4) finalOptions = finalOptions.slice(0,4); // Max 4 options
-                
+
                 shuffleArray(finalOptions);
 
                 finalOptions.forEach(optText => {
-                    const button = document.createElement('div');
+                    const button = document.createElement('button');
+                button.type = 'button';
                     button.classList.add('choice-option');
                     button.textContent = (typeof optText === 'number') ? `💰${optText}` : optText;
                     button.dataset.choice = optText;
-                    button.addEventListener('click', () => this.checkAnswer(button.dataset.choice));
+                    button.addEventListener('click', () => { if (document.documentElement.contains(button)) this.checkAnswer(button.dataset.choice); });
                     this.elements.choiceOptions.appendChild(button);
                 });
             },
@@ -738,7 +744,7 @@
 
                 const canContinue = recordAttempt(isCorrect);
                 showGameResult(this.elements, isCorrect);
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.resultDiv.classList.remove('show');
                     if (canContinue) this.startGameCycle();
                     else gamePausedForFeedback = false;
@@ -749,6 +755,7 @@
 
         // --- App Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
+            [[game2,'shapes'],[game5,'potion'],[game6,'jumps'],[game7,'fruit']].forEach(([game,kind]) => KrisMathArcade.mount(game,kind));
             updateScoreDisplay();
             Object.keys(gameSelectorButtons).forEach(gameKey => {
                 gameSelectorButtons[gameKey].addEventListener('click', () => switchGame(gameKey));

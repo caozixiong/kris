@@ -75,6 +75,7 @@ async function noChineseUI(page) {
       await language(page, 'zh');
       assert.match(await text(page, '#message'), /答错了/);
       await page.clock.runFor(2100);
+      await page.locator('#count-next').click();
       await page.evaluate(() => checkAnswer(gameState.currentCount));
       await language(page, 'fr');
       assert.equal(await text(page, '#message'), 'Bonne réponse !');
@@ -94,9 +95,11 @@ async function noChineseUI(page) {
       assert.match(await text(page, '#feedback-message'), /Correct|Incorrect/);
       await page.locator('#next-question').click();
       await page.clock.runFor(10100);
-      assert.match(await text(page, '#feedback-message'), /Time’s up/);
+      assert.equal(await text(page, '#feedback-message'), '');
+      await page.locator('#timer-mode').click(); await page.clock.runFor(10100);
+      assert.match(await text(page, '#feedback-message'), /Take your time/);
       await language(page, 'fr');
-      assert.match(await text(page, '#feedback-message'), /Temps écoulé/);
+      assert.match(await text(page, '#feedback-message'), /Prends ton temps/);
       if (file.includes('math_visual_game')) {
         await page.locator('#theme-chicks').click();
         await noChineseUI(page);
@@ -113,13 +116,15 @@ async function noChineseUI(page) {
       await language(page, 'en');
       assert.equal(await text(page, '#score-display'), 'Score: 1');
       await page.clock.runFor(1500);
-      await page.evaluate(() => selectAnswer('汽车'));
-      await page.clock.runFor(1500);
-      await page.evaluate(() => selectAnswer('香蕉'));
-      await page.clock.runFor(1500);
-      assert.equal(await text(page, '#feedback-message'), 'Game over! Your total score: 3 / 3');
+      assert.equal(await page.evaluate(() => currentQuestionIndex), 0);
+      await page.locator('#picture-next').click();
+      for (let i = 1; i < 6; i++) {
+        await page.evaluate(() => selectAnswer(questions[currentQuestionIndex].correctAnswer));
+        await page.locator('#picture-next').click();
+      }
+      assert.equal(await text(page, '#feedback-message'), 'Game over! Your total score: 6 / 6');
       await language(page, 'fr');
-      assert.equal(await text(page, '#feedback-message'), 'Partie terminée ! Ton score : 3 / 3');
+      assert.equal(await text(page, '#feedback-message'), 'Partie terminée ! Ton score : 6 / 6');
       await page.locator('#options-container button').click();
       assert.equal(await text(page, '#score-display'), 'Score : 0');
     }
@@ -130,6 +135,7 @@ async function noChineseUI(page) {
       assert.deepEqual(await page.locator('.card').evaluateAll(cards => cards.map(c => c.dataset.id)), cardIds);
       assert.equal(await page.locator('.card.flipped').count(), 1);
       await page.locator('#restart-button').click();
+      await page.locator('#pairs-20').click();
       const ids = await page.locator('.card').evaluateAll(cards => [...new Set(cards.map(c => c.dataset.id))]);
       for (const id of ids) {
         await page.locator(`.card[data-id="${id}"]`).nth(0).click();

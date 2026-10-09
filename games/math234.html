@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>First Grade Math Games</title>
     <style>
         /* Global Styles */
@@ -39,7 +39,7 @@
         #game-selector-area button:hover, #game-selector-area button.active {
             background-color: #45a049;
         }
-        
+
         #game-selector-area button.active {
             box-shadow: 0 0 0 3px #8BC34A;
         }
@@ -66,7 +66,7 @@
             flex-direction: column;
             align-items: center;
         }
-        
+
         /* Styles from math2.html (shared by math3.html) */
         .game23-more-challenging-btn { /* Renamed to avoid ID conflict if multiple on page, and use class */
             margin-bottom: 10px;
@@ -84,7 +84,7 @@
         .game23-more-challenging-btn:hover, .game23-more-challenging-btn:active {
             background-color: #e0a800;
         }
-        
+
         .game23-game-container { /* Class for game containers of game2 and game3 */
             width: 100%;
             max-width: 500px;
@@ -97,7 +97,7 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             position: relative; /* For timer positioning */
         }
-        
+
         .game23-shapes-container {
             display: flex;
             justify-content: space-around;
@@ -105,7 +105,7 @@
             margin-bottom: 20px;
             min-height: 120px;
         }
-        
+
         .game23-shape-group {
             display: flex;
             flex-wrap: wrap;
@@ -126,19 +126,19 @@
         #game3-host .game23-shapes-container {
             justify-content: center;
         }
-        
+
         .game23-shape {
             margin: 5px;
             font-size: 30px;
         }
-        
+
         .game23-math-container {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        
+
         .game23-math-row {
             display: flex;
             align-items: center;
@@ -146,25 +146,25 @@
             margin: 5px 0;
             justify-content: center;
         }
-        
+
         .game23-shape-icon {
             font-size: 24px;
             margin: 0 10px;
         }
-        
+
         .game23-operator {
             font-size: 40px;
             margin: 5px 0;
             font-weight: bold;
             color: #2c3e50;
         }
-        
+
         .game23-number-options {
             display: flex;
             justify-content: space-around;
             width: 60%;
         }
-        
+
         .game23-number-option {
             width: 40px;
             height: 40px;
@@ -179,22 +179,22 @@
             user-select: none;
             transition: transform 0.2s, background-color 0.2s;
         }
-        
+
         .game23-number-option:hover, .game23-number-option:active {
             transform: scale(1.1);
             background-color: #1e90ff;
         }
-        
+
         .game23-number-option.selected {
             background-color: #27ae60;
             transform: scale(1.1);
         }
-        
+
         .game23-number-option.wrong {
             background-color: #e74c3c;
             animation: game23-shake 0.5s;
         }
-        
+
         .game23-result { /* Pop-up result */
             position: fixed;
             top: 0;
@@ -212,23 +212,23 @@
             pointer-events: none;
             transition: opacity 0.3s;
         }
-        
+
         .game23-result.show {
             opacity: 1;
             pointer-events: auto;
         }
-        
+
         .game23-result-emoji {
             font-size: 120px;
             margin-bottom: 20px;
         }
-        
+
         .game23-result-text {
             font-size: 36px;
             font-weight: bold;
             text-align: center;
         }
-        
+
         .game23-timer { /* Timer display for game2/3 */
             position: absolute;
             top: 10px;
@@ -243,7 +243,7 @@
             text-align: center;
             font-family: sans-serif;
         }
-        
+
         @keyframes game23-shake { /* Renamed to avoid conflict if other games have shake */
             0%, 100% { transform: translateX(0) scale(1.1); }
             20%, 60% { transform: translateX(-5px) scale(1.1); }
@@ -388,7 +388,7 @@
         #game4-host #start-button:hover {
             background-color: #0056b3;
         }
-        
+
         #game4-host #start-button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
@@ -412,7 +412,7 @@
             opacity: 0;
             transition: opacity 0.3s ease, visibility 0s 0.3s;
         }
-        
+
         #game4-host .game4-feedback-area.visible {
             visibility: visible;
             opacity: 1;
@@ -483,8 +483,10 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-legacy-math.js?v=f9bb052879ce"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/legacy-math-arcade.css?v=38993439bddf">
+<script src="../assets/legacy-math-arcade.js?v=af821b38f925"></script>
 </head>
 <body>
 
@@ -636,7 +638,7 @@
             checkGameOver();
             return !isGameOver(); // Return true if game can continue
         }
-        
+
         function isGameOver() {
             return remainingTries <= 0 || currentScore >= TOTAL_ALLOWED_TRIES;
         }
@@ -655,7 +657,7 @@
             }
             return false;
         }
-        
+
         function resetGlobalScoreAndRestartApp() {
             remainingTries = TOTAL_ALLOWED_TRIES;
             currentScore = 0;
@@ -711,7 +713,7 @@
                 activeGame.init();
             }
         }
-        
+
         // --- Game 2 (Adapted from math2.html) ---
         const game2 = {
             id: 'game2',
@@ -745,10 +747,10 @@
                 this.elements.resultText = this.hostElement.querySelector('#game2-result-text');
                 this.elements.timerDisplay = this.hostElement.querySelector('#game2-timer');
                 this.elements.moreChallengingBtn = this.hostElement.querySelector('#game2-more-challenging-btn');
-                
+
                 this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging); // Remove old if any
-                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
-                
+                this.elements.moreChallengingBtn.onclick = this.handleMoreChallenging.bind(this);
+
                 this.startGameCycle();
             },
             handleMoreChallenging: function() {
@@ -757,7 +759,7 @@
                     this.state.currentTimerDuration--;
                 } else {
                     this.elements.moreChallengingBtn.textContent = `Min Time (${this.config.MIN_TIMER_DURATION}s)!`;
-                    setTimeout(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000);
+                    this.later(() => { this.elements.moreChallengingBtn.textContent = 'More Challenging'; }, 1000);
                 }
                 this.cleanupTimer();
                 this.startGameCycle();
@@ -767,30 +769,30 @@
                 gamePausedForFeedback = false;
                 this.state.selectedNumbers = [null, null, null];
                 this.clearShapesAndOptions();
-                
+
                 const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 while (shapeIndex2 === shapeIndex1) {
                     shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 }
-                
+
                 this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
                 this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
-                
+
                 this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1;
                 this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1;
                 this.state.sumCount = this.state.count1 + this.state.count2;
-                
+
                 this.displayShapes(this.elements.shapeGroup1, this.state.currentShape1, this.state.count1);
                 this.displayShapes(this.elements.shapeGroup2, this.state.currentShape2, this.state.count2);
-                
+
                 this.elements.icon1.textContent = this.state.currentShape1;
                 this.elements.icon2.textContent = this.state.currentShape2;
-                
+
                 this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
                 this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
                 this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
-                
+
                 this.startTimer();
             },
             displayShapes: function(container, shapeType, count) {
@@ -824,12 +826,13 @@
                     }
                 }
                 shuffleArray(numbers);
-                
+
                 numbers.forEach(num => {
-                    const optionElem = document.createElement('div');
+                    const optionElem = document.createElement('button');
+                optionElem.type = 'button';
                     optionElem.className = 'game23-number-option';
                     optionElem.textContent = num;
-                    optionElem.addEventListener('click', () => {
+                    optionElem.addEventListener('click', () => { if (!document.documentElement.contains(optionElem)) return;
                         if (gamePausedForFeedback || isGameOver()) return;
                         this.selectNumber(optionElem, num, rowIndex, container);
                     });
@@ -843,14 +846,14 @@
                 }
                 element.classList.add('selected');
                 this.state.selectedNumbers[rowIndex] = number;
-                
+
                 if (this.state.selectedNumbers.every(num => num !== null)) {
                     this.checkAnswer();
                 }
             },
             checkAnswer: function() {
                 if (gamePausedForFeedback) return;
-                this.cleanupTimer(); 
+                this.cleanupTimer();
                 gamePausedForFeedback = true;
 
                 const isFirstCorrect = this.state.selectedNumbers[0] === this.state.count1;
@@ -862,7 +865,7 @@
 
                 if (allCorrect) {
                     this.showResult(true);
-                    setTimeout(() => {
+                    this.later(() => {
                         this.elements.resultDiv.classList.remove('show');
                         if (canContinue && !isGameOver()) this.startGameCycle();
                         else gamePausedForFeedback = false; // if game over, don't restart
@@ -873,7 +876,7 @@
                     if (!isSecondCorrect && this.state.selectedNumbers[1] !== null) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]);
                     if (!isSumCorrect && this.state.selectedNumbers[2] !== null) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]);
 
-                    setTimeout(() => {
+                    this.later(() => {
                         this.elements.resultDiv.classList.remove('show');
                         if (canContinue && !isGameOver()) this.resetSelectionsForRetry();
                         else gamePausedForFeedback = false;
@@ -884,7 +887,7 @@
                 const options = container.getElementsByClassName('game23-number-option');
                 for(let option of options) {
                     if (parseInt(option.textContent) === selectedValue && option.classList.contains('selected')) {
-                        option.classList.add('wrong'); 
+                        option.classList.add('wrong');
                         break;
                     }
                 }
@@ -913,16 +916,16 @@
                     this.elements.resultText.textContent = 'Try Again!';
                     this.elements.resultText.style.color = '#e74c3c';
                 }
-                requestAnimationFrame(() => { // Delay showing slightly
+                this.later(() => { // Delay showing slightly
                      this.elements.resultDiv.classList.add('show');
                 });
             },
             startTimer: function() {
                 if (isGameOver()) return;
                 this.state.timeLeft = this.state.currentTimerDuration;
-                this.state.centisecondsLeft = 0; 
+                this.state.centisecondsLeft = 0;
                 this.updateTimerDisplay();
-                
+
                 this.cleanupTimer();
                 this.state.timerInterval = setInterval(() => {
                     this.state.centisecondsLeft -= 10;
@@ -931,17 +934,17 @@
                         this.state.timeLeft--;
                     }
                     this.updateTimerDisplay();
-                    
-                    if (this.state.timeLeft < 0) { 
+
+                    if (this.state.timeLeft < 0) {
                         this.cleanupTimer();
                         gamePausedForFeedback = true;
                         const canContinue = recordAttempt(false); // Timeout is an incorrect attempt
                         this.showResult(false, true);
-                        setTimeout(() => {
+                        this.later(() => {
                             this.elements.resultDiv.classList.remove('show');
                             if (canContinue && !isGameOver()) this.startGameCycle();
                             else gamePausedForFeedback = false;
-                        }, 2000); 
+                        }, 2000);
                     }
                 }, 100);
             },
@@ -968,7 +971,7 @@
             id: 'game3',
             hostElement: document.getElementById('game3-host'),
             elements: {}, // Will be populated in init
-            
+
             init: function() { // Override init
                 this.state.currentTimerDuration = this.config.INITIAL_TIMER_DURATION; // Reset from game2's state
                 this.elements.mixedShapesGroup = this.hostElement.querySelector('#game3-mixed-shapes-group');
@@ -985,7 +988,7 @@
                 this.elements.moreChallengingBtn = this.hostElement.querySelector('#game3-more-challenging-btn');
 
                 this.elements.moreChallengingBtn.removeEventListener('click', this.handleMoreChallenging);
-                this.elements.moreChallengingBtn.addEventListener('click', this.handleMoreChallenging.bind(this));
+                this.elements.moreChallengingBtn.onclick = this.handleMoreChallenging.bind(this);
 
                 this.startGameCycle();
             },
@@ -994,34 +997,34 @@
                 gamePausedForFeedback = false;
                 this.state.selectedNumbers = [null, null, null];
                 this.clearShapesAndOptions(); // Uses game3's elements.mixedShapesGroup now
-                
+
                 const shapeIndex1 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 let shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 while (shapeIndex2 === shapeIndex1) {
                     shapeIndex2 = Math.floor(Math.random() * this.config.shapeTypes.length);
                 }
-                
+
                 this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
                 this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
-                
+
                 this.state.count1 = Math.floor(Math.random() * this.config.maxShapes) + 1;
                 this.state.count2 = Math.floor(Math.random() * this.config.maxShapes) + 1;
                 this.state.sumCount = this.state.count1 + this.state.count2;
-                
+
                 // This is the main difference for game3's setup
                 this.displayMixedShapes(this.elements.mixedShapesGroup, this.state.currentShape1, this.state.count1, this.state.currentShape2, this.state.count2);
-                
+
                 this.elements.icon1.textContent = this.state.currentShape1;
                 this.elements.icon2.textContent = this.state.currentShape2;
-                
+
                 this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
                 this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
                 this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
-                
+
                 this.startTimer();
             },
             displayMixedShapes: function(container, shape1, num1, shape2, num2) { // Specific to Game 3
-                container.innerHTML = ''; 
+                container.innerHTML = '';
                 const allShapeElements = [];
                 for (let i = 0; i < num1; i++) {
                     const shapeElem = document.createElement('div');
@@ -1035,17 +1038,17 @@
                     shapeElem.textContent = shape2;
                     allShapeElements.push(shapeElem);
                 }
-                shuffleArray(allShapeElements); 
+                shuffleArray(allShapeElements);
                 allShapeElements.forEach(shapeElem => container.appendChild(shapeElem));
             },
             clearShapesAndOptions: function() { // Override for game3
-                this.elements.mixedShapesGroup.innerHTML = ''; 
+                this.elements.mixedShapesGroup.innerHTML = '';
                 this.elements.options1.innerHTML = '';
                 this.elements.options2.innerHTML = '';
                 this.elements.optionsSum.innerHTML = '';
             }
         };
-        
+
         // --- Game 4 (Adapted from math4.html) ---
         const game4 = {
             id: 'game4',
@@ -1073,9 +1076,9 @@
 
                 this.elements.startButton.removeEventListener('click', this.handleStartClick);
                 this.elements.startButton.removeEventListener('touchstart', this.handleStartTouch);
-                this.elements.startButton.addEventListener('click', this.handleStartClick.bind(this));
-                this.elements.startButton.addEventListener('touchstart', this.handleStartTouch.bind(this), { passive: false });
-                
+                this.elements.startButton.onclick = this.handleStartClick.bind(this);
+
+
                 this.setupRound();
             },
             handleStartClick: function() { if (!this.elements.startButton.disabled) this.rollBall(); },
@@ -1135,14 +1138,14 @@
                 gamePausedForFeedback = true; // global pause state
                 this.elements.startButton.style.display = 'none';
                 this.elements.bowlingBall.style.visibility = 'visible';
-                
+
                 const pinsAreaRect = this.elements.pinsArea.getBoundingClientRect();
                 const ballRect = this.elements.bowlingBall.getBoundingClientRect();
                 const gameContainerRect = this.hostElement.querySelector('#game4-main-container').getBoundingClientRect();
                 const travelDistance = ballRect.top - (pinsAreaRect.top + pinsAreaRect.height / 2) + gameContainerRect.top;
                 this.elements.bowlingBall.style.transform = `translateY(-${travelDistance + 20}px)`;
 
-                setTimeout(() => {
+                this.later(() => {
                     this.knockPins();
                 }, 800);
             },
@@ -1178,6 +1181,7 @@
                     button.classList.add('option-button');
                     button.textContent = opt;
                     const handleOptionClick = () => {
+                        if (!document.documentElement.contains(button)) return;
                         if (this.state.gameActive || gamePausedForFeedback || isGameOver()) return;
                         this.checkAnswer(opt);
                     };
@@ -1197,7 +1201,7 @@
                     this.elements.feedbackIcon.textContent = '😊🌸';
                     this.elements.feedbackText.textContent = 'Good Job Kris!';
                     this.elements.feedbackArea.classList.add('visible');
-                    setTimeout(() => {
+                    this.later(() => {
                         this.elements.feedbackArea.classList.remove('visible');
                         if (canContinue && !isGameOver()) this.setupRound();
                         else { this.state.gameActive = false; gamePausedForFeedback = false; }
@@ -1206,10 +1210,10 @@
                     this.elements.feedbackIcon.textContent = '😢🌵';
                     this.elements.feedbackText.textContent = '再试一次!';
                     this.elements.feedbackArea.classList.add('visible');
-                    setTimeout(() => {
+                    this.later(() => {
                         this.elements.feedbackArea.classList.remove('visible');
                         // Allow retry on the same problem, options are still there
-                        this.state.gameActive = false; 
+                        this.state.gameActive = false;
                         gamePausedForFeedback = false; // Re-enable option clicks
                         if (isGameOver()) { // if game over due to tries, disable options
                              this.elements.optionsArea.innerHTML = '<p style="color:red; font-size:0.8em;">No more tries!</p>';
@@ -1230,11 +1234,12 @@
 
         // --- App Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
+            [[game2,'shapes'],[game3,'mixed'],[game4,'bowling']].forEach(([game,kind]) => KrisMathArcade.mount(game,kind));
             updateScoreDisplay();
             gameSelectorButtons.game2.addEventListener('click', () => switchGame('game2'));
             gameSelectorButtons.game3.addEventListener('click', () => switchGame('game3'));
             gameSelectorButtons.game4.addEventListener('click', () => switchGame('game4'));
-            
+
             switchGame('game2'); // Load Game 2 by default
         });
 

@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Math Games for Kids</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         /* --- GLOBAL & LAYOUT STYLES --- */
         :root {
@@ -36,7 +35,7 @@
             max-width: 900px;
             margin: 0 auto;
         }
-        
+
         #game-selector-area {
             display: flex;
             flex-wrap: wrap;
@@ -62,13 +61,13 @@
             background-color: #00acc1;
             transform: translateY(-2px);
         }
-        
+
         #game-selector-area button.active {
             background-color: #ff8f00; /* Amber */
             box-shadow: 0 0 0 3px #fff, 0 0 0 6px #ffc107;
             transform: scale(1.05);
         }
-        
+
         .game-host-container {
             width: 100%;
             display: flex;
@@ -169,7 +168,7 @@
         #game4-host #feedback-icon { font-size: 5em; }
         #game4-host #feedback-text { font-size: 2em; margin-top: 10px; }
         #game4-host .countdown-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4em; color: #aaa; background-color: rgba(255, 255, 255, 0.8); padding: 10px 20px; border-radius: 15px; z-index: 90; display: none; }
-        
+
         /* --- GAME 5 (Fruit Money) STYLES --- */
         #game5-host .game-container { background-color: #a5d6a7; border: 5px solid #388e3c; padding: 20px; border-radius: 15px; max-width: 500px; width: 95%; text-align: center; }
         #game5-host h1 { font-size: 2em; color: #1b5e20; }
@@ -336,7 +335,7 @@
             .game910-host .timer-controls button { font-size: 0.9em; padding: 4px 8px; }
             .game910-host .message-area { font-size: 1em; }
         }
-        
+
         /* --- GAME 10 (Visual Math) SPECIFIC STYLES --- */
         #game10-host .problem-area { min-height: 100px; }
         #game10-host .theme-selector { display: flex; align-items: center; justify-content: center; margin-bottom: 15px; gap: 10px; }
@@ -351,8 +350,10 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-legacy-math.js?v=f9bb052879ce"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/legacy-math-arcade.css?v=38993439bddf">
+<script src="../assets/legacy-math-arcade.js?v=af821b38f925"></script>
 </head>
 <body>
     <div class="main-container">
@@ -470,7 +471,7 @@
                     <div id="feedback-text"></div>
                 </div>
             </div>
-            
+
              <!-- Game 5 Host -->
             <div id="game5-host" class="game-host-container" style="display: none;">
                 <div class="game-container">
@@ -500,7 +501,7 @@
                     <div class="game-result-text" id="game5-result-text"></div>
                 </div>
             </div>
-            
+
             <!-- Game 6 Host -->
             <div id="game6-host" class="game-host-container" style="display: none;">
                  <div class="game-container">
@@ -535,21 +536,21 @@
                     <div class="game-card">
                         <div class="stats-bar">
                             <div class="stat-item">
-                                <div class="stat-icon"><i class="fa-solid fa-shield"></i></div>
+                                <div class="stat-icon"><span aria-hidden="true" class="hero-symbol">◆</span></div>
                                 <div>
                                     <p class="stat-label">Level</p>
                                     <p class="stat-value" id="game7-level-display">1</p>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-icon yellow"><i class="fa-solid fa-star"></i></div>
+                                <div class="stat-icon yellow"><span aria-hidden="true" class="hero-symbol">★</span></div>
                                 <div>
                                     <p class="stat-label">Score</p>
                                     <p class="stat-value" id="game7-score-display">0</p>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-icon red"><i class="fa-solid fa-heart"></i></div>
+                                <div class="stat-icon red"><span aria-hidden="true" class="hero-symbol">♥</span></div>
                                 <div>
                                     <p class="stat-label">Lives</p>
                                     <p class="stat-value" id="game7-lives-display">3</p>
@@ -562,14 +563,14 @@
                             <input type="number" id="game7-answer-input" class="answer-input" placeholder="Enter answer">
                         </div>
                          <button id="game7-submit-answer" class="submit-button">
-                            <i class="fa-solid fa-check mr-2"></i> Submit Answer
+                            <span aria-hidden="true" class="hero-symbol mr-2">✓</span> Submit Answer
                         </button>
                     </div>
 
                     <div class="progress-section">
                         <h3>Unlockable Heroes</h3>
                         <div class="character-card">
-                            <img src="https://picsum.photos/seed/superman1/100/100" alt="Hero 1" class="character-img">
+                            <svg viewBox="0 0 100 100" role="img" aria-label="Hero 1" class="character-img hero-mascot"><circle cx="50" cy="50" r="48" fill="#edf4ff"/><path d="M23 83 30 42 70 42 80 83Z" fill="#2875c7" opacity=".3"/><rect x="32" y="52" width="36" height="34" rx="10" fill="#2875c7"/><rect x="27" y="20" width="46" height="39" rx="16" fill="#2875c7"/><rect x="33" y="29" width="34" height="19" rx="8" fill="#fff9e7"/><circle cx="41" cy="38" r="4" fill="#24415e"/><circle cx="59" cy="38" r="4" fill="#24415e"/><path d="M47 57 40 71 49 71 46 82 61 64 52 64 56 57Z" fill="#ffde75"/><path d="M50 20V13" stroke="#2875c7" stroke-width="5"/><circle cx="50" cy="10" r="5" fill="#ffcc52"/></svg>
                             <div>
                                 <h4>Clark the Super</h4>
                                 <p id="game7-superman-status" style="font-size:0.9em; color:#555;">Score 100 to unlock</p>
@@ -579,7 +580,7 @@
                             </div>
                         </div>
                         <div class="character-card">
-                            <img src="https://picsum.photos/seed/transformer1/100/100" alt="Hero 2" class="character-img">
+                            <svg viewBox="0 0 100 100" role="img" aria-label="Hero 2" class="character-img hero-mascot"><circle cx="50" cy="50" r="48" fill="#edf4ff"/><path d="M23 83 30 42 70 42 80 83Z" fill="#db9820" opacity=".3"/><rect x="32" y="52" width="36" height="34" rx="10" fill="#db9820"/><rect x="27" y="20" width="46" height="39" rx="16" fill="#db9820"/><rect x="33" y="29" width="34" height="19" rx="8" fill="#fff9e7"/><circle cx="41" cy="38" r="4" fill="#24415e"/><circle cx="59" cy="38" r="4" fill="#24415e"/><path d="M47 57 40 71 49 71 46 82 61 64 52 64 56 57Z" fill="#ffde75"/><path d="M50 20V13" stroke="#db9820" stroke-width="5"/><circle cx="50" cy="10" r="5" fill="#ffcc52"/></svg>
                              <div>
                                 <h4>Bumblebee Bot</h4>
                                 <p id="game7-bumblebee-status" style="font-size:0.9em; color:#555;">Score 200 to unlock</p>
@@ -589,7 +590,7 @@
                             </div>
                         </div>
                         <div class="character-card">
-                            <img src="https://picsum.photos/seed/hero/100/100" alt="Hero 3" class="character-img">
+                            <svg viewBox="0 0 100 100" role="img" aria-label="Hero 3" class="character-img hero-mascot"><circle cx="50" cy="50" r="48" fill="#edf4ff"/><path d="M23 83 30 42 70 42 80 83Z" fill="#c54e59" opacity=".3"/><rect x="32" y="52" width="36" height="34" rx="10" fill="#c54e59"/><rect x="27" y="20" width="46" height="39" rx="16" fill="#c54e59"/><rect x="33" y="29" width="34" height="19" rx="8" fill="#fff9e7"/><circle cx="41" cy="38" r="4" fill="#24415e"/><circle cx="59" cy="38" r="4" fill="#24415e"/><path d="M47 57 40 71 49 71 46 82 61 64 52 64 56 57Z" fill="#ffde75"/><path d="M50 20V13" stroke="#c54e59" stroke-width="5"/><circle cx="50" cy="10" r="5" fill="#ffcc52"/></svg>
                             <div>
                                 <h4>Iron Avenger</h4>
                                 <p id="game7-ironman-status" style="font-size:0.9em; color:#555;">Score 400 to unlock</p>
@@ -604,26 +605,26 @@
                 <!-- Feedback Modals for Game 7 -->
                 <div id="game7-correct-feedback" class="feedback-modal">
                     <div class="modal-content">
-                        <div class="modal-icon-wrapper correct"><i class="fa-solid fa-check modal-icon"></i></div>
+                        <div class="modal-icon-wrapper correct"><span aria-hidden="true" class="hero-symbol modal-icon">✓</span></div>
                         <h3 class="modal-title correct">Excellent!</h3>
                         <p class="modal-text">Your answer is correct! You earned 20 points!</p>
-                        <button id="game7-next-question" class="modal-button correct">Next Question <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                        <button id="game7-next-question" class="modal-button correct">Next Question <span aria-hidden="true" class="hero-symbol ml-2">➜</span></button>
                     </div>
                 </div>
                 <div id="game7-wrong-feedback" class="feedback-modal">
                      <div class="modal-content">
-                        <div class="modal-icon-wrapper wrong"><i class="fa-solid fa-times modal-icon"></i></div>
+                        <div class="modal-icon-wrapper wrong"><span aria-hidden="true" class="hero-symbol modal-icon">×</span></div>
                         <h3 class="modal-title wrong">Try Again!</h3>
                         <p class="modal-text">The correct answer was <span id="game7-correct-answer-display" style="font-weight:bold;">8</span>. Don't give up!</p>
-                        <button id="game7-try-again" class="modal-button wrong">Continue <i class="fa-solid fa-redo ml-2"></i></button>
+                        <button id="game7-try-again" class="modal-button wrong">Continue <span aria-hidden="true" class="hero-symbol ml-2">↻</span></button>
                     </div>
                 </div>
                  <div id="game7-game-over-screen" class="feedback-modal">
                     <div class="modal-content">
-                        <div class="modal-icon-wrapper correct"><i class="fa-solid fa-trophy modal-icon"></i></div>
+                        <div class="modal-icon-wrapper correct"><span aria-hidden="true" class="hero-symbol modal-icon">🏆</span></div>
                         <h3 class="modal-title correct">Game Over!</h3>
                         <p class="modal-text" style="font-size: 1.5rem; font-weight: bold;">Final Score: <span id="game7-final-score">0</span></p>
-                        <button id="game7-play-again" class="modal-button correct">Play Again <i class="fa-solid fa-refresh ml-1"></i></button>
+                        <button id="game7-play-again" class="modal-button correct">Play Again <span aria-hidden="true" class="hero-symbol ml-1">↻</span></button>
                     </div>
                 </div>
             </div>
@@ -685,7 +686,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Game 10 Host -->
             <div id="game10-host" class="game-host-container game910-host" style="display: none;">
                  <div class="game-container">
@@ -729,7 +730,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // --- MASTER APP CONTROLLER ---
     const app = {
         activeGame: null,
@@ -758,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
             game9: document.getElementById('select-game9'),
             game10: document.getElementById('select-game10')
         },
-        
+
         init: function() {
             this.gameModules = { game1, game2, game3, game4, game5, game6, game7, game8, game9, game10 };
             Object.keys(this.selectorButtons).forEach(key => {
@@ -775,14 +776,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Hide all game hosts
             Object.values(this.gameHosts).forEach(host => host.style.display = 'none');
-            
+
             // Deactivate all selector buttons
             Object.values(this.selectorButtons).forEach(btn => btn.classList.remove('active'));
 
             // Show and activate the selected game
             this.gameHosts[gameKey].style.display = 'flex';
             this.selectorButtons[gameKey].classList.add('active');
-            
+
             this.activeGame = this.gameModules[gameKey];
             if (this.activeGame && this.activeGame.init) {
                 this.activeGame.init();
@@ -836,10 +837,11 @@ document.addEventListener('DOMContentLoaded', function() {
         createNumberButtons() {
             this.elements.numbersContainer.innerHTML = '';
             for (let i = 0; i <= 10; i++) {
-                const button = document.createElement('div');
+                const button = document.createElement('button');
+                button.type = 'button';
                 button.className = 'number';
                 button.textContent = i;
-                button.addEventListener('click', () => this.checkAnswer(i));
+                button.addEventListener('click', () => { if (document.documentElement.contains(button)) this.checkAnswer(i); });
                 this.elements.numbersContainer.appendChild(button);
             }
         },
@@ -882,16 +884,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.updateStars();
                 this.celebrate();
                 this.updateProgressBar();
-                setTimeout(() => this.startNewRound(), 1500);
+                this.later(() => this.startNewRound(), 1500);
             } else {
                 this.elements.messageElement.textContent = `Oops! The answer was ${this.state.currentCount}`;
                 this.elements.messageElement.className = 'message wrong';
-                setTimeout(() => this.startNewRound(), 2000);
+                this.later(() => this.startNewRound(), 2000);
             }
         },
         updateStars() { this.elements.starsElement.textContent = '★'.repeat(Math.min(5, Math.floor(this.state.score / 5))); },
         updateProgressBar() { this.elements.progressElement.style.width = Math.min(100, (this.state.score / 20) * 100) + '%'; },
         celebrate() {
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
             this.elements.celebrationElement.style.display = 'block';
             this.elements.celebrationElement.innerHTML = '';
             for (let i = 0; i < 30; i++) {
@@ -913,7 +916,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.state.timerInterval = null;
         }
     };
-    
+
     // --- GAME 2, 3, 4 LOGIC (Combined) ---
     const game234_shared = {
         config: {
@@ -954,10 +957,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             shuffleArray(numbers);
             numbers.forEach(num => {
-                const optionElem = document.createElement('div');
+                const optionElem = document.createElement('button');
+                optionElem.type = 'button';
                 optionElem.className = 'number-option';
                 optionElem.textContent = num;
-                optionElem.addEventListener('click', () => {
+                optionElem.addEventListener('click', () => { if (!document.documentElement.contains(optionElem)) return;
                     if (this.state.gamePaused) return;
                     this.selectNumber(optionElem, num, rowIndex, container);
                 });
@@ -981,7 +985,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             this.showResult(allCorrect);
             if(allCorrect) {
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.resultPopup.classList.remove('show');
                     this.startGameCycle();
                 }, 1500);
@@ -989,7 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  if (this.state.selectedNumbers[0] !== this.state.count1) this.markWrongOption(this.elements.options1, this.state.selectedNumbers[0]);
                  if (this.state.selectedNumbers[1] !== this.state.count2) this.markWrongOption(this.elements.options2, this.state.selectedNumbers[1]);
                  if (this.state.selectedNumbers[2] !== this.state.sumCount) this.markWrongOption(this.elements.optionsSum, this.state.selectedNumbers[2]);
-                 setTimeout(() => {
+                 this.later(() => {
                     this.elements.resultPopup.classList.remove('show');
                     this.resetSelectionsForRetry();
                  }, 1500);
@@ -1030,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.elements.resultText.textContent = 'Try Again!';
                 this.elements.resultText.style.color = '#e74c3c';
             }
-            requestAnimationFrame(() => this.elements.resultPopup.classList.add('show'));
+            this.later(() => this.elements.resultPopup.classList.add('show'));
         },
         startTimer: function() {
             this.state.timeLeft = this.state.currentTimerDuration;
@@ -1048,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.cleanupTimer();
                     this.state.gamePaused = true;
                     this.showResult(false, true);
-                    setTimeout(() => {
+                    this.later(() => {
                         this.elements.resultPopup.classList.remove('show');
                         this.startGameCycle();
                     }, 2000);
@@ -1070,7 +1074,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.state.gamePaused = false;
         }
     };
-    
+
     const game2 = {
         ...game234_shared, // Inherit shared logic
         id: 'game2',
@@ -1103,23 +1107,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const shapeIndex1 = getRandomInt(0, this.config.shapeTypes.length - 1);
             let shapeIndex2 = getRandomInt(0, this.config.shapeTypes.length - 1);
             while (shapeIndex2 === shapeIndex1) shapeIndex2 = getRandomInt(0, this.config.shapeTypes.length - 1);
-            
+
             this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
             this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
             this.state.count1 = getRandomInt(1, this.config.maxShapes);
             this.state.count2 = getRandomInt(1, this.config.maxShapes);
             this.state.sumCount = this.state.count1 + this.state.count2;
-            
+
             this.displayShapes(this.elements.shapeGroup1, this.state.currentShape1, this.state.count1);
             this.displayShapes(this.elements.shapeGroup2, this.state.currentShape2, this.state.count2);
-            
+
             this.elements.icon1.textContent = this.state.currentShape1;
             this.elements.icon2.textContent = this.state.currentShape2;
-            
+
             this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
             this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
             this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
-            
+
             this.startTimer();
         }
     };
@@ -1150,26 +1154,26 @@ document.addEventListener('DOMContentLoaded', function() {
             this.state.gamePaused = false;
             this.state.selectedNumbers = [null, null, null];
             this.elements.mixedShapesGroup.innerHTML = '';
-            
+
             const shapeIndex1 = getRandomInt(0, this.config.shapeTypes.length - 1);
             let shapeIndex2 = getRandomInt(0, this.config.shapeTypes.length - 1);
             while (shapeIndex2 === shapeIndex1) shapeIndex2 = getRandomInt(0, this.config.shapeTypes.length - 1);
-            
+
             this.state.currentShape1 = this.config.shapeTypes[shapeIndex1];
             this.state.currentShape2 = this.config.shapeTypes[shapeIndex2];
             this.state.count1 = getRandomInt(1, this.config.maxShapes);
             this.state.count2 = getRandomInt(1, this.config.maxShapes);
             this.state.sumCount = this.state.count1 + this.state.count2;
-            
+
             this.displayMixedShapes(this.elements.mixedShapesGroup, this.state.currentShape1, this.state.count1, this.state.currentShape2, this.state.count2);
-            
+
             this.elements.icon1.textContent = this.state.currentShape1;
             this.elements.icon2.textContent = this.state.currentShape2;
-            
+
             this.generateNumberOptions(this.elements.options1, this.state.count1, 0);
             this.generateNumberOptions(this.elements.options2, this.state.count2, 1);
             this.generateNumberOptions(this.elements.optionsSum, this.state.sumCount, 2);
-            
+
             this.startTimer();
         },
         displayMixedShapes: function(container, shape1, num1, shape2, num2) {
@@ -1251,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const ballRect = this.elements.bowlingBall.getBoundingClientRect();
             const travelDistance = ballRect.top - (pinsAreaRect.top + pinsAreaRect.height / 2);
             this.elements.bowlingBall.style.transform = `translateY(-${travelDistance + 30}px)`;
-            setTimeout(() => this.knockPins(), 800);
+            this.later(() => this.knockPins(), 800);
         },
         knockPins: function() {
             this.state.M = getRandomInt(1, this.state.N);
@@ -1280,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.className = 'option-button';
                 button.textContent = opt;
                 button.onclick = () => {
+                    if (!document.documentElement.contains(button)) return;
                     if (this.state.gameActive) return;
                     this.checkAnswer(opt);
                 };
@@ -1292,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.elements.feedbackIcon.textContent = '😊🌸';
                 this.elements.feedbackText.textContent = 'Great Job!';
                 this.elements.feedbackArea.classList.add('visible');
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.feedbackArea.classList.remove('visible');
                     this.setupRound();
                 }, 1500);
@@ -1300,7 +1305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.elements.feedbackIcon.textContent = '😢🌵';
                 this.elements.feedbackText.textContent = 'Try again!';
                 this.elements.feedbackArea.classList.add('visible');
-                setTimeout(() => {
+                this.later(() => {
                     this.elements.feedbackArea.classList.remove('visible');
                     this.state.gameActive = false;
                 }, 2000);
@@ -1362,7 +1367,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.state.item1 = {...this.fruitData[fruit1Idx], price: getRandomInt(2, 6)};
             this.state.item2 = {...this.fruitData[fruit2Idx], price: getRandomInt(2, 6)};
             if (this.state.item1.price === this.state.item2.price) this.state.item2.price +=1;
-            
+
             this.elements.playerMoneyDisplay.textContent = `You have 💰${this.state.playerMoney} coins.`;
             this.elements.item1Icon.textContent = this.state.item1.icon;
             this.elements.item1Name.textContent = this.state.item1.name;
@@ -1378,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const canBuy2 = this.state.playerMoney >= this.state.item2.price;
             const canBuyBoth = this.state.playerMoney >= (this.state.item1.price + this.state.item2.price);
             let options = [];
-            
+
             this.elements.questionDisplay.textContent = "What can you afford?";
             if (canBuyBoth) {
                 this.state.correctAnswer = "Both";
@@ -1402,10 +1407,11 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.choiceOptions.innerHTML = '';
             shuffleArray(optionsArray);
             optionsArray.forEach(optText => {
-                const button = document.createElement('div');
+                const button = document.createElement('button');
+                button.type = 'button';
                 button.className = 'choice-option';
                 button.textContent = optText;
-                button.onclick = () => this.checkAnswer(optText);
+                button.onclick = () => { if (document.documentElement.contains(button)) this.checkAnswer(optText); };
                 this.elements.choiceOptions.appendChild(button);
             });
         },
@@ -1413,26 +1419,26 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.state.gamePaused) return;
             this.state.gamePaused = true;
             this.state.tries--;
-            
+
             let isCorrect = false;
             if (String(this.state.correctAnswer).includes("or")) {
                  isCorrect = selectedChoice === this.state.item1.name || selectedChoice === this.state.item2.name;
             } else {
                 isCorrect = selectedChoice === this.state.correctAnswer;
             }
-            
+
             if (isCorrect) this.state.score++;
             this.updateScoreDisplay();
             this.showResultPopup(isCorrect);
-            
-            setTimeout(() => {
+
+            this.later(() => {
                 this.elements.resultPopup.classList.remove('show');
                 this.startGameCycle();
             }, 1500);
         },
         showResultPopup: function(isSuccess) {
             this.elements.resultPopup.classList.remove('show');
-            requestAnimationFrame(() => {
+            this.later(() => {
                 if (isSuccess) {
                     this.elements.resultEmoji.textContent = '🎉✨';
                     this.elements.resultText.textContent = 'Super Job!';
@@ -1450,7 +1456,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.elements.resultPopup) this.elements.resultPopup.classList.remove('show');
         }
     };
-    
+
     // --- GAME 6 (Alien Jumps) LOGIC ---
     const game6 = {
         id: 'game6',
@@ -1470,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.scoreBoardDisplay = this.hostElement.querySelector('#game6-score-board');
             this.elements.nextButton.onclick = () => {
                 this.elements.resultPopup.classList.remove('show');
-                setTimeout(() => this.setupNewProblem(), 300); 
+                this.later(() => this.setupNewProblem(), 300);
             };
             this.state.score = 0;
             this.updateScoreBoard();
@@ -1492,7 +1498,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         setupNewProblem: function() {
             this.state.correctJumps = getRandomInt(2, 8);
-            this.state.targetPosition = getRandomInt(0, this.config.maxNumberPathValue - this.state.correctJumps); 
+            this.state.targetPosition = getRandomInt(0, this.config.maxNumberPathValue - this.state.correctJumps);
             this.state.currentPosition = this.state.targetPosition + this.state.correctJumps;
             this.elements.currentPosDisplay.textContent = `Alien at: ${this.state.currentPosition}`;
             this.elements.targetPosDisplay.textContent = `Target Planet: ${this.state.targetPosition}`;
@@ -1511,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const button = document.createElement('button');
                 button.className = 'jump-option';
                 button.textContent = `${numJumps}`;
-                button.onclick = () => this.handleAnswer(numJumps);
+                button.onclick = () => { if (document.documentElement.contains(button)) this.handleAnswer(numJumps); };
                 this.elements.jumpOptionsContainer.appendChild(button);
             });
         },
@@ -1533,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.elements.resultPopup) this.elements.resultPopup.classList.remove('show');
         }
     };
-    
+
     // --- GAME 7 (Super Hero Math) LOGIC ---
     const game7 = {
         id: 'game7',
@@ -1596,7 +1602,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkAnswer: function() {
             const userAnswer = parseInt(this.elements.answerInput.value, 10);
             if (isNaN(userAnswer)) return;
-            
+
             if (userAnswer === this.state.currentQuestion.answer) {
                 this.state.score += 20;
                 this.state.correctAnswers++;
@@ -1612,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             this.updateGameStats();
             this.updateCharacterProgress();
-            if (this.state.lives <= 0) setTimeout(() => this.showGameOver(), 1000);
+            if (this.state.lives <= 0) this.later(() => this.showGameOver(), 1000);
         },
         updateGameStats: function() {
             this.elements.scoreDisplay.textContent = this.state.score;
@@ -1647,7 +1653,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.gameOverScreen.classList.remove('show');
         }
     };
-    
+
     // --- GAME 8 (Kids' Arithmetic) LOGIC ---
     const game8 = {
         id: 'game8',
@@ -1719,7 +1725,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const button = document.createElement('button');
                 button.className = 'option';
                 button.textContent = option;
-                button.onclick = () => this.checkAnswer(option);
+                button.onclick = () => { if (document.documentElement.contains(button)) this.checkAnswer(option); };
                 this.elements.optionsElement.appendChild(button);
             });
         },
@@ -1732,7 +1738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.elements.scoreElement.textContent = this.state.score;
                 this.updateStars();
                 this.celebrate();
-                setTimeout(() => this.updateProblem(), 1500);
+                this.later(() => this.updateProblem(), 1500);
             } else {
                 this.elements.messageElement.textContent = 'Oops, try the next one!';
                 this.elements.messageElement.className = 'message wrong';
@@ -1764,7 +1770,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.feedbackMessage = this.hostElement.querySelector(`#${this.id}-feedback-message`);
             this.elements.startGameBtn = this.hostElement.querySelector(`#${this.id}-start-game`);
             this.elements.nextQuestionBtn = this.hostElement.querySelector(`#${this.id}-next-question`);
-            
+
             this.state.score = 0;
             this.state.gameActive = false;
             this.updateScoreDisplay();
@@ -1781,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.decreaseTimerBtn.onclick = () => this.adjustTimer(-5);
             this.elements.increaseTimerBtn.onclick = () => this.adjustTimer(5);
             this.elements.nextQuestionBtn.onclick = () => this.nextQuestion();
-            this.elements.answerButtons.forEach(button => button.onclick = () => this.checkAnswer(button));
+            this.elements.answerButtons.forEach(button => button.onclick = () => { if (document.documentElement.contains(button)) this.checkAnswer(button); });
         },
         adjustTimer: function(amount) {
             if (this.state.gameActive) return;
@@ -1802,7 +1808,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.clearFeedback();
             this.enableAnswerButtons();
             this.elements.nextQuestionBtn.style.display = 'none';
-            
+
             const isAddition = Math.random() < 0.5;
             let num1, num2, correctAnswer;
             if (isAddition) {
@@ -1817,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.state.currentProblem = { num1, num2, operator: '-', correctAnswer };
             }
             this.elements.problemDisplay.textContent = `${num1} ${this.state.currentProblem.operator} ${num2} = ?`;
-            
+
             let options = [correctAnswer];
             while (options.length < 3) {
                 let distractor = getRandomInt(Math.max(0, correctAnswer - 5), Math.min(20, correctAnswer + 5));
@@ -1825,7 +1831,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             shuffleArray(options);
             this.elements.answerButtons.forEach((button, index) => button.textContent = options[index]);
-            
+
             this.startTimer();
         },
         startTimer: function() {
@@ -1876,7 +1882,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateScoreDisplay: function() { this.elements.scoreDisplay.textContent = this.state.score; },
         cleanup: function() { if (this.state.timerInterval) clearInterval(this.state.timerInterval); this.state.timerInterval = null; }
     };
-    
+
     // --- GAME 10 (Visual Math) LOGIC ---
     const game10 = {
         ...game9, // Inherit from game 9
@@ -1890,7 +1896,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         init: function() {
             // Inherit elements and setup from game9
-            game9.init.call(this); 
+            game9.init.call(this);
             // Game 10 specific elements
             this.elements.themeMatchsticksBtn = this.hostElement.querySelector('#game10-theme-matchsticks');
             this.elements.themeChicksBtn = this.hostElement.querySelector('#game10-theme-chicks');
@@ -1912,7 +1918,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.elements.themeChicksBtn.classList.toggle('active-theme', this.state.currentTheme === 'chicks');
         },
         getVisualForNumber: function(number) {
-            if (number > 7) return number.toString();
+            if (number === 0) return "0";
             if (this.state.currentTheme === 'matchsticks') {
                  return (this.visuals.matchstickSVGs[1] || '|').repeat(number);
             } else {
@@ -1929,7 +1935,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.clearFeedback();
             this.enableAnswerButtons();
             this.elements.nextQuestionBtn.style.display = 'none';
-            
+
             const isAddition = Math.random() < 0.5;
             let num1, num2, correctAnswer;
             if (isAddition) {
@@ -1952,12 +1958,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             shuffleArray(options);
             this.elements.answerButtons.forEach((button, index) => button.textContent = options[index]);
-            
+
             this.startTimer();
         }
     };
-    
+
     // Initialize the master app controller
+    [[game1,'count'],[game2,'shapes'],[game3,'mixed'],[game4,'bowling'],[game5,'fruit'],[game6,'jumps'],[game7,'hero'],[game8,'arithmetic'],[game9,'practice'],[game10,'visual']].forEach(([game,kind]) => KrisMathArcade.mount(game,kind));
     app.init();
 });
 </script>

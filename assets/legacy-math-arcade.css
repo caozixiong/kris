@@ -1,0 +1,55 @@
+/* Local visual language for the legacy math playgrounds. No remote assets. */
+.arcade-host {box-sizing:border-box; min-width:0;}
+.math-arcade {--arcade-ink:#24314f;--arcade-accent:#6551b9;box-sizing:border-box;width:100%;max-width:840px;margin:0 auto 22px;padding:20px;border:2px solid #dee3f3;border-radius:24px;color:var(--arcade-ink);background:linear-gradient(130deg,#fff 30%,#f0ecff);text-align:left;box-shadow:0 8px 0 #273b6310;position:relative;isolation:isolate;}
+.arcade-title {font-family:inherit;font-size:clamp(1.25rem,3vw,1.65rem);font-weight:800;line-height:1.3;margin:0 0 6px;color:var(--arcade-ink);}
+.arcade-intro {font-size:1rem;line-height:1.6;margin:0 0 14px;color:#425170;}
+.arcade-route {display:grid;grid-template-columns:repeat(5,1fr);gap:10px;position:relative;margin:12px 0 8px;}
+.arcade-route::before {content:'';height:4px;background:#d4dbea;position:absolute;left:8%;right:8%;top:50%;z-index:-1;}
+.arcade-stop {display:flex;align-items:center;justify-content:center;justify-self:center;width:42px;height:42px;border-radius:50%;font-size:1.35rem;background:#e9edf5;border:3px solid #fff;filter:grayscale(1);opacity:.65;}
+.arcade-stop.is-earned {background:#ffe69d;border-color:#c47e12;filter:none;opacity:1;box-shadow:0 0 0 3px #fff;}
+.arcade-progress {margin:8px 0;font-size:.95rem;font-weight:700;}
+.arcade-tools {display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.arcade-tool,.arcade-jump {min-height:44px;min-width:44px;padding:10px 16px;background:#fff;color:#344d7b;border:2px solid #aebedd;border-radius:12px;font:inherit;font-size:1rem;font-weight:700;cursor:pointer;}
+.arcade-tool:hover,.arcade-jump:hover {background:#e8f1ff;}
+.arcade-model {margin-top:14px;padding:14px;border-radius:16px;background:#fff;border:2px dashed #b4c4dd;display:flex;flex-wrap:wrap;align-items:start;gap:12px;}
+.arcade-equation {flex:0 0 100%;text-align:center;font-size:clamp(1.1rem,4vw,1.6rem);font-weight:800;margin:0;overflow-wrap:anywhere;}
+.arcade-group {flex:1 1 160px;min-width:0;padding:10px;border-radius:12px;background:#eaf3ff;}
+.arcade-group:nth-child(odd) {background:#fff2d9;}
+.arcade-group-label {display:block;text-align:center;font-size:1.2rem;margin-bottom:8px;}
+.arcade-token-tray {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;}
+.arcade-token {box-sizing:border-box;min-height:44px;min-width:44px;width:100%;padding:3px;border:2px solid #b9cce3;border-radius:10px;background:#fff;color:#1d5287;font-size:1.3rem;cursor:pointer;}
+.arcade-token.is-marked {background:#d3f4dc;border:3px solid #318253;box-shadow:inset 0 -5px #318253;}
+.arcade-token.is-removed {opacity:.55;background:repeating-linear-gradient(135deg,#fff 0 9px,#e0e7f0 9px 12px);text-decoration:line-through;text-decoration-thickness:3px;color:#934451;}
+.arcade-zero {padding:12px;font-size:1.6rem;}
+.arcade-status {margin:10px 0 0;min-height:1.5em;line-height:1.5;font-size:.95rem;font-weight:700;color:#2e6246;}
+.arcade-feedback-detail {max-width:34rem;padding:12px;margin:12px auto;font-size:clamp(1rem,3vw,1.2rem);line-height:1.5;border-radius:12px;background:#edf5ff;color:#263d5c;}
+.arcade-flight {display:flex;gap:6px;flex-wrap:wrap;width:100%;align-items:center;justify-content:center;}
+.arcade-planet {display:flex;align-items:center;justify-content:center;min-width:46px;min-height:46px;border-radius:50%;background:#e4eaff;border:2px solid #beccec;font-weight:800;}
+.arcade-planet.is-current {background:#fff1a1;border-color:#947223;box-shadow:0 0 0 3px #ffdd702e;}
+.arcade-flask {border-radius:12px 12px 38px 38px;border:3px solid #9685c7;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:#f8f5ff!important;}
+.arcade-flask .arcade-group-label {width:100%;}
+.arcade-drop {font-size:1.5rem;line-height:1.5;color:#877499;}
+.arcade-drop.is-filled {color:#7650be;}
+.arcade-model-tip {width:100%;margin:0;text-align:center;}
+.arcade-fruit {background:linear-gradient(130deg,#fff,#eef7df);border-color:#c7d7b3;}
+.arcade-fruit .arcade-stop {border-radius:12px;}
+.arcade-bowling {background:linear-gradient(110deg,#fff5e4,#fff 60%,#fff0d8);border-color:#dbcaaa;}
+.arcade-jumps {background:radial-gradient(circle at 92% 15%,#c9ccfb 0 16px,transparent 17px),linear-gradient(115deg,#f6f5ff,#dee9ff);border-color:#a3b6dc;}
+.arcade-potion {background:linear-gradient(145deg,#fff4fd,#ece5ff);border-color:#d9b3e5;}
+.arcade-hero .arcade-stop {border-radius:7px 7px 0 0;height:50px;border-bottom:5px solid #596c8d;}
+.arcade-arithmetic {background:linear-gradient(135deg,#e9f8f5,#fff 60%,#ffefd9);border-color:#b4d7d2;}
+.arcade-host .game23-shape-group,.arcade-host .shape-group {border-radius:20px;background:#ffffffb8;border:2px dashed #9eb8d1;padding:14px;}
+.arcade-host #pins-area,.arcade-host [id$="pins-area"] {border-radius:26px 26px 8px 8px;background:repeating-linear-gradient(90deg,#f0dfbd 0 45px,#e1cba4 45px 47px);border:4px solid #d0b68d;}
+.arcade-host [id$="mixed-shapes-group"] {background-image:radial-gradient(#9eb8d144 1px,transparent 1px);background-size:15px 15px;}
+.arcade-host button,.arcade-host [role="button"],button[id*="select-game"],button[id*="next"],input[type="number"] {min-height:44px;min-width:44px;}
+button:focus-visible,[role="button"]:focus-visible,input:focus-visible {outline:3px solid #17609b!important;outline-offset:4px!important;box-shadow:0 0 0 6px #fff!important;}
+.arcade-host .game23-number-option,.arcade-host .number-option,.arcade-host .number,.arcade-host .potion-option,.arcade-host .choice-option,.arcade-host .jump-option {font-family:inherit;min-height:48px;min-width:48px;}
+.arcade-host [hidden],.math-arcade [hidden] {display:none!important;}
+.arcade-host [id$="score-board"],#score-board {position:static!important;display:inline-block;margin-bottom:10px;}
+.arcade-host .result-content {max-width:90vw;max-height:88vh;overflow:auto;box-sizing:border-box;}
+@media(max-width:520px){.math-arcade{padding:14px;border-radius:18px}.arcade-group{flex-basis:100%}.arcade-token-tray{gap:4px}.arcade-token{min-width:44px}.arcade-route{gap:6px}.arcade-stop{width:38px;height:38px}.arcade-host{max-width:100%;}.arcade-host .game23-main-container{flex-wrap:wrap;}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.result-content{opacity:1!important;transform:none!important}.celebration,[id$="celebration"]{display:none!important}}
+
+@media(max-width:420px){.arcade-token-tray{grid-template-columns:repeat(3,minmax(44px,1fr));}.arcade-model{padding:8px}.arcade-group{padding:6px}}
+
+.arcade-host .hero-mascot{flex-shrink:0;display:block}.arcade-host .hero-symbol{font-style:normal;display:inline-block}

@@ -79,13 +79,50 @@
       rangeTitle: 'Changing practice starts a new round', replayTitle: 'Read this answer again', mutedReplay: 'Turn sound on to listen', unsupportedReplay: 'Speech is not supported'
     }
   };
+  // These scenes use the same live state as the question, never a second score.
+  Object.assign(copy.zh, {
+    worldTitle: multiply ? '建造你的星系' : '种出你的小果园',
+    worldCopy: n => multiply ? `探索 ${n} / ${total} 个星空站点。每学会一题，就点亮一站。` : `种下 ${n} / ${total} 棵小树。每学会一题，果园都在长大。`,
+    labTitle: multiply ? '星星阵列实验室' : '十格收获盘',
+    labDescription: multiply ? '点亮上面的星星组，再旋转阵列，看看总数会不会变。' : '点篮子把果子放进十格盘。同一篮的果子用同一种颜色。',
+    labToggle: multiply ? '↻ 旋转阵列' : '把两篮合在一起',
+    labReturn: multiply ? '↻ 转回原来的方向' : '把果子放回篮子',
+    labCaption: (rows,cols) => `${rows} 行 × ${cols} 列；${rows} × ${cols} = ${cols} × ${rows}`,
+    harvestCaption: n => `${n} = ${Math.floor(n/10)} 个十 + ${n%10} 个一`,
+    harvestLabel: n => `十格盘里有 ${n} 个果子`,
+    arrayLabel: (a,b,n) => `${a} 行，每行 ${b} 颗星星；点亮了 ${n} 颗`
+  });
+  Object.assign(copy.en, {
+    worldTitle: multiply ? 'Build your galaxy' : 'Grow your little orchard',
+    worldCopy: n => multiply ? `${n} / ${total} space stops explored. Each fact lights another stop.` : `${n} / ${total} trees planted. Every fact helps your orchard grow.`,
+    labTitle: multiply ? 'Star array lab' : 'Ten-frame harvest',
+    labDescription: multiply ? 'Light the groups above, then turn the array. Does the total change?' : 'Tap baskets to move fruit into ten-frames. Fruit from the same basket keeps its color.',
+    labToggle: multiply ? '↻ Turn the array' : 'Bring both baskets together',
+    labReturn: multiply ? '↻ Turn the array back' : 'Put the fruit back',
+    labCaption: (rows,cols) => `${rows} rows × ${cols} columns; ${rows} × ${cols} = ${cols} × ${rows}`,
+    harvestCaption: n => `${n} = ${Math.floor(n/10)} tens + ${n%10} ones`,
+    harvestLabel: n => `${n} pieces of fruit in ten-frames`,
+    arrayLabel: (a,b,n) => `${a} rows of ${b} stars; ${n} stars lit`
+  });
+  Object.assign(copy.fr, {
+    worldTitle: multiply ? 'Construis ta galaxie' : 'Fais pousser ton petit verger',
+    worldCopy: n => multiply ? `${n} / ${total} étapes spatiales explorées. Chaque calcul illumine une étape.` : `${n} / ${total} arbres plantés. Chaque calcul fait grandir ton verger.`,
+    labTitle: multiply ? 'Le tableau des étoiles' : 'La récolte par dizaines',
+    labDescription: multiply ? 'Allume les groupes, puis tourne le tableau. Le total change-t-il ?' : 'Touche les paniers pour remplir les grilles de dix. Les fruits d’un panier gardent la même couleur.',
+    labToggle: multiply ? '↻ Tourner le tableau' : 'Réunir les deux paniers',
+    labReturn: multiply ? '↻ Revenir au premier sens' : 'Remettre les fruits dans les paniers',
+    labCaption: (rows,cols) => `${rows} lignes × ${cols} colonnes ; ${rows} × ${cols} = ${cols} × ${rows}`,
+    harvestCaption: n => `${n} = ${Math.floor(n/10)} ${Math.floor(n/10)===1?'dizaine':'dizaines'} + ${n%10} ${n%10===1?'unité':'unités'}`,
+    harvestLabel: n => `${n} ${n===1?'fruit':'fruits'} dans les grilles de dix`,
+    arrayLabel: (a,b,n) => `${a} ${a===1?'ligne':'lignes'} de ${b} ${b===1?'étoile':'étoiles'} ; ${n} ${n===1?'étoile allumée':'étoiles allumées'}`
+  });
   const readPreference = (key, fallback) => { try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; } };
   const savePreference = (key, value) => { try { localStorage.setItem(key, value); } catch (_) {} };
   let language = window.KrisI18n?.language || 'zh';
   let muted = readPreference('kris-math-muted', 'false') === 'true';
   let range = multiply ? 'all' : '20';
   let deck = [], round = 0, stars = 0, results = [], solved = false, completed = false;
-  let counted = new Set(), wrong = new Set(), feedback = '', showingHint = false;
+  let counted = new Set(), wrong = new Set(), feedback = '', showingHint = false, rotated = false;
   let speechState = 'ready';
   const t = () => copy[language];
   const speech = M.createSpeech(window, status => { speechState = status; $('speech-status').textContent = t()[status]; });
@@ -117,11 +154,57 @@
       if (state === 'current') item.setAttribute('aria-current', 'step');
       $('progress').append(item);
     }
+    renderWorld();
+  }
+  function renderWorld() {
+    $('discovery-title').textContent = t().worldTitle;
+    $('discovery-caption').textContent = t().worldCopy(results.length);
+    $('world-stops').replaceChildren();
+    for (let i = 0; i < total; i++) {
+      const result = results[i], active = !completed && i === round && !result;
+      const item = document.createElement('li');
+      item.className = `world-stop ${result ? 'is-grown' : active ? 'is-growing' : 'is-seed'} ${result?.earned ? 'has-fruit' : ''}`;
+      item.setAttribute('aria-label', t().progress(i+1,result?.earned?'correct':result?'learned':active?'current':'waiting'));
+      if (active) item.setAttribute('aria-current','step');
+      const picture = document.createElement('span'); picture.className='world-stop-picture'; picture.setAttribute('aria-hidden','true');
+      picture.textContent = multiply ? (result ? ['🪐','🌎','🌕','🔴','🌑','☀️'][i] : active ? '🚀' : '·') : (result ? result.earned ? '🌳' : '🌿' : active ? '🌱' : '·');
+      const number = document.createElement('small'); number.textContent = String(i+1);
+      item.append(picture,number); $('world-stops').append(item);
+    }
+  }
+  function renderLab() {
+    const q = deck[round], n = multiply ? counted.size*q.b : [...counted].reduce((sum,i)=>sum+(i===0?q.a:q.b),0);
+    const model = $('lab-model'); model.replaceChildren();
+    $('lab-title').textContent = t().labTitle; $('lab-description').textContent = t().labDescription;
+    $('lab-toggle').textContent = t()[multiply ? rotated?'labReturn':'labToggle' : counted.size===2?'labReturn':'labToggle'];
+    $('lab-toggle').setAttribute('aria-pressed',String(multiply ? rotated : counted.size===2));
+    if (multiply) {
+      const rows = rotated?q.b:q.a, columns = rotated?q.a:q.b;
+      model.className='lab-model star-array'; model.style.gridTemplateColumns=`repeat(${columns}, minmax(0, 1fr))`;
+      model.setAttribute('data-rows',rows); model.setAttribute('data-columns',columns);
+      model.setAttribute('aria-label',t().arrayLabel(rows,columns,n));
+      for(let row=0;row<rows;row++) for(let col=0;col<columns;col++) {
+        const cell=document.createElement('span'), group=rotated?col:row;
+        cell.className='array-star'+(counted.has(group)?' is-lit':''); cell.textContent='★';cell.setAttribute('aria-hidden','true');cell.setAttribute('data-group',group);model.append(cell);
+      }
+      $('lab-caption').textContent=t().labCaption(rows,columns);
+    } else {
+      model.className='lab-model ten-frames'; model.setAttribute('aria-label',t().harvestLabel(n));
+      // Concatenation preserves basket identity even when only basket two is selected.
+      const fruit=[...(counted.has(0)?Array(q.a).fill(0):[]),...(counted.has(1)?Array(q.b).fill(1):[])];
+      for(let frame=0;frame<Math.max(1,Math.ceil(n/10));frame++) {
+        const tray=document.createElement('span');tray.className='ten-frame';tray.setAttribute('aria-hidden','true');
+        for(let i=0;i<10;i++) {const cell=document.createElement('span'),basket=fruit[frame*10+i];cell.className='harvest-cell'+(basket===undefined?'':' is-filled basket-'+basket);cell.textContent=basket===undefined?'':basket===0?'●':'◆';tray.append(cell);}
+        model.append(tray);
+      }
+      $('lab-caption').textContent=t().harvestCaption(n);
+    }
   }
   function renderCounting() {
     const q = deck[round];
     const sum = multiply ? counted.size * q.b : [...counted].reduce((n, i) => n + (i === 0 ? q.a : q.b), 0);
     $('counting').textContent = counted.size ? t().counting(counted.size, sum) : t().countingStart;
+    renderLab();
   }
   function renderObjects() {
     const q = deck[round];
@@ -151,6 +234,7 @@
       number.textContent = size;
       group.append(label, units, number);
       group.addEventListener('click', () => {
+        if (deck[round] !== q || ![...$('objects').children].includes(group) || completed) return;
         if (counted.has(i)) counted.delete(i); else counted.add(i);
         group.classList.toggle('counted', counted.has(i));
         group.setAttribute('aria-pressed', String(counted.has(i)));
@@ -200,7 +284,7 @@
       button.className = 'choice' + (wrong.has(value) ? ' was-wrong' : '') + (solved && value === q.answer ? ' is-correct' : '');
       button.textContent = value;
       button.disabled = solved || wrong.has(value);
-      button.addEventListener('click', () => submitAnswer(value, true));
+      button.addEventListener('click', () => { if (deck[round]===q && [...$('choices').children].includes(button)) submitAnswer(value, true); });
       $('choices').append(button);
     });
     renderObjects();
@@ -254,7 +338,7 @@
     $('equation').focus({ preventScroll: true });
   }
   function resetQuestion() {
-    solved = false; counted = new Set(); wrong = new Set(); feedback = ''; showingHint = false;
+    solved = false; counted = new Set(); wrong = new Set(); feedback = ''; showingHint = false; rotated = false;
     $('answer').value = '';
     speechState = muted ? 'muted' : speech.supported ? 'ready' : 'unsupported';
     $('speech-status').textContent = t()[speechState];
@@ -314,6 +398,11 @@
   }
   $('answer-form').addEventListener('submit', event => { event.preventDefault(); submitAnswer(M.parseAnswer($('answer').value)); });
   $('hint').addEventListener('click', () => { showingHint = !showingHint; renderHint(); });
+  $('lab-toggle').addEventListener('click', () => {
+    if (completed) return;
+    if (multiply) { rotated=!rotated; renderLab(); }
+    else { counted=counted.size===2?new Set():new Set([0,1]); renderObjects(); }
+  });
   $('learn').addEventListener('click', () => finishQuestion(false));
   $('next').addEventListener('click', nextQuestion);
   $('replay').addEventListener('click', () => { if (solved) sayResult(deck[round]); });

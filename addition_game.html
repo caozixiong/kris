@@ -7,14 +7,14 @@
   <meta name="description" content="把两篮果子合起来，收集属于你的星星。支持中文、英文和法文、分组提示及语音复习。">
   <title>加法果园 · Kris 的学习乐园</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/math-game.css?v=517997d925bc">
+  <link rel="stylesheet" href="assets/math-game.css?v=d50216f940a2">
   <script src="assets/math-core.js?v=519e5616481a" defer></script>
-  <script src="assets/math-game.js?v=ee9a5440b15d" defer></script>
+  <script src="assets/math-game.js?v=a0ffab7b7098" defer></script>
 <script defer src="assets/reviews/config.js?v=09163975f7cc"></script><script defer src="assets/reviews/reviews.js?v=6b47f21a62b6"></script>
 <link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
 <script src="assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="assets/i18n-adventures.js?v=b8c577adf1e1"></script>
+<script src="assets/i18n-adventures.js?v=8f735c55fbc6"></script>
 <script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
 </head>
 <body data-mode="addition">
@@ -27,9 +27,10 @@
   <main id="game" class="game-shell">
     <section class="intro" aria-labelledby="game-title"><div><p class="eyebrow">PLAY · DISCOVER · GROW</p><h1 id="game-title">加法果园<span aria-hidden="true">✦</span></h1><p id="game-description">把两篮果子合起来，收集属于你的星星。</p></div><div class="mode-switch"><a href="addition_game.html" aria-current="page" data-i18n="addition">加法果园</a><a href="multiplication_game.html"  data-i18n="multiplication">乘法星球</a></div></section>
     <section class="journey" id="journey" aria-label="练习进度"><div class="journey-label"><span data-i18n="mission">今天的小任务</span><strong id="round-label">第 1 / 6 题</strong></div><ol id="progress" class="progress"></ol><div class="star-total"><span aria-hidden="true">★</span><strong id="star-count">0</strong><span data-i18n="stars">颗星星</span></div></section>
+    <section id="discovery-world" class="discovery-world" data-i18n-skip aria-labelledby="discovery-title"><div class="discovery-heading"><h2 id="discovery-title"></h2><p id="discovery-caption"></p></div><ol id="world-stops" class="world-stops"></ol></section>
     <div class="settings"><label for="range" data-i18n="rangeLabel">练习范围</label><select id="range"></select><button type="button" class="text-button" id="restart" data-i18n="restart">重新开始 ↻</button></div>
     <section id="play-panel" class="play-layout">
-      <div class="scene-panel"><div class="scene-heading"><span class="pill" id="scene-tag">动手数一数</span><span class="scene-doodle" aria-hidden="true">✧ · ✦</span></div><div class="mascot" aria-hidden="true"><span>🍎</span><i>✦</i><i>✧</i></div><h2 id="scene-title"></h2><p class="scene-instruction" id="scene-instruction"></p><div id="objects" class="objects"></div><p id="counting" class="counting" aria-live="polite"></p><button type="button" id="hint" class="hint-button" data-i18n="hint">💡 换个思路</button><p id="hint-text" class="hint-text" hidden></p></div>
+      <div class="scene-panel"><div class="scene-heading"><span class="pill" id="scene-tag">动手数一数</span><span class="scene-doodle" aria-hidden="true">✧ · ✦</span></div><div class="mascot" aria-hidden="true"><span>🍎</span><i>✦</i><i>✧</i></div><h2 id="scene-title"></h2><p class="scene-instruction" id="scene-instruction"></p><div id="objects" class="objects"></div><p id="counting" class="counting" aria-live="polite"></p><section id="math-lab" class="math-lab" data-i18n-skip aria-labelledby="lab-title"><h3 id="lab-title"></h3><p id="lab-description"></p><div id="lab-model" class="lab-model" role="img"></div><p id="lab-caption"></p><button type="button" id="lab-toggle" class="lab-toggle" aria-pressed="false" aria-controls="lab-model" aria-describedby="lab-caption"></button></section><button type="button" id="hint" class="hint-button" data-i18n="hint">💡 换个思路</button><p id="hint-text" class="hint-text" hidden></p></div>
       <div class="question-panel"><p id="question-label" class="eyebrow">想一想，再选一选</p><h2 id="equation" class="equation" tabindex="-1"></h2><p id="question-help"></p><div id="choices" class="choices" role="group" aria-label="选择答案"></div><form id="answer-form" novalidate><label for="answer" data-i18n="typeAnswer">也可以输入答案</label><div class="answer-row"><input id="answer" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-describedby="feedback"><button id="check" type="submit" class="check-button" data-i18n="check">检查</button></div></form><p id="feedback" class="feedback" role="status" aria-live="polite" aria-atomic="true"></p><button type="button" id="learn" class="text-button" data-i18n="learn">一起看答案</button><div id="result" class="result" hidden><p id="result-label"></p><p id="result-equation"></p><strong id="mnemonic" data-i18n-skip lang="zh-CN"></strong><div class="result-actions"><button type="button" id="replay" class="replay" data-i18n="replay">🔊 再听一次</button><button type="button" id="next" class="primary" data-i18n="next">下一题 →</button></div></div></div>
     </section>
     <section id="summary" class="summary" aria-labelledby="summary-title" hidden><div class="summary-medal" aria-hidden="true">🏅</div><p class="eyebrow">LITTLE STEPS, BIG DISCOVERIES</p><h2 id="summary-title" tabindex="-1"></h2><p id="summary-copy"></p><div id="summary-stars" class="summary-stars" aria-hidden="true"></div><h3 data-i18n="review">点一点，再听一遍</h3><div id="review-list" class="review-list"></div><button type="button" id="play-again" class="primary" data-i18n="playAgain">再来一轮 ↻</button><a class="text-button" href="index.html" data-i18n="otherGames">回乐园玩别的游戏</a></section>

@@ -201,13 +201,14 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world counting-world">
     <div class="container">
-        <h1>数一数有多少个图形？</h1>
-        <div class="cheer">Kris，加油！</div>
+        <a class="home-link" href="../index.html">返回首页</a><h1>数一数有多少个图形？</h1>
+        <span class="world-icon" aria-hidden="true">🌱</span><p class="world-intro">点一点图形，做上数数标记。收集十颗种子，种满你的花园！</p>
         <div class="timer" id="timer" aria-label="剩余秒数">2</div>
         
         <div class="shapes-container" id="shapes-container">
@@ -218,7 +219,7 @@
             <!-- 数字选项将通过JavaScript生成 -->
         </div>
         
-        <div class="message" id="message"></div>
+        <div class="message" id="message" role="status" aria-live="polite"></div><button class="world-action" id="count-next" hidden>下一题</button><button class="world-action" id="count-restart">重新开始</button>
         <div class="score">得分: <span id="score">0</span></div>
         <div class="stars" id="stars"></div>
         
@@ -230,217 +231,27 @@
     <div class="celebration" id="celebration"></div>
     
     <script>
-        // 游戏状态
-        const gameState = {
-            score: 0,
-            currentCount: 0,
-            timerValue: 3,
-            timerInterval: null,
-            level: 1,
-            playing: false
-        };
-        
-        // 获取DOM元素
-        const shapesContainer = document.getElementById('shapes-container');
-        const numbersContainer = document.getElementById('numbers');
-        const messageElement = document.getElementById('message');
-        const scoreElement = document.getElementById('score');
-        const starsElement = document.getElementById('stars');
-        const timerElement = document.getElementById('timer');
-        const celebrationElement = document.getElementById('celebration');
-        const progressElement = document.getElementById('progress');
-        
-        // 图形SVG
-        const shapes = [
-            // 圆形
-            `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#ff6b6b" /></svg>`,
-            // 正方形
-            `<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="#5c7cfa" /></svg>`,
-            // 三角形
-            `<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#40c057" /></svg>`,
-            // 星形
-            `<svg viewBox="0 0 100 100"><polygon points="50,10 61,35 90,40 70,60 75,90 50,75 25,90 30,60 10,40 39,35" fill="#fcc419" /></svg>`,
-            // 心形
-            `<svg viewBox="0 0 100 100"><path d="M50,80 C35,65 10,50 10,30 C10,15 25,10 35,10 C45,10 50,20 50,20 C50,20 55,10 65,10 C75,10 90,15 90,30 C90,50 65,65 50,80 Z" fill="#f06595" /></svg>`
-        ];
-        
-        // 初始化游戏
-        function initGame() {
-            gameState.score = 0;
-            gameState.level = 1;
-            scoreElement.textContent = '0';
-            starsElement.textContent = '';
-            progressElement.style.width = '0%';
-            updateProgressBar();
-            createNumberButtons();
-            startNewRound();
-        }
-        
-        // 创建数字按钮
-        function createNumberButtons() {
-            numbersContainer.innerHTML = '';
-            for (let i = 0; i <= 10; i++) {
-                const button = document.createElement('div');
-                button.className = 'number';
-                button.textContent = i;
-                button.addEventListener('click', () => checkAnswer(i));
-                numbersContainer.appendChild(button);
-            }
-        }
-        
-        // 开始新一轮
-        function startNewRound() {
-            messageElement.textContent = '';
-            messageElement.className = 'message';
-            
-            // 根据级别调整难度，倾向于生成6-10个图形
-            const randomValue = Math.random();
-            let maxCount;
-            
-            if (randomValue < 0.7) {
-                // 70%的概率生成6-10个图形
-                maxCount = 10;
-                gameState.currentCount = Math.floor(Math.random() * 5) + 6; // 6-10
-            } else {
-                // 30%的概率生成1-5个图形
-                maxCount = 5;
-                gameState.currentCount = Math.floor(Math.random() * 5) + 1; // 1-5
-            }
-            
-            // 清空并生成新图形
-            shapesContainer.innerHTML = '';
-            
-            // 数字按钮一开始就可以点击
-            const numberButtons = document.querySelectorAll('.number');
-            
-            // 先生成图形，然后启动倒计时
-            generateShapes();
-            
-            // 启动2秒倒计时
-            gameState.timerValue = 2;
-            timerElement.textContent = gameState.timerValue;
-            // 游戏状态设为可玩
-            gameState.playing = true;
-            
-            gameState.timerInterval = setInterval(() => {
-                gameState.timerValue--;
-                timerElement.textContent = gameState.timerValue;
-                
-                if (gameState.timerValue <= 0) {
-                    clearInterval(gameState.timerInterval);
-                }
-            }, 1000);
-        }
-        
-        // 生成图形
-        function generateShapes() {
-            for (let i = 0; i < gameState.currentCount; i++) {
-                const shapeDiv = document.createElement('div');
-                shapeDiv.className = 'shape';
-                
-                // 随机选择图形
-                const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-                shapeDiv.innerHTML = randomShape;
-                
-                // 随机位置和旋转
-                const rotation = Math.floor(Math.random() * 360);
-                shapeDiv.style.transform = `rotate(${rotation}deg)`;
-                
-                shapesContainer.appendChild(shapeDiv);
-            }
-        }
-        
-        // 检查答案
-        function checkAnswer(selectedNumber) {
-            if (!gameState.playing) return;
-            
-            if (selectedNumber === gameState.currentCount) {
-                // 答对了
-                messageElement.textContent = '答对了！';
-                messageElement.className = 'message correct';
-                gameState.score++;
-                scoreElement.textContent = gameState.score;
-                updateStars();
-                celebrate();
-                
-                // 提高级别
-                if (gameState.score % 3 === 0) {
-                    gameState.level++;
-                }
-                
-                updateProgressBar();
-                
-                // 延迟后进入下一轮
-                setTimeout(startNewRound, 1500);
-            } else {
-                // 答错了
-                messageElement.textContent = '答错了，正确答案是 ' + gameState.currentCount;
-                messageElement.className = 'message wrong';
-                
-                // 延迟后进入下一轮
-                setTimeout(startNewRound, 2000);
-            }
-            
-            gameState.playing = false;
-        }
-        
-        // 更新星星显示
-        function updateStars() {
-            starsElement.textContent = '★'.repeat(Math.min(5, Math.floor(gameState.score / 5)));
-        }
-        
-        // 更新进度条
-        function updateProgressBar() {
-            const progress = Math.min(100, (gameState.score / 20) * 100);
-            progressElement.style.width = progress + '%';
-        }
-        
-        // 庆祝动画
-        function celebrate() {
-            celebrationElement.style.display = 'block';
-            celebrationElement.innerHTML = '';
-            
-            // 创建30个彩色碎片
-            for (let i = 0; i < 30; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                
-                // 随机位置
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.top = '-10px';
-                
-                // 随机大小
-                const size = 5 + Math.random() * 10;
-                confetti.style.width = size + 'px';
-                confetti.style.height = size + 'px';
-                
-                // 随机颜色
-                const colors = ['#ff6b6b', '#5c7cfa', '#40c057', '#fcc419', '#7950f2'];
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                celebrationElement.appendChild(confetti);
-                
-                // 动画
-                const animation = confetti.animate([
-                    { top: '-10px', transform: 'rotate(0deg)' },
-                    { top: '110%', transform: 'rotate(360deg)' }
-                ], {
-                    duration: 1000 + Math.random() * 1000,
-                    easing: 'cubic-bezier(.37,0,.63,1)'
-                });
-                
-                animation.onfinish = () => {
-                    confetti.remove();
-                    // 当所有碎片都消失时，隐藏庆祝元素
-                    if (celebrationElement.children.length === 0) {
-                        celebrationElement.style.display = 'none';
-                    }
-                };
-            }
-        }
-        
-        // 启动游戏
-        window.addEventListener('DOMContentLoaded', initGame);
-    </script>
+
+const gameState = {score:0,currentCount:0,timerValue:0,level:1,playing:false,round:0,marked:0};
+const shapesContainer=document.getElementById('shapes-container'), numbersContainer=document.getElementById('numbers'), messageElement=document.getElementById('message'), scoreElement=document.getElementById('score'), starsElement=document.getElementById('stars'), progressElement=document.getElementById('progress');
+const nextCount=document.getElementById('count-next');
+const shapes=[`<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" fill="#d97956"/></svg>`,`<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="14" y="14" width="72" height="72" rx="14" fill="#6d89ca"/></svg>`,`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 9 95 88H5Z" fill="#649a67"/></svg>`,`<svg viewBox="0 0 100 100" aria-hidden="true"><path d="m50 7 13 28 30 5-22 24 5 30-26-15-26 15 5-30L7 40l30-5Z" fill="#d5a838"/></svg>`];
+let countDeck=[];
+function initGame(){gameState.score=0;gameState.round=0;scoreElement.textContent='0';starsElement.textContent='';countDeck=Array.from({length:10},(_,i)=>i+1);for(let i=9;i>0;i--){const j=Math.floor(Math.random()*(i+1));[countDeck[i],countDeck[j]]=[countDeck[j],countDeck[i]];}createNumberButtons();startNewRound();}
+function createNumberButtons(){numbersContainer.innerHTML='';for(let n=0;n<=10;n++){const b=document.createElement('button');b.type='button';b.className='number';b.textContent=n;b.addEventListener('click',()=>checkAnswer(n));numbersContainer.appendChild(b);}}
+function startNewRound(){
+ nextCount.hidden=true;messageElement.textContent='';messageElement.className='message';gameState.marked=0;
+ if(gameState.round>=10){gameState.playing=false;messageElement.textContent=`花园完成！收集了 ${gameState.score} 颗种子。`;document.querySelectorAll('.number').forEach(b=>b.disabled=true);document.getElementById('count-restart').focus();return;}
+ gameState.currentCount=countDeck[gameState.round];gameState.playing=true;shapesContainer.innerHTML='';
+ document.querySelectorAll('.number').forEach(b=>b.disabled=false);
+ for(let i=0;i<gameState.currentCount;i++){const b=document.createElement('button');b.type='button';b.className='shape';b.setAttribute('aria-label','标记一个图形');b.setAttribute('aria-pressed','false');b.innerHTML=shapes[Math.floor(Math.random()*shapes.length)];b.addEventListener('click',()=>{if(!gameState.playing||!shapesContainer.contains(b)||b.classList.contains('counted'))return;b.classList.add('counted');b.setAttribute('aria-pressed','true');const label=document.createElement('span');label.className='count-tag';label.textContent=++gameState.marked;b.appendChild(label);});shapesContainer.appendChild(b);}
+ progressElement.style.width=(gameState.round/10*100)+'%';
+}
+function checkAnswer(n){if(!gameState.playing)return;gameState.playing=false;gameState.round++;const correct=n===gameState.currentCount;if(correct){gameState.score++;scoreElement.textContent=gameState.score;messageElement.textContent='答对了！';}else{messageElement.textContent='答错了，正确答案是 '+gameState.currentCount;}
+ messageElement.className='message '+(correct?'correct':'wrong');starsElement.textContent='🌱'.repeat(gameState.score);progressElement.style.width=(gameState.round/10*100)+'%';document.querySelectorAll('.number').forEach(b=>b.disabled=true);nextCount.hidden=false;nextCount.focus();}
+nextCount.addEventListener('click',()=>{if(!nextCount.hidden){startNewRound();if(gameState.playing)numbersContainer.querySelector('button').focus();}});document.getElementById('count-restart').addEventListener('click',initGame);
+window.addEventListener('DOMContentLoaded',initGame);
+
+</script>
 <kris-reviews data-game="math1"></kris-reviews></body>
 </html>

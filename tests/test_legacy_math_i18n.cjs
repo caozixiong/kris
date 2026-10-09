@@ -41,7 +41,7 @@ function boot(name,language='fr') {
  vm.createContext(context);
  for(const [,attrs,source] of scripts){
   const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-  if(src){if(!/\.\.\/assets\/i18n(?:-legacy-math|-site)?\.js/.test(src))continue;vm.runInContext(fs.readFileSync(path.resolve(path.dirname(filename),src.split('?')[0]),'utf8'),context,{filename:src});}
+  if(src){if(!/\.\.\/assets\/(?:i18n(?:-legacy-math|-site)?|legacy-math-arcade)\.js/.test(src))continue;vm.runInContext(fs.readFileSync(path.resolve(path.dirname(filename),src.split('?')[0]),'utf8'),context,{filename:src});}
   else vm.runInContext(source.replace('    app.init();','    window.__legacy = {app, game1, game2, game3, game4, game5, game6, game7, game8, game9, game10};\n    app.init();'),context,{filename:name+' inline'});
  }
  assert.ok(context.KrisI18n, name+' has the shared runtime');
@@ -131,3 +131,5 @@ test('dynamic pattern pluralization and counters work in every language',()=>{
  g.lang('zh');assert.equal(g.context.KrisI18n.translate('Alien at: 10'),'外星人位置: 10');assert.equal(g.context.KrisI18n.translate('Buy Pear. Change?'),'买梨，能找回多少金币？');
 });
 console.log(`${count} legacy math localization tests passed.`);
+
+module.exports={boot};

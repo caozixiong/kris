@@ -248,12 +248,13 @@
 <link rel="stylesheet" href="assets/i18n.css?v=66e8355ff2fe">
 <script src="assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world shape-world">
 
-<div class="game-container">
+<div class="game-container"><a class="home-link" href="index.html">返回首页</a><h1>形状加减法</h1><span class="world-icon" aria-hidden="true">🤖</span><p class="world-intro">喂饱数字机器人！点击或拖动积木，让总数正好等于目标。走错一步可以撤回。</p><div id="shape-stamps" class="journey-trail" aria-label="机器人徽章"></div>
     <div class="mode-switcher">
         <button id="addition-mode-btn" class="mode-button active">加法模式</button>
         <button id="subtraction-mode-btn" class="mode-button">减法模式</button>
@@ -273,7 +274,7 @@
         <div class="machine-content" id="machine-text-content">拖到这里！ <span id="current-sum-display-addition">总和: 0</span></div>
     </div>
 
-    <div id="feedback-message"></div>
+    <p id="machine-equation" aria-live="polite"></p><div id="feedback-message" role="status" aria-live="polite"></div><div class="world-controls"><button id="undo-shape" disabled>撤回一步</button><button id="shape-next" hidden>下一题</button></div>
 
     <div class="shapes-display-area" id="shapes-area">
         <!-- Shapes for addition mode will be dynamically generated here -->
@@ -283,389 +284,29 @@
 </div>
 
 <script>
-    // DOM Elements
-    const targetNumberDisplay = document.getElementById('target-number');
-    const targetLabel = document.getElementById('target-label');
-    const sortingMachine = document.getElementById('sorting-machine');
-    const shapesArea = document.getElementById('shapes-area'); // For addition mode
-    const feedbackMessage = document.getElementById('feedback-message');
-    const additionSumDisplay = document.getElementById('current-sum-display-addition'); // For "Drop here! Sum: X"
-    const machineTextContent = document.getElementById('machine-text-content'); // Container for "Drop here..."
-    
-    const resetButton = document.getElementById('reset-button');
-    const additionModeBtn = document.getElementById('addition-mode-btn');
-    const subtractionModeBtn = document.getElementById('subtraction-mode-btn');
-    const subtractionDetailsDisplay = document.getElementById('subtraction-details');
-    const initialSumDisplay = document.getElementById('initial-sum-display');
-    const currentSumDisplaySubtraction = document.getElementById('current-sum-display-subtraction');
 
-    // Game State Variables
-    let currentGameMode = 'addition'; // 'addition' or 'subtraction'
-    let targetSum;
-    let currentSumInMachineAddition = 0; // For addition mode
-    let initialSumSubtraction = 0; // For subtraction mode
-    let currentSumSubtraction = 0; // For subtraction mode
-
-    let draggableShapes = []; // For addition mode
-    let shapesInMachineSubtraction = []; // For subtraction mode {element, value}
-
-    const shapeTypes = [
-        { type: 'circle', color: '#FF6347' }, // Tomato
-        { type: 'square', color: '#4682B4' }, // SteelBlue
-        { type: 'triangle', color: '#32CD32' }  // LimeGreen
-    ];
-    const additionShapeNumbers = [1, 2, 3]; // Numbers for addition mode shapes
-    const subtractionShapeNumbers = [1, 2, 3, 4, 5]; // Numbers for subtraction mode shapes
-
-    // --- Utility Functions ---
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function createShapeElement(shapeInfo, number, idPrefix = 'shape') {
-        const shapeDiv = document.createElement('div');
-        shapeDiv.classList.add('shape', shapeInfo.type);
-        shapeDiv.style.backgroundColor = shapeInfo.type === 'triangle' ? 'transparent' : shapeInfo.color;
-        shapeDiv.dataset.value = number;
-        shapeDiv.id = `${idPrefix}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`; // Unique ID
-
-        const numberSpan = document.createElement('span');
-        numberSpan.textContent = number;
-        if (shapeInfo.type === 'triangle') {
-            shapeDiv.style.borderBottomColor = shapeInfo.color;
-        }
-        shapeDiv.appendChild(numberSpan);
-        return shapeDiv;
-    }
-    
-    function calculateSum(shapesArray) { // shapesArray is an array of shape *elements*
-        return shapesArray.reduce((sum, shapeEl) => sum + parseInt(shapeEl.dataset.value), 0);
-    }
-
-    function showFeedback(message, isCorrect) {
-        feedbackMessage.textContent = message;
-        feedbackMessage.style.color = isCorrect ? 'green' : 'red';
-        feedbackMessage.style.display = 'block';
-        sortingMachine.classList.add(isCorrect ? 'accepting' : 'rejecting');
-
-        setTimeout(() => {
-            feedbackMessage.style.display = 'none';
-            sortingMachine.classList.remove('accepting', 'rejecting');
-        }, 1500);
-    }
-
-    function resetGameArea() {
-        feedbackMessage.style.display = 'none';
-        sortingMachine.classList.remove('rejecting', 'accepting');
-        sortingMachine.innerHTML = ''; // Clear any shapes or text from machine
-        shapesArea.innerHTML = ''; // Clear addition shapes pool
-        draggableShapes = [];
-        shapesInMachineSubtraction = [];
-        currentSumInMachineAddition = 0;
-        initialSumSubtraction = 0;
-        currentSumSubtraction = 0;
-        
-        // Reset event listeners on sortingMachine (important for switching modes)
-        sortingMachine.removeEventListener('dragover', handleDragOverAddition);
-        sortingMachine.removeEventListener('dragenter', handleDragEnterAddition);
-        sortingMachine.removeEventListener('dragleave', handleDragLeaveAddition);
-        sortingMachine.removeEventListener('drop', handleDropAddition);
-    }
-
-    // --- Mode Switching ---
-    additionModeBtn.addEventListener('click', () => switchMode('addition'));
-    subtractionModeBtn.addEventListener('click', () => switchMode('subtraction'));
-
-    function switchMode(mode) {
-        if (currentGameMode === mode) return;
-        currentGameMode = mode;
-        resetGameArea();
-
-        if (mode === 'addition') {
-            additionModeBtn.classList.add('active');
-            subtractionModeBtn.classList.remove('active');
-            subtractionDetailsDisplay.style.display = 'none';
-            shapesArea.style.display = 'flex'; // Show shapes pool
-            targetLabel.textContent = "目标总和";
-            // Restore machine content for addition
-            const machineContentDiv = document.createElement('div');
-            machineContentDiv.classList.add('machine-content');
-            machineContentDiv.id = 'machine-text-content'; // for consistency if needed elsewhere
-            machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
-            sortingMachine.appendChild(machineContentDiv);
-            // Re-assign additionSumDisplay as it's recreated
-            window.additionSumDisplay = document.getElementById('current-sum-display-addition'); 
-            sortingMachine.style.justifyContent = 'center';
-            sortingMachine.style.alignItems = 'center';
-            initAdditionMode();
-        } else { // Subtraction mode
-            subtractionModeBtn.classList.add('active');
-            additionModeBtn.classList.remove('active');
-            subtractionDetailsDisplay.style.display = 'block';
-            shapesArea.style.display = 'none'; // Hide shapes pool
-            targetLabel.textContent = "目标数值";
-            sortingMachine.style.justifyContent = 'flex-start'; // Align shapes to start
-            sortingMachine.style.alignItems = 'flex-start'; // Align shapes to start
-            initSubtractionMode();
-        }
-    }
-    
-    // --- Addition Mode Logic ---
-    function initAdditionMode() {
-        targetSum = getRandomInt(3, 7);
-        targetNumberDisplay.textContent = targetSum;
-        currentSumInMachineAddition = 0;
-        updateAdditionSumDisplay();
-        generateAdditionShapes();
-        // Add drag/drop listeners for addition mode
-        sortingMachine.addEventListener('dragover', handleDragOverAddition);
-        sortingMachine.addEventListener('dragenter', handleDragEnterAddition);
-        sortingMachine.addEventListener('dragleave', handleDragLeaveAddition);
-        sortingMachine.addEventListener('drop', handleDropAddition);
-    }
-
-    function generateAdditionShapes() {
-        shapesArea.innerHTML = '';
-        draggableShapes = [];
-        for (let i = 0; i < 8; i++) {
-            const shapeInfo = shapeTypes[getRandomInt(0, shapeTypes.length - 1)];
-            const number = additionShapeNumbers[getRandomInt(0, additionShapeNumbers.length - 1)];
-            const shapeDiv = createShapeElement(shapeInfo, number, `addshape-${i}`);
-            shapeDiv.classList.add('draggable');
-            shapeDiv.draggable = true;
-            shapesArea.appendChild(shapeDiv);
-            draggableShapes.push(shapeDiv);
-        }
-        addDragListenersAddition();
-    }
-
-    function addDragListenersAddition() {
-        draggableShapes.forEach(shape => {
-            shape.addEventListener('dragstart', handleDragStartAddition);
-            shape.addEventListener('dragend', handleDragEndAddition);
-        });
-    }
-
-    function handleDragStartAddition(e) {
-        e.dataTransfer.setData('text/plain', e.target.id);
-        e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => e.target.classList.add('dragging'), 0);
-    }
-
-    function handleDragEndAddition(e) {
-        e.target.classList.remove('dragging');
-        sortingMachine.classList.remove('accepting');
-    }
-
-    function handleDragOverAddition(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    }
-
-    function handleDragEnterAddition(e) {
-        e.preventDefault();
-        if (currentSumInMachineAddition < targetSum) {
-            sortingMachine.classList.add('accepting');
-        } else {
-            sortingMachine.classList.add('rejecting');
-        }
-    }
-
-    function handleDragLeaveAddition(e) {
-        sortingMachine.classList.remove('accepting', 'rejecting');
-    }
-
-    function handleDropAddition(e) {
-        e.preventDefault();
-        sortingMachine.classList.remove('accepting', 'rejecting');
-        const shapeId = e.dataTransfer.getData('text/plain');
-        const droppedShape = document.getElementById(shapeId);
-
-        if (!droppedShape || !draggableShapes.includes(droppedShape)) return; // Ensure it's a draggable shape for this mode
-
-        const shapeValue = parseInt(droppedShape.dataset.value);
-
-        if (currentSumInMachineAddition + shapeValue <= targetSum) {
-            currentSumInMachineAddition += shapeValue;
-            // Visually "move" shape (hide from pool, could animate into machine)
-            droppedShape.style.display = 'none'; 
-            // Remove from draggableShapes to prevent re-dragging
-            draggableShapes = draggableShapes.filter(s => s.id !== shapeId); 
-            updateAdditionSumDisplay();
-
-            if (currentSumInMachineAddition === targetSum) {
-                showFeedback('😊', true);
-                setTimeout(initAdditionMode, 2000);
-            } else {
-                sortingMachine.classList.add('accepting');
-                setTimeout(() => sortingMachine.classList.remove('accepting'), 500);
-            }
-        } else {
-            showFeedback('❌', false); // Overshot
-        }
-    }
-
-    function updateAdditionSumDisplay() {
-        if (window.additionSumDisplay) { // Check if it exists (it's removed/added on mode switch)
-             window.additionSumDisplay.textContent = `总和: ${currentSumInMachineAddition}`;
-        }
-    }
-
-    // --- Subtraction Mode Logic ---
-    function initSubtractionMode() {
-        shapesInMachineSubtraction = [];
-        sortingMachine.innerHTML = ''; // Clear machine area for new shapes
-
-        // 1. Generate initial shapes inside the machine
-        let numShapesInMachine = getRandomInt(3, 5);
-        let tempInitialSum = 0;
-        for (let i = 0; i < numShapesInMachine; i++) {
-            const shapeInfo = shapeTypes[getRandomInt(0, shapeTypes.length - 1)];
-            const number = subtractionShapeNumbers[getRandomInt(0, subtractionShapeNumbers.length - 1)];
-            const shapeDiv = createShapeElement(shapeInfo, number, `subshape-${i}`);
-            shapeDiv.classList.add('clickable'); // Make it clickable
-            tempInitialSum += number;
-            shapesInMachineSubtraction.push({element: shapeDiv, value: number, id: shapeDiv.id});
-            sortingMachine.appendChild(shapeDiv);
-        }
-        initialSumSubtraction = tempInitialSum;
-        currentSumSubtraction = initialSumSubtraction;
-
-        // 2. Generate Target Sum (must be less than initialSum and achievable)
-        if (initialSumSubtraction <= 1) { // Need a sum that can be reduced
-             // Fallback: if initial sum is too small, restart. This is a safeguard.
-            initSubtractionMode(); 
-            return;
-        }
-        
-        // Create a list of values of shapes currently in the machine
-        const currentShapeValues = shapesInMachineSubtraction.map(s => s.value);
-
-        // Try to find a target sum by removing one or two shapes (simplistic way to ensure solvability)
-        // This can be made more robust.
-        let potentialTargetSums = [];
-        if (currentShapeValues.length > 0) {
-            potentialTargetSums.push(initialSumSubtraction - currentShapeValues[0]); // Remove one shape
-        }
-        if (currentShapeValues.length > 1) {
-            potentialTargetSums.push(initialSumSubtraction - currentShapeValues[0] - currentShapeValues[1]); // Remove two shapes
-             // Ensure it's not negative
-            if (initialSumSubtraction - currentShapeValues[currentShapeValues.length-1] > 0) {
-                 potentialTargetSums.push(initialSumSubtraction - currentShapeValues[currentShapeValues.length-1]);
-            }
-        }
-        // Filter out non-positive or sums equal to initial sum
-        potentialTargetSums = potentialTargetSums.filter(sum => sum > 0 && sum < initialSumSubtraction);
-
-        if (potentialTargetSums.length === 0) {
-            // If no simple target sum found, try removing any single smallest shape if possible
-            const minShapeValue = Math.min(...currentShapeValues);
-            if (initialSumSubtraction - minShapeValue > 0) {
-                targetSum = initialSumSubtraction - minShapeValue;
-            } else {
-                // Very unlikely edge case, restart if no valid target can be made
-                initSubtractionMode();
-                return;
-            }
-        } else {
-             targetSum = potentialTargetSums[getRandomInt(0, potentialTargetSums.length - 1)];
-        }
-
-
-        // Display sums
-        initialSumDisplay.textContent = initialSumSubtraction;
-        currentSumDisplaySubtraction.textContent = currentSumSubtraction;
-        targetNumberDisplay.textContent = targetSum;
-
-        // Add click listeners to shapes in machine
-        shapesInMachineSubtraction.forEach(shapeObj => {
-            shapeObj.element.addEventListener('click', handleShapeRemovalClick);
-        });
-    }
-
-    function handleShapeRemovalClick(e) {
-        const clickedShapeId = e.currentTarget.id;
-        const clickedShapeObj = shapesInMachineSubtraction.find(s => s.id === clickedShapeId);
-
-        if (!clickedShapeObj || e.currentTarget.classList.contains('removed')) return; // Already removed or not found
-
-        const shapeValue = clickedShapeObj.value;
-        const previousSum = currentSumSubtraction; // Store for potential revert
-
-        // Try removing the shape
-        currentSumSubtraction -= shapeValue;
-        e.currentTarget.classList.add('removed'); // Visually hide or mark for removal
-        updateSubtractionSumDisplay();
-
-        if (currentSumSubtraction === targetSum) {
-            showFeedback('😊', true);
-            // Make remaining shapes unclickable
-            shapesInMachineSubtraction.forEach(s => s.element.removeEventListener('click', handleShapeRemovalClick));
-            setTimeout(initSubtractionMode, 2000);
-        } else if (currentSumSubtraction < targetSum) {
-            // Overshot! Incorrect removal.
-            showFeedback('❌', false);
-            // Revert: make shape reappear and restore sum
-            currentSumSubtraction = previousSum; // Revert sum
-            e.currentTarget.classList.remove('removed'); // Make it visible again
-            updateSubtractionSumDisplay();
-        } else {
-            // Valid intermediate move, no specific feedback needed beyond sum update
-            // Shape stays "removed" (visually hidden)
-            // To make it permanent, filter it out from shapesInMachineSubtraction
-            // For now, 'removed' class handles visual. If they can be clicked multiple times, need more robust state.
-             // Make it unclickable after one valid removal to prevent multiple clicks on same hidden item
-            e.currentTarget.removeEventListener('click', handleShapeRemovalClick);
-            e.currentTarget.style.cursor = 'default';
-        }
-    }
-    
-    function updateSubtractionSumDisplay() {
-        currentSumDisplaySubtraction.textContent = currentSumSubtraction;
-    }
-
-
-    // --- Reset Button ---
-    resetButton.addEventListener('click', () => {
-        resetGameArea(); // General reset
-        if (currentGameMode === 'addition') {
-            // Need to re-add the machine text content for addition mode
-            const machineContentDiv = document.createElement('div');
-            machineContentDiv.classList.add('machine-content');
-            machineContentDiv.id = 'machine-text-content';
-            machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
-            sortingMachine.appendChild(machineContentDiv);
-            window.additionSumDisplay = document.getElementById('current-sum-display-addition');
-            sortingMachine.style.justifyContent = 'center';
-            sortingMachine.style.alignItems = 'center';
-            initAdditionMode();
-        } else {
-            sortingMachine.style.justifyContent = 'flex-start';
-            sortingMachine.style.alignItems = 'flex-start';
-            initSubtractionMode();
-        }
-    });
-
-    // --- Initial Load ---
-    window.onload = () => {
-        // Default to addition mode
-        additionModeBtn.classList.add('active');
-        subtractionModeBtn.classList.remove('active');
-        subtractionDetailsDisplay.style.display = 'none';
-        shapesArea.style.display = 'flex';
-        targetLabel.textContent = "目标总和";
-        
-        const machineContentDiv = document.createElement('div');
-        machineContentDiv.classList.add('machine-content');
-        machineContentDiv.id = 'machine-text-content';
-        machineContentDiv.innerHTML = `拖到这里！ <span id="current-sum-display-addition">总和: 0</span>`;
-        sortingMachine.replaceChildren(machineContentDiv);
-        window.additionSumDisplay = document.getElementById('current-sum-display-addition');
-        sortingMachine.style.justifyContent = 'center';
-        sortingMachine.style.alignItems = 'center';
-
-        initAdditionMode();
-    };
+const $=id=>document.getElementById(id),sortingMachine=$('sorting-machine'),shapesArea=$('shapes-area');
+let currentGameMode='addition',targetSum=0,currentSumInMachineAddition=0,initialSumSubtraction=0,currentSumSubtraction=0,draggableShapes=[],shapesInMachineSubtraction=[],shapeHistory=[],shapeSolved=false,shapeStamps=0,shapeVersion=0,shapeSerial=0;
+const shapeTypes=[{type:'circle',color:'#bc4d38'},{type:'square',color:'#326b91'},{type:'triangle',color:'#27773c'}];
+function getRandomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function refreshShape(){window.KrisI18n?.refresh();}
+function createShapeElement(info,value,prefix='shape'){const b=document.createElement('button');b.type='button';b.className='shape '+info.type;b.id=prefix+'-'+(++shapeSerial);b.dataset.value=value;b.style.backgroundColor=info.color;b.setAttribute('aria-label',`数值 ${value} 的积木`);const n=document.createElement('span');n.textContent=value;b.appendChild(n);return b;}
+function updateAdditionSumDisplay(){const s=$('current-sum-display-addition');if(s)s.textContent=`总和: ${currentSumInMachineAddition}`;}
+function updateSubtractionSumDisplay(){$('current-sum-display-subtraction').textContent=currentSumSubtraction;}
+function updateShapeUI(){const value=currentGameMode==='addition'?currentSumInMachineAddition:currentSumSubtraction;const goalGap=currentGameMode==='addition'?targetSum-value:value-targetSum;$('machine-equation').textContent=currentGameMode==='addition'?`0${shapeHistory.map(s=>' + '+s.value).join('')} = ${value}`:`${initialSumSubtraction}${shapeHistory.map(s=>' − '+s.value).join('')} = ${value}`;$('feedback-message').style.display='block';$('feedback-message').textContent=shapeSolved?'机器人充满能量！':`还差 ${goalGap}，继续试一试。`;$('feedback-message').style.color=shapeSolved?'#17634d':'#294b5a';$('undo-shape').disabled=!shapeHistory.length||shapeSolved;$('shape-next').hidden=!shapeSolved;$('shape-stamps').innerHTML=Array.from({length:Math.min(6,shapeStamps)},()=>'<span class="journey-stop earned" aria-hidden="true">★</span>').join('');$('shape-stamps').setAttribute('aria-label',`已完成 ${shapeStamps} 个机器人`);updateAdditionSumDisplay();updateSubtractionSumDisplay();refreshShape();}
+function checkShapeWin(){const v=currentGameMode==='addition'?currentSumInMachineAddition:currentSumSubtraction;if(v===targetSum&&!shapeSolved){shapeSolved=true;shapeStamps++;$('shape-next').focus();}updateShapeUI();if(shapeSolved)$('shape-next').focus();}
+function resetGameArea(){shapeVersion++;shapeHistory=[];shapeSolved=false;draggableShapes=[];shapesInMachineSubtraction=[];currentSumInMachineAddition=0;currentSumSubtraction=0;initialSumSubtraction=0;sortingMachine.innerHTML='';shapesArea.innerHTML='';sortingMachine.classList.remove('accepting','rejecting');}
+function switchMode(mode){if(!['addition','subtraction'].includes(mode)||mode===currentGameMode)return;currentGameMode=mode;newShapeProblem();}
+function newShapeProblem(){resetGameArea();$('addition-mode-btn').classList.toggle('active',currentGameMode==='addition');$('subtraction-mode-btn').classList.toggle('active',currentGameMode==='subtraction');$('addition-mode-btn').setAttribute('aria-pressed',String(currentGameMode==='addition'));$('subtraction-mode-btn').setAttribute('aria-pressed',String(currentGameMode==='subtraction'));$('subtraction-details').style.display=currentGameMode==='addition'?'none':'block';shapesArea.style.display=currentGameMode==='addition'?'flex':'none';$('target-label').textContent=currentGameMode==='addition'?'目标总和':'目标数值';if(currentGameMode==='addition')initAdditionMode();else initSubtractionMode();}
+function initAdditionMode(){sortingMachine.innerHTML='<div class="machine-content"><span>点击积木或拖到这里</span><br><span id="current-sum-display-addition">总和: 0</span></div>';targetSum=getRandomInt(3,10);currentSumInMachineAddition=0;generateAdditionShapes();$('target-number').textContent=targetSum;updateShapeUI();}
+function generateAdditionShapes(){shapesArea.innerHTML='';draggableShapes=[];const values=[1,1,1,2,2,3,getRandomInt(1,3),getRandomInt(1,3)];for(let i=values.length-1;i>0;i--){const j=getRandomInt(0,i);[values[i],values[j]]=[values[j],values[i]];}const generation=shapeVersion;values.forEach((v,i)=>{const b=createShapeElement(shapeTypes[getRandomInt(0,2)],v,'addshape-'+i);b.classList.add('draggable');b.draggable=true;b.addEventListener('click',()=>{if(generation===shapeVersion)addShape(b);});b.addEventListener('dragstart',e=>{if(generation===shapeVersion)e.dataTransfer.setData('text/plain',b.id);});shapesArea.appendChild(b);draggableShapes.push(b);});}
+function addShape(b){if(currentGameMode!=='addition'||shapeSolved||!draggableShapes.includes(b))return;const v=Number(b.dataset.value);if(currentSumInMachineAddition+v>targetSum){$('feedback-message').textContent='这块太大了，试试另一块。';refreshShape();return;}currentSumInMachineAddition+=v;b.hidden=true;b.disabled=true;draggableShapes=draggableShapes.filter(s=>s!==b);shapeHistory.push({element:b,value:v});checkShapeWin();}
+function handleDropAddition(e){e.preventDefault();const b=document.getElementById(e.dataTransfer.getData('text/plain'));if(b)addShape(b);}
+function initSubtractionMode(){sortingMachine.innerHTML='';shapesInMachineSubtraction=[];const count=getRandomInt(4,6);for(let i=0;i<count;i++){const v=getRandomInt(1,5),b=createShapeElement(shapeTypes[getRandomInt(0,2)],v,'subshape-'+i);b.classList.add('clickable');shapesInMachineSubtraction.push({element:b,value:v,id:b.id});sortingMachine.appendChild(b);b.addEventListener('click',handleShapeRemovalClick);}initialSumSubtraction=shapesInMachineSubtraction.reduce((sum,s)=>sum+s.value,0);currentSumSubtraction=initialSumSubtraction;const removeCount=getRandomInt(1,Math.min(3,count-1));targetSum=initialSumSubtraction-shapesInMachineSubtraction.slice(0,removeCount).reduce((sum,s)=>sum+s.value,0);$('initial-sum-display').textContent=initialSumSubtraction;$('target-number').textContent=targetSum;updateShapeUI();}
+function handleShapeRemovalClick(e){if(currentGameMode!=='subtraction'||shapeSolved)return;const s=shapesInMachineSubtraction.find(s=>s.element===e.currentTarget);if(!s||s.element.classList.contains('removed'))return;if(currentSumSubtraction-s.value<targetSum){$('feedback-message').textContent='这块太大了，试试另一块。';refreshShape();return;}currentSumSubtraction-=s.value;s.element.classList.add('removed');s.element.disabled=true;shapeHistory.push(s);checkShapeWin();}
+function undoShape(){if(shapeSolved||!shapeHistory.length)return;const s=shapeHistory.pop();s.element.disabled=false;if(currentGameMode==='addition'){currentSumInMachineAddition-=s.value;s.element.hidden=false;draggableShapes.push(s.element);}else{currentSumSubtraction+=s.value;s.element.classList.remove('removed');}updateShapeUI();s.element.focus();}
+$('addition-mode-btn').addEventListener('click',()=>switchMode('addition'));$('subtraction-mode-btn').addEventListener('click',()=>switchMode('subtraction'));$('reset-button').addEventListener('click',newShapeProblem);$('shape-next').addEventListener('click',()=>{if(shapeSolved)newShapeProblem();});$('undo-shape').addEventListener('click',undoShape);sortingMachine.addEventListener('dragover',e=>{if(currentGameMode==='addition')e.preventDefault();});sortingMachine.addEventListener('drop',handleDropAddition);
+window.onload=newShapeProblem;
 
 </script>
 <kris-reviews data-game="shape_sorter_math"></kris-reviews></body>

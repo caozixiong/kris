@@ -427,6 +427,65 @@ for (const mode of Object.keys(pages)) {
 }
 console.log('PASS: displayed scores/progress/matched states; actionable keyboard focus; persistent polite live region without duplicate win announcements.');
 
+// Each mechanic now builds its own world. Reviewing it never creates a match.
+for (const mode of Object.keys(pages)) for (const size of mode === 'sentences' ? [3,4,6] : [4,6,8]) {
+  const g = createGame(mode); g.click('level', size);
+  assert(g.$(`.pair-world.world-${mode}`));
+  assert.equal(g.all('.world-token').length, size);
+  assert.equal(g.all('.world-token.is-earned').length, 0);
+  assert.equal(g.all('.world-token.is-revisited').length, 0, 'empty markers never look selected');
+  assert.equal(g.all('button[data-act="revisit"]').length, 0, 'unmatched words cannot be reviewed');
+  const [a,b,c] = g.state.pairs;
+  g.click('hint'); assert.equal(g.all('.world-token.is-earned').length, 0, 'hint builds no part of the world');
+  g.click('continue');
+  g.click('card', a.id + ':en');
+  if (mode === 'sentences') {
+    assert.equal(g.all('.conversation-bubble p')[0].textContent, a.en);
+    assert.notEqual(g.all('.conversation-bubble p')[1].textContent, a.fr, 'one chosen sentence does not reveal its partner');
+  }
+  if (mode === 'memory') assert.equal(g.all('.world-pair').length, 0, 'the sky never reveals an unmatched word');
+  g.click('card', a.id + ':fr');
+  assert.equal(g.all('.world-token.is-earned').length, 1);
+  if (mode === 'bridge') assert.equal(g.$('.bridge-traveler').getAttribute('style'), `--travel:${1/size}`);
+  if (mode === 'sentences') assert.deepEqual(g.all('.conversation-bubble p').map(p=>p.textContent), [a.en,a.fr]);
+  else assert.deepEqual(g.all('.world-pair span[lang]').map(p=>p.textContent), [a.en,a.fr]);
+  g.click('card', b.id + ':en');
+  const before = copy(g.state), saved = g.writes.length;
+  g.click('revisit', a.id);
+  assert.deepEqual(copy(g.state), before, 'review preserves a partial answer');
+  assert.equal(g.document.activeElement, g.button('revisit', a.id));
+  for (const lang of ['en','fr','zh']) {
+    language(g, lang); assert.deepEqual(copy(g.state), before);
+    assert.equal(g.all('.world-token.is-earned').length, 1);
+    assert.equal(g.writes.length, saved);
+    const read = mode === 'sentences' ? g.all('.conversation-bubble p') : g.all('.world-pair span[lang]');
+    assert.deepEqual(read.map(p=>p.textContent), [a.en,a.fr], 'review keeps exact EN↔FR text in every UI language');
+  }
+  g.click('card', c.id + ':fr');
+  assert.equal(g.state.phase, 'mismatch');
+  assert(g.button('revisit', a.id).disabled, 'review cannot interrupt a mismatch');
+  if (mode === 'memory') {
+    g.clock.advance(999); assert.equal(g.state.phase, 'mismatch');
+    g.clock.advance(1); assert.equal(g.state.phase, 'active');
+  } else g.click('continue');
+  assert.equal(g.all('.world-token.is-earned').length, 1);
+  solve(g); assert(g.$('.world-complete'));
+  assert.equal(g.all('.world-token.is-earned').length, size);
+  const finalState = copy(g.state), writes = g.writes.length;
+  for (const pair of g.state.pairs) {
+    g.click('revisit', pair.id);
+    assert.deepEqual(copy(g.state), finalState);
+    assert.equal(g.writes.length, writes, 'completed-world review never saves again');
+    assert(g.$('#word-announcement').textContent.includes(pair.en));
+    assert(g.$('#word-announcement').textContent.includes(pair.fr));
+  }
+  const stale = g.button('revisit', a.id); g.click('restart'); stale.click();
+  assert.equal(g.all('.world-token.is-earned').length, 0);
+  assert.equal(g.all('.world-pair').length, 0);
+  assert.equal(g.state.moves, 0); assert.equal(g.state.hints, 0); assert.equal(g.clock.pending.length, 0);
+}
+console.log('PASS: all nine word-world sizes, answer-built bridge/conversation/constellation, no hint credit or unmatched memory reveal, exact bilingual revisits, preserved partial answers/focus/language, 1,000 ms mismatch, once-only completion and clean restart.');
+
 const crypto = require('node:crypto');
 for (const [mode, slug] of Object.entries(pages)) {
   const file = path.join(ROOT, 'games', slug + '.html'), source = fs.readFileSync(file,'utf8'), doc = makeDOM(source);

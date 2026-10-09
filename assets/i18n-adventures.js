@@ -106,10 +106,43 @@
     ['阅读法语采购清单，练习数量、颜色和名词搭配。适合8–10岁的互动学习游戏，8个任务，无计时压力。','Read French shopping lists and practise quantities, colours and noun agreement. Eight untimed learning missions for ages 8–10.','Lis des listes de courses en français et travaille les quantités, les couleurs et les accords. Huit missions sans chronomètre pour les 8–10 ans.'],
     ['先预测，再测试材料和开关，探索完整电路与导体、绝缘体。适合8–10岁的互动学习游戏，8个任务，无计时压力。','Predict, test materials and switches, and explore complete circuits, conductors and insulators. Eight untimed learning missions for ages 8–10.','Prédis, teste des matériaux et des interrupteurs, puis découvre les circuits complets, les conducteurs et les isolants. Huit missions sans chronomètre pour les 8–10 ans.']
   ];
+  entries.push(
+    ["目标能量已匹配", "Target energy matched", "Énergie cible atteinte"],
+    ["低于目标", "Below target", "Sous la cible"],
+    ["高于目标", "Above target", "Au-dessus de la cible"],
+    ["成功对接！", "Docking complete!", "Amarrage réussi !"],
+    ["航线规划中", "Planning the route", "Planification du trajet"],
+    ["航行步数", "Flight steps", "Étapes de vol"],
+    ["点已走过的能量节点，可以回到那一步。", "Tap an earlier energy node to rewind to that step.", "Touche un ancien point d’énergie pour revenir à cette étape."],
+    ["已发现的遗迹宝物", "Relics discovered", "Trésors découverts"],
+    ["句子位置线索", "Sentence position clues", "Indices de position dans la phrase"],
+    ["✓ 是已确认的开头，? 是下一处线索。", "✓ marks the confirmed beginning; ? marks the next clue.", "✓ indique le début confirmé ; ? indique le prochain indice."],
+    ["拼好后开启石门，看看哪些符文被点亮。", "Build the sentence and try the door to light up the runes.", "Forme la phrase et essaie d’ouvrir la porte pour allumer les runes."],
+    ["背包里的实物", "Items in your bag", "Objets dans ton sac"],
+    ["委托已送达", "Delivery complete", "Commande livrée"],
+    ["我的采购篮", "My shopping basket", "Mon panier"],
+    ["篮子还空着，把清单里的物品装进来吧。", "Your basket is empty. Pack the items on the list.", "Ton panier est vide. Ajoute les objets de la liste."],
+    ["本次实验记录", "Session experiment notebook", "Carnet d’expériences de la session"],
+    ["🔎 本次实验记录", "🔎 Experiment notebook", "🔎 Carnet d’expériences"],
+    ["比较同一种材料：开关断开和闭合时有什么不同？", "Compare the same material: what changes when the switch is open or closed?", "Compare un même matériau : que change l’interrupteur ouvert ou fermé ?"],
+    ["○ 灯泡不亮", "○ Bulb off", "○ Ampoule éteinte"],
+    ["● 灯泡亮了", "● Bulb on", "● Ampoule allumée"],
+    ["? 尚未测试", "? Not tested yet", "? Pas encore testé"],
+    ["尚未测试", "Not tested yet", "Pas encore testé"],
+    ["换关时保留记录，刷新页面后清空。记录不计入过关印章。", "Records stay when you change missions and clear when you reload. They do not earn mission stamps.", "Les résultats restent entre les missions et s’effacent au rechargement. Ils ne donnent pas de tampons."],
+    ["先预测，再观察", "Predict first, then observe", "Prédis, puis observe"],
+    ["导电通路完整", "Conducting path complete", "Chemin conducteur complet"],
+    ["开关处断开", "Gap at the switch", "Coupure à l’interrupteur"],
+    ["材料处不导电", "Material does not conduct", "Le matériau ne conduit pas"]
+  );
   I.register(Object.fromEntries(entries.map(([zh, en, fr]) => [zh, [en, fr]])));
   const translated = text => I.translate(text);
   const frenchMaterial = name => ({'铜片':'Le cuivre','塑料片':'Le plastique','钢片':'L’acier','橡胶片':'Le caoutchouc','干燥木片':'Le bois sec','铝片':'L’aluminium'})[name] || translated(name);
   I.registerPatterns([
+    {pattern:/^返回起点，能量 (\d+)$/,en:n=>`Rewind to start, energy ${n}`,fr:n=>`Revenir au départ, énergie ${n}`},
+    {pattern:/^返回第 (\d+) 步，能量 (\d+)$/,en:(step,n)=>`Rewind to step ${step}, energy ${n}`,fr:(step,n)=>`Revenir à l’étape ${step}, énergie ${n}`},
+    {pattern:/^第 (\d+) 个位置：(已确认|再看看|已放入|等待单词)$/,en:(n,status)=>`Position ${n}: ${{'已确认':'confirmed','再看看':'look again','已放入':'word placed','等待单词':'waiting for a word'}[status]}`,fr:(n,status)=>`Position ${n} : ${{'已确认':'confirmée','再看看':'à revoir','已放入':'mot placé','等待单词':'en attente d’un mot'}[status]}`},
+    {pattern:/^从背包取出一件(红苹果|青苹果|蓝色的书|红色的书|黄色铅笔|蓝色铅笔)$/,en:item=>`Remove one from the bag: ${translated(item)}`,fr:item=>`Retirer un objet du sac : ${translated(item)}`},
     {pattern:/^(运算轨道|遗迹密码|小镇采购员|电路实验室) · Kris 的奇妙乐园$/,en:name=>`${translated(name)} · Kris’s Wonder Playground`,fr:name=>`${translated(name)} · Le parc des découvertes de Kris`},
     {pattern:/^任务 (\d+) \/ (\d+)$/,en:(n,total)=>`MISSION ${n} / ${total}`,fr:(n,total)=>`MISSION ${n} / ${total}`},
     {pattern:/^第 (\d+) 关 (.+?)(，已完成)?$/,en:(n,name,done)=>`Mission ${n}: ${translated(name)}${done?', complete':''}`,fr:(n,name,done)=>`Mission ${n} : ${translated(name)}${done?', terminée':''}`},

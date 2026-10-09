@@ -208,15 +208,16 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-learning.js?v=1c0175317570"></script>
+<script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=effeea9a9f7c">
 </head>
-<body>
+<body class="learning-world arithmetic-world visual-world">
     <div class="game-container">
-        <h1>趣味视觉数学练习</h1>
+        <a class="home-link" href="../index.html">返回首页</a><h1>趣味视觉数学练习</h1><span class="world-icon" aria-hidden="true">🐥</span><p class="world-intro">用十格盘观察小鸡和火柴棒，解开八个图画谜题。</p><div id="journey-trail" class="journey-trail" aria-label="旅程进度"></div><div class="world-controls"><button id="calm-mode" aria-pressed="true">轻松探索</button><button id="timer-mode" aria-pressed="false">温柔计时提醒</button></div>
 
-        <div class="timer-controls">
-            <span>时间限制: <span id="timer-value">30</span><span>秒</span></span>
+        <div class="timer-controls" id="timer-settings" hidden>
+            <span>提醒间隔: <span id="timer-value">30</span><span>秒</span></span>
             <button id="decrease-timer" aria-label="减少时间" title="减少时间">-</button>
             <button id="increase-timer" aria-label="增加时间" title="增加时间">+</button>
         </div>
@@ -231,14 +232,14 @@
             <span id="problem-display">点击“开始游戏”</span>
         </div>
 
-        <div class="answer-options">
+        <div id="math-tools" hidden></div><button class="world-action" id="show-tools">打开数学工具</button><div class="answer-options">
             <button id="ans1"></button>
             <button id="ans2"></button>
             <button id="ans3"></button>
         </div>
 
-        <div class="timer-area">
-            剩余时间: <span id="time-left" aria-label="剩余秒数">—</span>
+        <div class="timer-area" id="timer-area" hidden>
+            提醒倒计时: <span id="time-left" aria-label="剩余秒数">—</span>
         </div>
 
         <div class="score-area">
@@ -246,7 +247,7 @@
         </div>
 
         <div class="message-area">
-            <span id="feedback-message"></span>
+            <span id="feedback-message" role="status" aria-live="polite"></span>
         </div>
 
         <div class="controls">
@@ -256,310 +257,32 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const timerValueDisplay = document.getElementById('timer-value');
-            const decreaseTimerButton = document.getElementById('decrease-timer');
-            const increaseTimerButton = document.getElementById('increase-timer');
-            const problemDisplay = document.getElementById('problem-display');
-            const ans1Button = document.getElementById('ans1');
-            const ans2Button = document.getElementById('ans2');
-            const ans3Button = document.getElementById('ans3');
-            const answerButtons = [ans1Button, ans2Button, ans3Button];
-            const timeLeftDisplay = document.getElementById('time-left');
-            const scoreDisplay = document.getElementById('score');
-            const feedbackMessageDisplay = document.getElementById('feedback-message');
-            const startGameButton = document.getElementById('start-game');
-            const nextQuestionButton = document.getElementById('next-question');
-            const themeMatchsticksButton = document.getElementById('theme-matchsticks');
-            const themeChicksButton = document.getElementById('theme-chicks');
 
-            // Global Variables
-            let currentProblem = { num1: null, num2: null, operator: null, correctAnswer: null }; // Initialize to avoid null errors
-            let score = 0;
-            let timerDuration = 10; // Changed default from 30
-            let timerInterval = null;
-            let timeLeft = 0;
-            let gameActive = false;
-            let currentTheme = 'matchsticks'; // Default theme
+document.addEventListener('DOMContentLoaded',()=>{
+ const $=id=>document.getElementById(id),visual=!!$('theme-chicks');
+ const answerButtons=[$('ans1'),$('ans2'),$('ans3')];
+ let currentProblem={},score=0,timerDuration=10,timerInterval=null,timeLeft=0,gameActive=false,answered=false,round=0,results=[],currentTheme='matchsticks',timed=false;
+ function refresh(){window.KrisI18n?.refresh();}
+ function quantity(n,theme){const icon=theme==='chicks'?'🐥':'●';return `<span class="quantity"><span class="quantity-grid" aria-hidden="true">${Array.from({length:n},()=>`<span class="quantity-item ${theme==='matchsticks'?'stick':''}">${theme==='matchsticks'?'':icon}</span>`).join('')||'<span class="quantity-item">0</span>'}</span><small>${n}</small></span>`;}
+ function displayProblem(){const p=currentProblem;if(p.num1===undefined)return;$('problem-display').innerHTML=visual?`<span id="visual-equation">${quantity(p.num1,currentTheme)}<span>${p.operator}</span>${quantity(p.num2,currentTheme)}<span>= ?</span></span>`:`${p.num1} ${p.operator} ${p.num2} = ?`;$('problem-display').dataset.num1=p.num1;$('problem-display').dataset.num2=p.num2;$('problem-display').dataset.operator=p.operator;renderTools();}
+ function renderTools(){const p=currentProblem;if(p.num1===undefined)return;const start=p.num1,end=p.correctAnswer;const lo=Math.min(start,end),hi=Math.max(start,end);$('math-tools').innerHTML=`<div class="number-line" aria-label="数轴">${Array.from({length:21},(_,n)=>`<span class="${n>=lo&&n<=hi?'travel ':''}${answered&&n===end?'landing':''}">${n}</span>`).join('')}</div>`;}
+ function renderTrail(){ $('journey-trail').innerHTML=Array.from({length:8},(_,i)=>`<span class="journey-stop ${i<results.length?'earned':i===round&&gameActive?'current':''}">${i<results.length?(results[i]?'★':'✓'):i+1}</span>`).join(''); }
+ function setTimer(on){timed=on;clearInterval(timerInterval);$('calm-mode').setAttribute('aria-pressed',String(!on));$('timer-mode').setAttribute('aria-pressed',String(on));$('timer-settings').hidden=!on;$('timer-area').hidden=!on;if(gameActive&&!answered)startTimer();}
+ function startTimer(){clearInterval(timerInterval);timeLeft=timerDuration;$('time-left').textContent=timed?timeLeft:'∞';if(!timed)return;timerInterval=setInterval(()=>{if(!gameActive||answered)return;timeLeft--;$('time-left').textContent=timeLeft;if(timeLeft<=0){clearInterval(timerInterval);$('feedback-message').textContent='慢慢来，时间不影响得分。你可以继续思考。';refresh();}},1000);}
+ function nextQuestion(){if(!gameActive||(!answered&&round>0))return;if(round>=8){gameActive=false;clearInterval(timerInterval);$('next-question').hidden=true;$('next-question').style.display='none';$('start-game').style.display='block';$('start-game').textContent='再玩一次';$('feedback-message').textContent=`旅程完成！答对 ${score} / 8 题。`;$('decrease-timer').disabled=false;$('increase-timer').disabled=false;renderTrail();refresh();$('start-game').focus();return;}
+ answered=false;$('feedback-message').textContent='';$('feedback-message').className='';$('math-tools').hidden=true;$('show-tools').textContent='打开数学工具';$('next-question').hidden=true;$('next-question').style.display='none';const add=round%2===0;const a=Math.floor(Math.random()*21),b=Math.floor(Math.random()*((add?20-a:a)+1));currentProblem={num1:a,num2:b,operator:add?'+':'−',correctAnswer:add?a+b:a-b};displayProblem();
+ const options=[currentProblem.correctAnswer];let candidates=Array.from({length:21},(_,i)=>i).filter(n=>!options.includes(n));for(let i=candidates.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]];}options.push(...candidates.slice(0,2));for(let i=2;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}answerButtons.forEach((b,i)=>{b.textContent=options[i];b.disabled=false;b.classList.remove('answer-correct');});renderTrail();startTimer();refresh();answerButtons[0].focus();}
+ function startGame(){clearInterval(timerInterval);score=0;round=0;results=[];gameActive=true;answered=true;$('score').textContent='0';$('start-game').style.display='none';$('decrease-timer').disabled=true;$('increase-timer').disabled=true;nextQuestion();}
+ function checkAnswer(button){if(!gameActive||answered||button.disabled)return;answered=true;clearInterval(timerInterval);const correct=Number(button.textContent)===currentProblem.correctAnswer;if(correct)score++;results.push(correct);round++;$('score').textContent=score;$('feedback-message').textContent=correct?'正确!':`错误！答案是 ${currentProblem.correctAnswer}`;$('feedback-message').className=correct?'correct':'incorrect';answerButtons.forEach(b=>{b.disabled=true;b.classList.toggle('answer-correct',Number(b.textContent)===currentProblem.correctAnswer);});$('math-tools').hidden=false;renderTools();renderTrail();$('next-question').hidden=false;$('next-question').style.display='block';refresh();$('next-question').focus();}
+ $('start-game').addEventListener('click',startGame);$('next-question').addEventListener('click',()=>{if(answered)nextQuestion();});answerButtons.forEach(b=>b.addEventListener('click',()=>checkAnswer(b)));$('calm-mode').addEventListener('click',()=>setTimer(false));$('timer-mode').addEventListener('click',()=>setTimer(true));
+ for(const [id,delta] of [['decrease-timer',-5],['increase-timer',5]])$(id).addEventListener('click',()=>{if(gameActive)return;timerDuration=Math.max(10,Math.min(60,timerDuration+delta));$('timer-value').textContent=timerDuration;});
+ $('show-tools').addEventListener('click',()=>{if(!gameActive)return;$('math-tools').hidden=!$('math-tools').hidden;$('show-tools').textContent=$('math-tools').hidden?'打开数学工具':'收起数学工具';refresh();});
+ if(visual)for(const theme of ['matchsticks','chicks'])$('theme-'+theme).addEventListener('click',()=>{currentTheme=theme;for(const t of ['matchsticks','chicks']){$('theme-'+t).classList.toggle('active-theme',t===theme);$('theme-'+t).setAttribute('aria-pressed',String(t===theme));}displayProblem();refresh();});
+ answerButtons.forEach(b=>b.disabled=true);$('timer-value').textContent=timerDuration;renderTrail();if(visual){$('theme-matchsticks').setAttribute('aria-pressed','true');$('theme-chicks').setAttribute('aria-pressed','false');}
+ window.addEventListener('pagehide',()=>clearInterval(timerInterval));
+ window.KrisLearningMath={snapshot:()=>({currentProblem:{...currentProblem},score,round,answered,gameActive,timed,timeLeft,theme:currentTheme}),quantity};
+});
 
-            const matchstickSVGs = {
-                1: '<svg width="12" height="40" viewbox="0 0 12 40"><rect x="4" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
-                2: '<svg width="24" height="40" viewbox="0 0 24 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>',
-                3: '<svg width="36" height="40" viewbox="0 0 36 40"><rect x="0" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="10" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/><rect x="20" y="0" width="4" height="40" fill="#DEB887" stroke="#A0522D" stroke-width="0.5"/></svg>'
-            };
-            // Placeholder for chick SVGs or image tags
-            const chickRepresentations = {
-                1: '🐥',
-                2: '🐥🐥',
-                3: '🐥🐥🐥',
-                // Add more as needed, or use a function to repeat
-            };
-
-
-            // Initialization
-            function initGame() {
-                updateTimerValueDisplay();
-                disableAnswerButtons();
-                nextQuestionButton.style.display = 'none';
-                updateThemeButtons(); // Set initial active theme button
-
-                startGameButton.addEventListener('click', startGame);
-                decreaseTimerButton.addEventListener('click', () => adjustTimer(-5));
-                increaseTimerButton.addEventListener('click', () => adjustTimer(5));
-                nextQuestionButton.addEventListener('click', nextQuestion);
-
-                answerButtons.forEach(button => {
-                    button.addEventListener('click', () => checkAnswer(button));
-                });
-
-                themeMatchsticksButton.addEventListener('click', () => setTheme('matchsticks'));
-                themeChicksButton.addEventListener('click', () => setTheme('chicks'));
-
-                // Generate and display an initial problem (but don't start timer)
-                generateNewProblem();
-                displayCurrentProblem();
-            }
-
-            // Theme Management
-            function setTheme(themeName) {
-                currentTheme = themeName;
-                updateThemeButtons();
-                if (currentProblem.num1 !== null) { // Check if a problem exists
-                    displayCurrentProblem(); // Refresh problem display with new theme
-                } else {
-                     problemDisplay.innerHTML = "选择主题后，点击开始游戏"; // Or some placeholder
-                }
-            }
-
-            function updateThemeButtons() {
-                themeMatchsticksButton.classList.remove('active-theme');
-                themeChicksButton.classList.remove('active-theme');
-                if (currentTheme === 'matchsticks') {
-                    themeMatchsticksButton.classList.add('active-theme');
-                } else if (currentTheme === 'chicks') {
-                    themeChicksButton.classList.add('active-theme');
-                }
-            }
-
-            // Problem Visuals
-            function getVisualForNumber(number, theme) {
-                const singleChickEmoji = '🐥';
-
-                if (number > 10) {
-                    if (theme === 'matchsticks') {
-                        // Ensure matchstickSVGs[1] is defined and represents a single matchstick
-                        return matchstickSVGs[1] + ` <span class="times-symbol">x</span> ${number}`;
-                    } else if (theme === 'chicks') {
-                        return `${singleChickEmoji} <span class="times-symbol">x</span> ${number}`;
-                    }
-                } else { // number <= 10
-                    if (theme === 'matchsticks') {
-                        if (matchstickSVGs[number]) { // Handles 1, 2, 3
-                            return matchstickSVGs[number];
-                        }
-                        // Fallback for 4 to 10 (or if SVGs for 1,2,3 are missing)
-                        return `<span style="font-size:0.8em; vertical-align:middle;">[火柴棒 ${number}]</span>`;
-                    } else if (theme === 'chicks') {
-                        if (number >= 1 && number <= 7) {
-                            // chickRepresentations might be pre-defined for 1,2,3. Fallback to repeat.
-                            return chickRepresentations[number] || singleChickEmoji.repeat(number);
-                        }
-                        // Fallback for 8 to 10
-                        return `<span style="font-size:0.8em; vertical-align:middle;">[小鸡 ${number}]</span>`;
-                    }
-                }
-                return number.toString(); // Default fallback if theme not matched or other cases
-            }
-
-            function formatProblemForDisplay(num1, op, num2) {
-                if (num1 === null || num2 === null || op === null) {
-                    return "点击“开始游戏”";
-                }
-                const visualNum1 = getVisualForNumber(num1, currentTheme);
-                const visualNum2 = getVisualForNumber(num2, currentTheme);
-                return `${visualNum1} <span style="font-weight:bold; color:#FF6B6B;">${op}</span> ${visualNum2} = ?`;
-            }
-
-            function displayCurrentProblem() {
-                 problemDisplay.innerHTML = formatProblemForDisplay(currentProblem.num1, currentProblem.operator, currentProblem.num2);
-            }
-
-            // Timer Adjustment
-            function adjustTimer(amount) {
-                if (gameActive) return;
-                timerDuration = Math.max(10, Math.min(60, timerDuration + amount));
-                updateTimerValueDisplay();
-            }
-
-            function updateTimerValueDisplay() {
-                timerValueDisplay.textContent = timerDuration;
-            }
-
-            // Game Start
-            function startGame() {
-                score = 0;
-                gameActive = true; // Set game active *before* first question
-                updateScoreDisplay();
-                clearFeedback(); // Clear feedback before starting
-                startGameButton.style.display = 'none';
-                enableTimerAdjustmentButtons(false);
-                nextQuestion(); // This will generate and display
-            }
-
-            function generateNewProblem() {
-                const isAddition = Math.random() < 0.5;
-                let num1, num2, correctAnswer;
-
-                if (isAddition) {
-                    num1 = getRandomInt(1, 10); // Ensure num1 is at least 1 for visual
-                    num2 = getRandomInt(1, Math.min(10, 20 - num1)); // Ensure num2 is at least 1 and sum <=20
-                    correctAnswer = num1 + num2;
-                    currentProblem = { num1, num2, operator: '+', correctAnswer };
-                } else { // Subtraction
-                    num1 = getRandomInt(2, 20); // Ensure num1 is at least 2 for meaningful subtraction
-                    num2 = getRandomInt(1, num1 -1); // Ensure num2 is smaller and at least 1
-                    correctAnswer = num1 - num2;
-                    currentProblem = { num1, num2, operator: '-', correctAnswer };
-                }
-            }
-
-            // Generate and Display Next Question
-            function nextQuestion() {
-                if (!gameActive && timeLeft > 0) { // If called from 'Next Question' button after timeout, but game not formally restarted
-                    // This case might need startGame() to be called implicitly or UI guides user to Start
-                }
-                if (!gameActive) { // If game was never started or fully ended (e.g. after timeout and no auto-restart)
-                     // Do not proceed if game is not active (e.g. initial load before start)
-                     // however, startGame sets gameActive=true then calls nextQuestion.
-                }
-
-                clearFeedback();
-                enableAnswerButtons();
-                nextQuestionButton.style.display = 'none';
-
-                generateNewProblem();
-                displayCurrentProblem();
-
-                // Generate answer options (numeric)
-                let options = [currentProblem.correctAnswer];
-                while (options.length < 3) {
-                    // Ensure distractors are positive and reasonably close
-                    let distractorBase = Math.max(1, currentProblem.correctAnswer - 5);
-                    let distractorRange = Math.min(20, currentProblem.correctAnswer + 5);
-                    let distractor = getRandomInt(distractorBase, distractorRange);
-                    if (!options.includes(distractor) && distractor > 0) { // Ensure positive distractors
-                        options.push(distractor);
-                    } else if (options.length < 2 && !options.includes(distractorRange)) { // try boundary if stuck
-                        options.push(distractorRange);
-                    } else if (options.length < 2 && !options.includes(distractorBase) && distractorBase > 0) {
-                         options.push(distractorBase);
-                    } else if (options.length < 2) { // last resort if still stuck
-                        options.push(getRandomInt(1,20));
-                    }
-                }
-                 // Simple shuffle, ensure options are unique from above loop
-                shuffleArray(options);
-                options = [...new Set(options)]; // Ensure uniqueness after shuffle if any duplicates crept in
-                while(options.length < 3) { // If Set reduced length, fill up
-                    let fill = getRandomInt(1,20);
-                    if(!options.includes(fill)) options.push(fill);
-                }
-
-
-                answerButtons.forEach((button, index) => {
-                    button.textContent = options[index]; // Answers are numbers
-                });
-
-                // Start timer only if game is active
-                if (gameActive) {
-                    timeLeft = timerDuration;
-                    timeLeftDisplay.textContent = timeLeft;
-                    if (timerInterval) clearInterval(timerInterval);
-                    timerInterval = setInterval(updateTimer, 1000);
-                } else {
-                     timeLeftDisplay.textContent = "—"; // Or timerDuration if to show it pre-start
-                }
-            }
-
-
-            // Timer Update
-            function updateTimer() {
-                timeLeft--;
-                timeLeftDisplay.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    showFeedback("时间到！答案是 " + currentProblem.correctAnswer, 'incorrect');
-                    disableAnswerButtons();
-                    nextQuestionButton.style.display = 'block';
-                    enableTimerAdjustmentButtons(true);
-                    startGameButton.style.display = 'block';
-                    // gameActive remains true as per previous fix, allowing nextQuestion to proceed if clicked
-                }
-            }
-
-            // Check Answer
-            function checkAnswer(button) {
-                if (!gameActive || timeLeft <= 0) return;
-
-                clearInterval(timerInterval);
-                disableAnswerButtons();
-                const selectedAnswer = parseInt(button.textContent);
-
-                if (selectedAnswer === currentProblem.correctAnswer) {
-                    score++;
-                    updateScoreDisplay();
-                    showFeedback("正确!", 'correct');
-                } else {
-                    showFeedback(`错误！答案是 ${currentProblem.correctAnswer}`, 'incorrect');
-                }
-                nextQuestionButton.style.display = 'block';
-            }
-
-            // Feedback Display
-            function showFeedback(message, typeClass) {
-                feedbackMessageDisplay.textContent = message;
-                feedbackMessageDisplay.className = 'message-area'; // Reset classes first
-                feedbackMessageDisplay.classList.add(typeClass);
-            }
-
-            function clearFeedback() {
-                feedbackMessageDisplay.textContent = '';
-                feedbackMessageDisplay.className = 'message-area';
-            }
-
-            // Utility Functions
-            function getRandomInt(min, max) {
-                return Math.floor(Math.random() * (max - min + 1)) + min;
-            }
-
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            }
-
-            function disableAnswerButtons() {
-                answerButtons.forEach(button => button.disabled = true);
-            }
-
-            function enableAnswerButtons() {
-                answerButtons.forEach(button => button.disabled = false);
-            }
-
-            function enableTimerAdjustmentButtons(enable) {
-                decreaseTimerButton.disabled = !enable;
-                increaseTimerButton.disabled = !enable;
-            }
-
-            function updateScoreDisplay() {
-                scoreDisplay.textContent = score;
-            }
-
-            // Initialize the game when DOM is fully loaded
-            initGame();
-        });
-    </script>
+</script>
 <kris-reviews data-game="math_visual_game"></kris-reviews></body>
 </html>

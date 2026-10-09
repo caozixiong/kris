@@ -74,3 +74,60 @@ for(const mode of ['addition','multiplication']){
  const resumed=createGame(mode,{language:'fr'});assert.equal(resumed.document.documentElement.lang,'fr-CA');assert.equal(resumed.$('check').textContent,'Vérifier');
 }
 console.log('PASS: French math interface, hints, invalid feedback, partial typed answer, counted groups, preserved solved/review state, initial French language, fr-CA addition speech and Chinese multiplication mnemonics.');
+
+// The manipulatives share the existing question state and never award points.
+const descendants = node => [node,...node.children.flatMap(descendants)];
+const withClass = (node,name) => descendants(node).filter(n=>n.className.split(' ').includes(name));
+for (let a=1;a<=20;a++) for(let b=1;b<=20;b++) {
+ const g=createGame('addition',{deck:Array.from({length:6},()=>({a,b,answer:a+b}))});
+ const filled=()=>withClass(g.$('lab-model'),'is-filled');
+ assert.equal(filled().length,0);
+ g.$('objects').children[1].fire('click');
+ assert.equal(filled().length,b); assert(filled().every(n=>n.className.includes('basket-1')),'basket two retains its identity');
+ g.click('lab-toggle');
+ assert.equal(filled().length,a+b);
+ assert.equal(withClass(g.$('lab-model'),'basket-0').length,a);
+ assert.equal(withClass(g.$('lab-model'),'basket-1').length,b);
+ assert.equal(withClass(g.$('lab-model'),'ten-frame').length,Math.ceil((a+b)/10));
+ assert.equal(withClass(g.$('lab-model'),'harvest-cell').length,Math.ceil((a+b)/10)*10);
+ assert.equal(g.$('star-count').textContent,'0');assert.equal(g.said.length,0);
+ if(a===20&&b===20){for(const lang of ['fr','en','zh']){g.setLanguage(lang);assert.equal(filled().length,40);assert.equal(g.$('lab-toggle').getAttribute('aria-pressed'),'true');}assert(g.$('lab-caption').textContent.includes('4 个十 + 0 个一'));}
+ g.click('lab-toggle');assert.equal(filled().length,0);assert.equal(g.$('lab-toggle').getAttribute('aria-pressed'),'false');
+}
+for(let a=1;a<=10;a++) for(let b=1;b<=10;b++) {
+ const g=createGame('multiplication',{deck:Array.from({length:6},()=>({a,b,answer:a*b}))});
+ const cells=()=>g.$('lab-model').children;
+ assert.equal(cells().length,a*b);assert.equal(g.$('lab-model').getAttribute('data-rows'),String(a));assert.equal(g.$('lab-model').getAttribute('data-columns'),String(b));
+ assert.equal(withClass(g.$('lab-model'),'is-lit').length,0);
+ g.$('objects').children[0].fire('click');assert.equal(withClass(g.$('lab-model'),'is-lit').length,b);
+ g.click('lab-toggle');assert.equal(g.$('lab-model').getAttribute('data-rows'),String(b));assert.equal(g.$('lab-model').getAttribute('data-columns'),String(a));assert.equal(cells().length,a*b);
+ assert.equal(withClass(g.$('lab-model'),'is-lit').length,b);assert(cells().filter(n=>n.className.includes('is-lit')).every(n=>n.getAttribute('data-group')==='0'),'rotation preserves original group identity');
+ for(const lang of ['fr','en','zh']){g.setLanguage(lang);assert.equal(g.$('lab-model').getAttribute('data-rows'),String(b));assert.equal(g.$('lab-toggle').getAttribute('aria-pressed'),'true');assert.equal(withClass(g.$('lab-model'),'is-lit').length,b);}
+ assert.equal(g.$('star-count').textContent,'0');assert.equal(g.said.length,0);
+ g.answer(a*b);assert.equal(g.$('mnemonic').textContent,g.context.KrisMath.mnemonic(a,b));g.click('next');
+ assert.equal(g.$('lab-model').getAttribute('data-rows'),String(a));assert.equal(g.$('lab-toggle').getAttribute('aria-pressed'),'false');assert.equal(withClass(g.$('lab-model'),'is-lit').length,0);
+}
+console.log('PASS: all 400 addition pairs preserve basket identities in exact ten-frames; all 100 multiplication arrays transpose without changing counts/group identity/mnemonics; manipulatives never score or autoplay, preserve language state and reset cleanly.');
+for(const mode of ['addition','multiplication']) {
+ const g=createGame(mode);
+ const grown=()=>withClass(g.$('world-stops'),'is-grown');
+ assert.equal(g.$('world-stops').children.length,6);assert.equal(grown().length,0);
+ const staleGroup=g.$('objects').children[0], staleChoice=g.$('choices').children[0];
+ g.click('restart');staleGroup.fire('click');staleChoice.fire('click');
+ assert.equal(g.$('counting').textContent,'试着点一点，边看边数。');assert.equal(g.$('feedback').textContent,'');
+ g.click('hint');g.answer('bad');g.answer(g.q().answer+101);assert.equal(grown().length,0,'hints and wrong/invalid attempts do not grow the world');
+ for(let i=0;i<6;i++) {
+   if(i%2)g.click('learn');else g.answer(g.q().answer);
+   assert.equal(grown().length,i+1);assert.equal(withClass(g.$('world-stops'),'has-fruit').length,Math.ceil((i+1)/2));
+   for(const lang of ['en','fr','zh']){g.setLanguage(lang);assert.equal(grown().length,i+1);}
+   g.click('next');
+ }
+ assert.equal(grown().length,6);assert.equal(g.$('star-count').textContent,'3');
+ g.click('play-again');assert.equal(grown().length,0);
+}
+for(const file of ['assets/math-game.css','assets/word-games.css']) {
+ const css=fs.readFileSync(path.join(root,file),'utf8');assert(css.includes('@media(prefers-reduced-motion:no-preference)'));assert(css.includes(':focus-visible'));
+}
+assert(/\.lab-toggle\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(root,'assets/math-game.css'),'utf8')));
+assert(/\.world-token\{[^}]*min-width:44px;min-height:44px/.test(fs.readFileSync(path.join(root,'assets/word-games.css'),'utf8')));
+console.log('PASS: orchard/galaxy growth reflects each completed fact, distinguish earned fruit from learned steps, preserve translations, ignore stale groups/answers and reset; new controls declare 44px targets, focus and motion gating.');

@@ -77,7 +77,7 @@ for (const file of files) {
     run('checkAnswer((gameState.currentCount + 1) % 11)'); assert.match($('#message').textContent, /Pas tout à fait/);
     language('en'); assert.match($('#message').textContent, /Not quite/);
     language('zh'); assert.match($('#message').textContent, /答错了/);
-    advance(2100); run('checkAnswer(gameState.currentCount)'); language('fr'); assert.equal($('#message').textContent, 'Bonne réponse !'); assert.equal($('#score').textContent, '1');
+    advance(2100); assert.equal(run('gameState.round'), 1, 'Counting waits for the learner'); click('#count-next'); run('checkAnswer(gameState.currentCount)'); language('fr'); assert.equal($('#message').textContent, 'Bonne réponse !'); assert.equal($('#score').textContent, '1');
   }
   if (file.includes('math_addition_subtraction') || file.includes('math_visual_game')) {
     click('#start-game');
@@ -86,8 +86,8 @@ for (const file of files) {
     assert.equal($('#decrease-timer').getAttribute('aria-label'), 'Réduire le temps');
     click('#ans1'); assert.match($('#feedback-message').textContent, /Bonne réponse|Mauvaise réponse/);
     language('en'); assert.match($('#feedback-message').textContent, /Correct|Incorrect/);
-    click('#next-question'); advance(10100); assert.match($('#feedback-message').textContent, /Time’s up/);
-    language('fr'); assert.match($('#feedback-message').textContent, /Temps écoulé/);
+    click('#next-question'); advance(10100); assert.equal($('#feedback-message').textContent, '', 'Calm mode has no deadline'); click('#timer-mode'); advance(10100); assert.match($('#feedback-message').textContent, /Take your time/); assert(all('.answer-options button').every(b => !b.disabled), 'Reminder never ends a question');
+    language('fr'); assert.match($('#feedback-message').textContent, /Prends ton temps/); click('#ans1'); assert.match($('#feedback-message').textContent, /Bonne réponse|Mauvaise réponse/);
     if (file.includes('math_visual_game')) { click('#theme-chicks'); noChineseUI(g); click('#theme-matchsticks'); noChineseUI(g); }
   }
   if (file.includes('chinese_character_quiz')) {
@@ -95,15 +95,15 @@ for (const file of files) {
     language('fr'); assert.deepEqual(all('#options-container button').map(b => b.textContent), options);
     run('selectAnswer("苹果")'); assert.equal($('#feedback-message').textContent, 'Bravo !');
     language('en'); assert.equal($('#score-display').textContent, 'Score: 1');
-    advance(1500); run('selectAnswer("汽车")'); advance(1500); run('selectAnswer("香蕉")'); advance(1500);
-    assert.equal($('#feedback-message').textContent, 'Game over! Your total score: 3 / 3');
-    language('fr'); assert.equal($('#feedback-message').textContent, 'Partie terminée ! Ton score : 3 / 3');
+    advance(1500); assert.equal(run('currentQuestionIndex'), 0, 'Picture reading stays until Next'); click('#picture-next'); for (let i = 1; i < run('questions.length'); i++) { run('selectAnswer(questions[currentQuestionIndex].correctAnswer)'); click('#picture-next'); }
+    assert.equal($('#feedback-message').textContent, 'Game over! Your total score: 6 / 6');
+    language('fr'); assert.equal($('#feedback-message').textContent, 'Partie terminée ! Ton score : 6 / 6');
     click('#options-container button'); assert.equal($('#score-display').textContent, 'Score : 0');
     run('selectAnswer("香蕉")'); assert.equal($('#feedback-message').textContent, 'Mauvaise réponse. La bonne réponse est : 苹果');
   }
   if (file.includes('chinese_game1')) {
     const ids = all('.card').map(c => c.dataset.id); click('.card'); language('fr'); assert.deepEqual(all('.card').map(c => c.dataset.id), ids); assert.equal(all('.card.flipped').length, 1);
-    click('#restart-button');
+    click('#restart-button'); assert.equal(all('.card').length, 12); click('#pairs-20');
     for (const id of [...new Set(all('.card').map(c => c.dataset.id))]) {
       for (const card of all('.card').filter(c => c.dataset.id === id)) card.click();
       advance(220);

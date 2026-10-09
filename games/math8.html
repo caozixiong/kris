@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alien Countdown Jumps!</title>
     <style>
         body {
@@ -203,7 +203,7 @@
             background-color: #ffee58; /* Lighter Yellow */
             transform: scale(1.05);
         }
-        
+
         #score-board {
             position: absolute;
             top: 10px; /* Closer to edge */
@@ -233,8 +233,10 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-math.js?v=bc27833bb755"></script>
+<script src="../assets/i18n-legacy-math.js?v=f9bb052879ce"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
+<link rel="stylesheet" href="../assets/legacy-math-arcade.css?v=38993439bddf">
+<script src="../assets/legacy-math-arcade.js?v=af821b38f925"></script>
 </head>
 <body>
 
@@ -279,13 +281,15 @@
         let correctJumps = 0; // This will be (currentPosition - targetPosition)
         const maxNumberPathValue = 15; // Max value on the number path, can be adjusted
         let score = 0;
+        let answered = false;
+        const arcade = KrisMathArcade.make({host:document.getElementById("game-container"),kind:"jumps",read:()=>({kind:"jumps",a:currentPosition,target:targetPosition,b:1,op:"−",answer:correctJumps})});
 
         // DOM Elements
         const currentPosDisplay = document.getElementById('current-pos');
         const targetPosDisplay = document.getElementById('target-pos');
         const jumpOptionsContainer = document.getElementById('jump-options');
         const numberPathContainer = document.getElementById('number-path-container');
-        
+
         const resultPopup = document.getElementById('result-popup');
         const resultEmojiDisplay = document.getElementById('result-emoji');
         const resultTextDisplay = document.getElementById('result-text');
@@ -331,12 +335,13 @@
         }
 
         function setupNewProblem() {
+            answered = false;
             // Alien starts further and jumps back to the target. Each jump is -1.
             // Determine the number of jumps for this problem (this IS the answer)
             correctJumps = getRandomInt(2, 8); // Alien will need to make 2 to 8 jumps
-            
+
             // Target position can be anywhere from 0 upwards
-            targetPosition = getRandomInt(0, maxNumberPathValue - correctJumps); 
+            targetPosition = getRandomInt(0, maxNumberPathValue - correctJumps);
             // Current position is target + number of jumps
             currentPosition = targetPosition + correctJumps;
 
@@ -347,6 +352,7 @@
 
             renderNumberPath();
             displayJumpOptions();
+            arcade.begin();
         }
 
         function displayJumpOptions() {
@@ -379,6 +385,9 @@
         }
 
         function handleAnswer(event) {
+            if (event.target.nodeType && !document.documentElement.contains(event.target)) return;
+            if (answered) return;
+            answered = true;
             const selectedJumps = parseInt(event.target.dataset.jumps);
             const isCorrect = selectedJumps === correctJumps;
 
@@ -392,13 +401,15 @@
                 resultTextDisplay.textContent = `Not quite! That was ${selectedJumps} jumps.`;
                 resultTextDisplay.style.color = '#ff7043'; // Coral Red
             }
+            arcade.answer(isCorrect);
             updateScoreBoard();
             resultPopup.classList.add('show');
         }
 
         nextButton.addEventListener('click', () => {
             resultPopup.classList.remove('show');
-            setTimeout(setupNewProblem, 300); 
+            arcade.cancel();
+            arcade.later(setupNewProblem, 300);
         });
 
         // Initial Game Setup

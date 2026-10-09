@@ -6,6 +6,181 @@
     const i18n = window.KrisI18n;
     if (!i18n) return;
     const rows = [
+    ["请输入完整的非负整数。", "Enter a whole number, zero or above.", "Saisis un nombre entier égal ou supérieur à zéro."],
+    ["开始游戏后可探索模型。", "Start the game to explore its model.", "Commence le jeu pour explorer son modèle."],
+    ["自由探索，无倒计时", "Free exploration, no countdown", "Exploration libre, sans compte à rebours"],
+    [
+        "图形探险队",
+        "Shape explorers",
+        "Explorateurs de formes"
+    ],
+    [
+        "点一点，给每个图形做记号，再选出总数。",
+        "Tap each shape to mark it, then choose the total.",
+        "Touche chaque forme pour la marquer, puis choisis le total."
+    ],
+    [
+        "双篮采集站",
+        "Two-basket treasure hunt",
+        "Les deux paniers au trésor"
+    ],
+    [
+        "分别数出两篮宝物，再把它们合在一起。",
+        "Count the treasures in each basket, then put them together.",
+        "Compte les trésors de chaque panier, puis réunis-les."
+    ],
+    [
+        "图形侦探社",
+        "Shape detective agency",
+        "Les détectives des formes"
+    ],
+    [
+        "先按种类分组，再找到两组的总数。",
+        "Sort by shape first, then find the total of both groups.",
+        "Trie les formes, puis trouve le total des deux groupes."
+    ],
+    [
+        "星光保龄球",
+        "Starlight bowling",
+        "Bowling des étoiles"
+    ],
+    [
+        "先数球瓶，滚球后看看还站着多少。",
+        "Count the pins, roll the ball, and see how many remain standing.",
+        "Compte les quilles, lance la boule et regarde combien restent debout."
+    ],
+    [
+        "彩虹药水实验室",
+        "Rainbow potion lab",
+        "Le labo des potions arc-en-ciel"
+    ],
+    [
+        "已知的一份加上神秘的一份，刚好装满药水。",
+        "The known part and the mystery part fill the potion exactly.",
+        "La partie connue et la partie mystère remplissent la potion."
+    ],
+    [
+        "森林小集市",
+        "Woodland mini-market",
+        "Le petit marché de la forêt"
+    ],
+    [
+        "用金币模型比较价格，看看预算够不够。",
+        "Compare prices with coin models. What can your budget buy?",
+        "Compare les prix avec les pièces. Que permet ton budget ?"
+    ],
+    [
+        "星球航线规划师",
+        "Planet route planner",
+        "Pilote des planètes"
+    ],
+    [
+        "试走一步，看看每次跳跃让位置怎样变化。",
+        "Try one jump and see how each jump changes your position.",
+        "Essaie un saut et observe comment ta position change."
+    ],
+    [
+        "点亮英雄城",
+        "Light up Hero City",
+        "Illumine la ville des héros"
+    ],
+    [
+        "解开算式，为城市点亮一扇新窗。",
+        "Solve an equation to light up another part of the city.",
+        "Résous un calcul pour illuminer un autre coin de la ville."
+    ],
+    [
+        "机器人建造工坊",
+        "Robot builder workshop",
+        "L’atelier des robots"
+    ],
+    [
+        "加法合并，减法拿走，乘法排成相同的组。",
+        "Add by combining, subtract by taking away, multiply with equal groups.",
+        "Additionne en réunissant, soustrais en retirant, multiplie avec des groupes égaux."
+    ],
+    [
+        "二十格数字桥",
+        "Twenty-space number bridge",
+        "Le pont de vingt cases"
+    ],
+    [
+        "用十格框看清数量，慢慢想也没关系。",
+        "Use the counting frames to see the amounts. Take your time.",
+        "Utilise les cadres pour voir les quantités. Prends ton temps."
+    ],
+    [
+        "小鸡与火柴工作室",
+        "Chick and matchstick studio",
+        "L’atelier des poussins et des allumettes"
+    ],
+    [
+        "切换实物模型，看看同一个算式的不同样子。",
+        "Switch objects to see the same equation in different ways.",
+        "Change d’objets pour voir le même calcul autrement."
+    ],
+    [
+        "给物品做记号",
+        "Mark object",
+        "Marquer l’objet"
+    ],
+    [
+        "收起模型",
+        "Hide model",
+        "Masquer le modèle"
+    ],
+    [
+        "打开探索模型",
+        "Explore the model",
+        "Explorer le modèle"
+    ],
+    [
+        "重置模型",
+        "Reset model",
+        "Réinitialiser le modèle"
+    ],
+    [
+        "试走一步",
+        "Try one jump",
+        "Essayer un saut"
+    ],
+    [
+        "药水总量",
+        "Total potion",
+        "Potion totale"
+    ],
+    [
+        "空格还需要多少滴？",
+        "How many drops fill the empty spaces?",
+        "Combien de gouttes pour remplir les espaces vides ?"
+    ],
+    [
+        "探险印章",
+        "Adventure stamps",
+        "Tampons d’exploration"
+    ],
+    [
+        "本段旅程",
+        "This journey",
+        "Cette étape"
+    ],
+    [
+        "五枚印章！下一段旅程出发。",
+        "Five stamps! A new journey awaits.",
+        "Cinq tampons ! Une nouvelle étape t’attend."
+    ],
+    [
+        "新印章到手！看看你的解题模型。",
+        "A new stamp! Explore the model of your solution.",
+        "Un nouveau tampon ! Explore le modèle de ta solution."
+    ],
+    [
+        "试着用模型找一找，再继续探索。",
+        "Try the model, then keep exploring.",
+        "Essaie le modèle, puis continue à explorer."
+    ]
+,
+
     [
         "儿童互动数学游戏",
         "Interactive Math Games for Kids",
@@ -577,9 +752,9 @@
         "Débloquer les héros"
     ],
     [
-        "答对5题解锁超人克拉克，答对10题解锁大黄蜂，答对20题解锁钢铁侠。解锁角色可以获得额外能力！",
-        "Unlock Clark the Super after 5 correct answers, Bumblebee Bot after 10, and Iron Avenger after 20. Unlock heroes to gain extra abilities!",
-        "Débloque Superman Clark après 5 bonnes réponses, Bumblebee après 10 et Iron Man après 20. Débloque des héros pour obtenir des pouvoirs supplémentaires !"
+        "答对5题收集超人克拉克，答对10题收集大黄蜂，答对20题收集钢铁侠。进度条会记录你的收集进展。",
+        "Collect Clark the Super after 5 correct answers, Bumblebee Bot after 10, and Iron Avenger after 20. The bars track your collection progress.",
+        "Collectionne Superman Clark après 5 bonnes réponses, Bumblebee après 10 et Iron Man après 20. Les barres suivent ta collection."
     ],
     [
         "关卡提升",
@@ -587,9 +762,9 @@
         "Passer au niveau suivant"
     ],
     [
-        "每答对3题提升一个关卡，关卡越高，题目越有挑战性！",
-        "Advance one level every 3 correct answers. Higher levels bring bigger challenges!",
-        "Tu montes d’un niveau toutes les 3 bonnes réponses. Plus le niveau est élevé, plus le défi est grand !"
+        "每答对3题提升一个关卡，记录你的练习进度。所有关卡都练习10以内的加减法。",
+        "Every 3 correct answers adds a level to record your practice progress. Every level uses addition and subtraction within 10.",
+        "Chaque série de 3 bonnes réponses ajoute un niveau pour suivre tes progrès. Tous les niveaux proposent des additions et soustractions jusqu’à 10."
     ],
     [
         "明白了",
