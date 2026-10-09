@@ -7,6 +7,9 @@
 * [双语翻翻乐](./games/bilingual-memory.html) - 翻开卡片，找出英文和法文词语的搭档。每局 4、6 或 8 对，按主题练习，还有提示和进度记录。
 * [单词搭桥](./games/word-bridge.html) - 把看得见的英文和法文名词连成搭档，搭起语言小桥。每局 4、6 或 8 对，主题词库和提示陪你练习。
 * [句子对对碰](./games/sentence-match.html) - 读一读英文和法文短句，把意思相同的句子配成对。每局 3、4 或 6 对，从日常主题慢慢进阶。
+* [中文第一步](./games/chinese-first-words.html) - 先看图、听一听，再从两个选项中找汉字。300 个基础汉字和词语，每次只学 4–6 个。
+* [图词找朋友](./games/chinese-picture-match.html) - 看着图画和释义，给汉字找朋友。先认识再配对，不计时，可以反复练习。
+* [汉字搭搭乐](./games/chinese-word-builder.html) - 先认识每个汉字，再照着提示搭出简单词语。一步一步学，不需要先会拼音。
 * [运算轨道](./games/math-orbit.html) - 用加减乘除模块规划太空航线，8个任务练习运算顺序和逆向思考。
 * [遗迹密码](./games/english-ruins.html) - 排列单词、解读遗迹线索，动手拼出8句完整的英文密码。
 * [小镇采购员](./games/french-market.html) - 读懂法语采购清单，按颜色和数量装好背包，完成8份小镇委托。
@@ -15,7 +18,7 @@
 * [加法游戏](./addition_game.html) - 把两篮果子合起来，动手数一数、闯关收集星星！支持1–20加法和语音复习。
 * [乘法星球](./multiplication_game.html) - 练习两个1–10的数相乘，点亮星星分组，每题结束听中文乘法口诀。
 * [词汇问答](./vocabulary_quiz.html) - 来测试一下你认识多少词语吧！
-* [看图识字](./games/chinese_character_quiz.html) - 通过图片学习常见的汉字。
+* [看图识字](./games/chinese_character_quiz.html) - 先看图认识 4 个词，再用两个选项慢慢练习。
 * [20以内加减法练习](./games/math_addition_subtraction.html) - 练习20以内的加法和减法，可计时和调整时间。
 * [趣味视觉数学](./games/math_visual_game.html) - 用火柴棒或小鸡图案练习20以内加减法！
 * [数图形](./games/math1.html) - 数一数 1–10 个图形，点击正确的数字。
@@ -26,7 +29,7 @@
 * [加减乘练习](./games/math10.html) - 选择加法、减法或乘法，完成自己的算术小挑战。
 * [经典数学合集 · 中文原版](./games/math_chinese.html) - 十种经典数学玩法：数数、图形、保龄球、买卖和算术。中文原版入口。
 * [经典数学合集 · 英文原版](./games/math_english.html) - 十种经典数学玩法的英文原版入口，学习内容同属数学。
-* [汉字寻宝翻翻乐](./games/chinese_game1.html) - 翻开汉字和图片，找出 20 对好搭档，边玩边识字。
+* [汉字寻宝翻翻乐](./games/chinese_game1.html) - 先认识汉字和图画，再从 4 对开始找朋友，随时查看提示。
 * [宝宝巴士游戏](http://www.4399.com/special/bababus.htm) - 这里有很多宝宝巴士的小游戏，有故事、有歌曲，还有很多好玩的挑战！
 * [在线涂色](http://www.supercoloring.com/coloring-pages/online) - 选择你喜欢的图片，在线涂上漂亮的颜色吧！
 

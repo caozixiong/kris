@@ -97,47 +97,94 @@
 <link rel="stylesheet" href="../assets/i18n.css?v=66e8355ff2fe">
 <script src="../assets/i18n.js?v=4bcf2a93334a"></script>
 <script src="../assets/i18n-site.js?v=a70fdf15f66e"></script>
-<script src="../assets/i18n-legacy-learning.js?v=473e400a1a8a"></script>
+<script src="../assets/i18n-legacy-learning.js?v=0fc0d75b31ab"></script>
+<script src="../assets/chinese-bank.js?v=cec5c3289b40"></script>
 <script src="../assets/i18n-reviews.js?v=b8628bc427aa"></script>
-<link rel="stylesheet" href="../assets/learning-worlds.css?v=e44e81050185">
+<link rel="stylesheet" href="../assets/learning-worlds.css?v=517a195cc990">
 </head>
 <body class="learning-world picture-world">
     <div id="game-container">
-        <a class="home-link" href="../index.html">返回首页</a><h1>看图识字</h1><span class="world-icon" aria-hidden="true">🎨</span><p class="world-intro">走进图画小镇，找到图片对应的汉字。每答一题，收藏一张词语卡！</p><div id="picture-trail" class="journey-trail" aria-label="旅程进度"></div>
-        <div id="image-container">
-            <!-- Placeholder for image -->
+        <a class="home-link" href="../index.html">返回首页</a><h1>看图识字</h1><span class="world-icon" aria-hidden="true">🎨</span>
+        <p class="world-intro">先认识 4 个词，再从两个选项里找朋友。图片、英文和法文都会帮你。</p>
+        <p id="picture-bank-note" class="beginner-note" hidden>词库暂时没加载，先玩这四个入门词。刷新可重试。</p>
+        <section id="picture-study" class="beginner-study" aria-labelledby="picture-study-title">
+            <h2 id="picture-study-title">先认识这些词</h2>
+            <p>看图片、汉字和意思。准备好了，再开始。随时都可以回来看。</p>
+            <div id="picture-study-cards" class="beginner-study-grid"></div>
+            <button id="picture-start" class="world-action">准备好了，开始找图</button>
+        </section>
+        <div id="picture-practice" hidden>
+            <div id="picture-trail" class="journey-trail" aria-label="旅程进度"></div>
+            <button id="picture-review" class="world-action">再看词卡</button>
+            <p id="picture-instruction">哪个汉字和图片是一对？</p>
+            <div id="image-container"></div>
+            <div id="picture-meaning" translate="no"></div>
+            <div id="options-container"></div>
+            <div id="picture-reading" translate="no"></div>
+            <button class="world-action" id="picture-next" hidden>下一题</button>
+            <div id="feedback-message" role="status" aria-live="polite"></div>
+            <div id="score-display">得分: 0</div>
         </div>
-        <div id="options-container">
-            <!-- Placeholder for options -->
-        </div>
-        <div id="picture-reading" translate="no" lang="zh"></div><button class="world-action" id="picture-next" hidden>下一题</button><div id="feedback-message" role="status" aria-live="polite">
-            <!-- Placeholder for feedback -->
-        </div>
-        <div id="score-display">得分: 0</div>
     </div>
 
     <script>
 
-const questions=[
- {image:'../assets/learning-pictures/apple.svg',options:['苹果','香蕉','橙子','西瓜'],correctAnswer:'苹果',reading:'píng guǒ'},
- {image:'../assets/learning-pictures/car.svg',options:['火车','飞机','汽车','月亮'],correctAnswer:'汽车',reading:'qì chē'},
- {image:'../assets/learning-pictures/banana.svg',options:['香蕉','草莓','桃子','葡萄'],correctAnswer:'香蕉',reading:'xiāng jiāo'},
- {image:'../assets/learning-pictures/moon.svg',options:['月亮','太阳','星星','白云'],correctAnswer:'月亮',reading:'yuè liang'},
- {image:'../assets/learning-pictures/fish.svg',options:['小鱼','小鸟','小猫','小狗'],correctAnswer:'小鱼',reading:'xiǎo yú'},
- {image:'../assets/learning-pictures/tree.svg',options:['大树','小草','花朵','石头'],correctAnswer:'大树',reading:'dà shù'}
+const pictureFallback=[
+ {id:'fallback-apple',hanzi:'苹果',pinyin:'píng guǒ',en:'apple',fr:'pomme',picture:'apple',cue:'🍎'},
+ {id:'fallback-banana',hanzi:'香蕉',pinyin:'xiāng jiāo',en:'banana',fr:'banane',picture:'banana',cue:'🍌'},
+ {id:'fallback-water',hanzi:'水',pinyin:'shuǐ',en:'water',fr:'eau',picture:'water',cue:'💧'},
+ {id:'fallback-moon',hanzi:'月亮',pinyin:'yuè liang',en:'moon',fr:'lune',picture:'moon',cue:'🌙'}
 ];
+const pictureSlugs=['apple','banana','water','moon'];
+const pictureEntries=pictureSlugs.map(slug=>window.KrisChineseBank?.entries.find(entry=>entry.picture===slug)).filter(Boolean);
+const pictureWords=pictureEntries.length===4?pictureEntries:pictureFallback;
+const questions=pictureWords.map((word,index)=>({
+ ...word,image:'../assets/learning-pictures/'+word.picture+'.svg',correctAnswer:word.hanzi,reading:word.pinyin,
+ // All choices were introduced on the study cards. Only two at a time.
+ options:[word.hanzi,pictureWords[(index+1)%pictureWords.length].hanzi]
+}));
 const imageContainer=document.getElementById('image-container'),optionsContainer=document.getElementById('options-container'),feedbackMessage=document.getElementById('feedback-message'),scoreDisplay=document.getElementById('score-display'),pictureNext=document.getElementById('picture-next');
-let currentQuestionIndex=0,score=0,pictureAnswered=false,pictureVersion=0;
-function createOptionButton(character){const b=document.createElement('button');b.type='button';b.textContent=character;b.setAttribute('translate','no');b.setAttribute('lang','zh');b.className='option-button';const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion)selectAnswer(character);});return b;}
-function loadQuestion(){pictureVersion++;pictureAnswered=false;optionsContainer.innerHTML='';feedbackMessage.textContent='';feedbackMessage.className='';pictureNext.hidden=true;document.getElementById('picture-reading').textContent='';
- document.getElementById('picture-trail').innerHTML=questions.map((q,i)=>`<span class="journey-stop ${i<currentQuestionIndex?'earned':i===currentQuestionIndex?'current':''}">${i<currentQuestionIndex?'★':i+1}</span>`).join('');
- if(currentQuestionIndex>=questions.length){imageContainer.innerHTML='<span class="world-icon" aria-hidden="true">🏘️</span>';feedbackMessage.textContent=`游戏结束! 你的总分是: ${score} / ${questions.length}`;feedbackMessage.className='correct';const b=document.createElement('button');b.type='button';b.className='option-button';b.textContent='再玩一次';const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion)initGame();});optionsContainer.appendChild(b);b.focus();return;}
- const q=questions[currentQuestionIndex];imageContainer.innerHTML=`<img src="${q.image}" alt="题目图片" width="200" height="200">`;
- const choices=q.options.slice();for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}choices.forEach(c=>optionsContainer.appendChild(createOptionButton(c)));
+let currentQuestionIndex=0,score=0,pictureAnswered=false,pictureVersion=0,pictureStudying=true;
+const pictureEsc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function pictureMeanings(word){return `<span class="beginner-meaning" lang="en">${pictureEsc(word.en)}</span><span class="beginner-meaning" lang="fr">${pictureEsc(word.fr)}</span>`;}
+function pictureWordText(word){return `<span class="beginner-hanzi" lang="zh">${pictureEsc(word.hanzi)}</span><span class="beginner-pinyin" lang="zh-Latn">${pictureEsc(word.pinyin)}</span>`;}
+function pictureArt(word){return `<span class="learning-picture-art"><img src="../assets/learning-pictures/${pictureEsc(word.picture)}.svg" alt="" width="200" height="200"><span class="beginner-picture-fallback" aria-hidden="true" hidden>${pictureEsc(word.cue||'🖼️')}</span></span>`;}
+function wirePictureFallbacks(root){root.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{img.hidden=true;img.parentElement.querySelector('.beginner-picture-fallback').hidden=false;}));}
+function pictureRefresh(){window.KrisI18n?.refresh();}
+function setPictureStudy(show){pictureStudying=show;document.getElementById('picture-study').hidden=!show;document.getElementById('picture-practice').hidden=show;}
+function createOptionButton(character){
+ const word=pictureWords.find(item=>item.hanzi===character),b=document.createElement('button');b.type='button';b.dataset.answer=character;b.innerHTML=pictureWordText(word)+pictureMeanings(word);b.setAttribute('translate','no');b.className='option-button beginner-choice';
+ const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion)selectAnswer(character);});return b;
 }
-function selectAnswer(character){if(pictureAnswered||currentQuestionIndex>=questions.length)return;const q=questions[currentQuestionIndex];if(!q.options.includes(character))return;pictureAnswered=true;const correct=character===q.correctAnswer;if(correct)score++;feedbackMessage.textContent=correct?'太棒了!':`错误! 正确的是: ${q.correctAnswer}`;feedbackMessage.className=correct?'correct':'wrong';scoreDisplay.textContent=`得分: ${score}`;document.getElementById('picture-reading').textContent=q.correctAnswer+' · '+q.reading;optionsContainer.querySelectorAll('button').forEach(b=>{b.disabled=true;b.classList.toggle('chosen-correct',b.textContent===q.correctAnswer);});pictureNext.hidden=false;pictureNext.focus();}
-function initGame(){currentQuestionIndex=0;score=0;scoreDisplay.textContent='得分: 0';loadQuestion();}
-pictureNext.addEventListener('click',()=>{if(!pictureAnswered)return;currentQuestionIndex++;loadQuestion();optionsContainer.querySelector('button')?.focus();});window.addEventListener('DOMContentLoaded',initGame);
+function loadQuestion(){
+ pictureVersion++;pictureAnswered=false;optionsContainer.innerHTML='';feedbackMessage.textContent='';feedbackMessage.className='';pictureNext.hidden=true;document.getElementById('picture-reading').textContent='';
+ document.getElementById('picture-trail').innerHTML=questions.map((q,i)=>`<span class="journey-stop ${i<currentQuestionIndex?'earned':i===currentQuestionIndex?'current':''}">${i<currentQuestionIndex?'★':i+1}</span>`).join('');
+ const finished=currentQuestionIndex>=questions.length;document.getElementById('picture-review').hidden=finished;document.getElementById('picture-instruction').hidden=finished;
+ if(finished){
+  imageContainer.innerHTML='<span class="world-icon" aria-hidden="true">🏘️</span>';document.getElementById('picture-meaning').textContent='';feedbackMessage.textContent=`游戏结束! 你的总分是: ${score} / ${questions.length}`;feedbackMessage.className='correct';
+  const b=document.createElement('button');b.type='button';b.className='option-button';b.textContent='再玩一次';const version=pictureVersion;b.addEventListener('click',()=>{if(version===pictureVersion){initGame();document.getElementById('picture-start').focus();}});optionsContainer.appendChild(b);b.focus();pictureRefresh();return;
+ }
+ const q=questions[currentQuestionIndex];imageContainer.innerHTML=pictureArt(q);wirePictureFallbacks(imageContainer);document.getElementById('picture-meaning').innerHTML=pictureMeanings(q);
+ const choices=q.options.slice();if(Math.random()<.5)choices.reverse();choices.forEach(c=>optionsContainer.appendChild(createOptionButton(c)));pictureRefresh();
+}
+function selectAnswer(character){
+ if(pictureStudying||pictureAnswered||currentQuestionIndex>=questions.length)return;
+ const q=questions[currentQuestionIndex];if(!q.options.includes(character))return;
+ const chosen=Array.from(optionsContainer.querySelectorAll('button')).find(b=>b.dataset.answer===character);if(!chosen||chosen.disabled)return;
+ if(character!==q.correctAnswer){
+  chosen.disabled=true;chosen.classList.add('needs-practice');feedbackMessage.textContent='差一点点。看看词卡，再试一次。';feedbackMessage.className='wrong';
+  document.getElementById('picture-reading').innerHTML=pictureWordText(q)+pictureMeanings(q);pictureRefresh();return;
+ }
+ pictureAnswered=true;score++;feedbackMessage.textContent='太棒了!';feedbackMessage.className='correct';scoreDisplay.textContent=`得分: ${score}`;document.getElementById('picture-reading').innerHTML=pictureWordText(q)+pictureMeanings(q);
+ optionsContainer.querySelectorAll('button').forEach(b=>{b.disabled=true;b.classList.toggle('chosen-correct',b.dataset.answer===q.correctAnswer);});pictureNext.hidden=false;pictureNext.focus();pictureRefresh();
+}
+function initGame(){
+ currentQuestionIndex=0;score=0;scoreDisplay.textContent='得分: 0';document.getElementById('picture-bank-note').hidden=pictureEntries.length===4;
+ document.getElementById('picture-study-cards').innerHTML=pictureWords.map(word=>`<article class="beginner-word-card" translate="no">${pictureArt(word)}${pictureWordText(word)}${pictureMeanings(word)}</article>`).join('');wirePictureFallbacks(document.getElementById('picture-study-cards'));loadQuestion();setPictureStudy(true);pictureRefresh();
+}
+document.getElementById('picture-start').addEventListener('click',()=>{if(!pictureStudying)return;setPictureStudy(false);(pictureAnswered?pictureNext:optionsContainer.querySelector('button:not([disabled])'))?.focus();});
+document.getElementById('picture-review').addEventListener('click',()=>{setPictureStudy(true);document.getElementById('picture-start').focus();});
+pictureNext.addEventListener('click',()=>{if(pictureStudying||!pictureAnswered)return;currentQuestionIndex++;loadQuestion();optionsContainer.querySelector('button')?.focus();});window.addEventListener('DOMContentLoaded',initGame);
 
 </script>
 <kris-reviews data-game="chinese_character_quiz"></kris-reviews></body>

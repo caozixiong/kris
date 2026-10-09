@@ -2,7 +2,7 @@ from pathlib import Path
 import hashlib, re
 from lxml import html
 ROOT=Path(__file__).resolve().parents[1]
-expected={'bilingual-memory','word-bridge','sentence-match','addition_game','multiplication_game','shape_sorter_math','vocabulary_quiz','chinese_character_quiz','chinese_game1','circuit-lab','english-ruins','french-market','math-orbit','math1','math10','math234','math567','math8','math9','math_addition_subtraction','math_chinese','math_english','math_visual_game'}
+expected={'chinese-first-words','chinese-picture-match','chinese-word-builder','bilingual-memory','word-bridge','sentence-match','addition_game','multiplication_game','shape_sorter_math','vocabulary_quiz','chinese_character_quiz','chinese_game1','circuit-lab','english-ruins','french-market','math-orbit','math1','math10','math234','math567','math8','math9','math_addition_subtraction','math_chinese','math_english','math_visual_game'}
 found=[]
 for page in ROOT.rglob('*.html'):
  if '.git' in page.parts: continue
@@ -22,7 +22,7 @@ for page in ROOT.rglob('*.html'):
   assert asset.is_file() and source.split('?v=')[1]==hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
  if page.stem in ['shape_sorter_math','math8']:
   assert 'overflow-y: auto' in page.read_text()
-assert set(found)==expected and len(found)==23
+assert set(found)==expected and len(found)==26
 source=(ROOT/'supabase/functions/game-reviews/core.mjs').read_text()
 for game in expected: assert "'"+game+"'" in source
 front=(ROOT/'assets/reviews/reviews.js').read_text()
@@ -38,7 +38,7 @@ original=next((ROOT/'supabase/migrations').glob('*_anonymous_moderated_game_revi
 def without_header_and_game_check(sql):
  return re.sub(r"game_id text not null check \(game_id in \(.*?\)\)",'<game-id-check>',re.sub(r'^--.*\n','',sql,flags=re.M),flags=re.S)
 assert without_header_and_game_check(snapshot)==without_header_and_game_check(original)
-new_migrations=list((ROOT/'supabase/migrations').glob('*_add_bilingual_word_game_reviews.sql'))
+new_migrations=list((ROOT/'supabase/migrations').glob('*_add_beginner_chinese_game_reviews.sql'))
 assert len(new_migrations)==1
 migration=new_migrations[0].read_text()
 assert 'drop constraint game_reviews_game_id_check' in migration
@@ -46,4 +46,4 @@ for game in expected:
  assert "'"+game+"'" in migration and "'"+game+"'" in snapshot
 assert not re.search(r'\b(grant|revoke|policy|function|trigger|delete|insert|update)\b',re.sub(r'--[^\n]*','',migration),re.I)
 assert set(re.findall(r"'([^']+)'",migration))==expected
-print('PASS: all 23 actual game pages have exactly one isolated shared widget, hash-matched scripts, canonical IDs; non-game pages excluded; narrow-screen overflow fixed; no client answer/storage fields.')
+print('PASS: all 26 actual game pages have exactly one isolated shared widget, hash-matched scripts, canonical IDs; non-game pages excluded; narrow-screen overflow fixed; no client answer/storage fields.')

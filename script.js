@@ -19,6 +19,10 @@
     '医疗健康 (Medical/Health)': { key: 'health', label: '医疗健康', icon: 'heart' }
   };
   const gameStyles = {
+    './games/chinese-first-words.html': ['mint', 'chinese', '中文零起点 · 先学 4 个'],
+    './games/chinese-picture-match.html': ['yellow', 'chinese', '中文零起点 · 图词配对'],
+    './games/chinese-word-builder.html': ['peach', 'chinese', '中文零起点 · 拼词小步走'],
+
     './games/bilingual-memory.html': ['lavender', 'memory', '8–10 岁 · 英法记忆'],
     './games/word-bridge.html': ['mint', 'bridge', '8–10 岁 · 英法词汇'],
     './games/sentence-match.html': ['peach', 'sentences', '8–10 岁 · 英法句意'],
@@ -46,6 +50,10 @@
   };
   // Subject is determined by gameplay, independently of the interface language.
   const gameSubjects = {
+    "./games/chinese-first-words.html": ["chinese"],
+    "./games/chinese-picture-match.html": ["chinese"],
+    "./games/chinese-word-builder.html": ["chinese"],
+
   "./games/bilingual-memory.html": [
     "english",
     "french"
@@ -123,6 +131,10 @@
   const gameCategories = {all: '全部小游戏', math: '数学', chinese: '中文', english: '英文', french: '法文'};
   let selectedGameCategory = 'all';
   const gameSearchTerms = {
+    "./games/chinese-first-words.html": "中文第一步 中文 零起点 入门 汉字 词语 Chinese Mandarin chinois mandarin beginner débutant first steps premiers pas chinese first words",
+    "./games/chinese-picture-match.html": "图词找朋友 中文 零起点 入门 汉字 词语 Chinese Mandarin chinois mandarin beginner débutant first steps premiers pas chinese picture match",
+    "./games/chinese-word-builder.html": "汉字搭搭乐 中文 零起点 入门 汉字 词语 Chinese Mandarin chinois mandarin beginner débutant first steps premiers pas chinese word builder",
+
     "./games/bilingual-memory.html": "双语翻翻乐 Bilingual Memory Mémoire bilingue 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 记忆 翻牌 memory mémoire memorisation cards cartes",
     "./games/word-bridge.html": "单词搭桥 Word Bridge Le pont des mots 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 词汇 单词 bridge pont mots vocabulaire nouns noms",
     "./games/sentence-match.html": "句子对对碰 Sentence Match Paires de phrases 英语 法语 英文 法文 双语 配对 English French bilingual anglais français bilingue pair matching jeu 句子 句意 sentence sentences phrases meaning sens"

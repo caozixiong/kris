@@ -1,4 +1,4 @@
--- Current review-table schema snapshot, including the bilingual-games constraint.
+-- Current review-table schema snapshot, including the beginner-Chinese and bilingual game IDs.
 -- Migration history lives in supabase/migrations; no past migration is rewritten.
 begin;
 create schema if not exists review_private;
@@ -8,6 +8,7 @@ grant usage on schema review_private to service_role;
 create table public.game_reviews (
   id uuid primary key default gen_random_uuid(),
   game_id text not null check (game_id in (
+    'chinese-first-words','chinese-picture-match','chinese-word-builder',
     'bilingual-memory','word-bridge','sentence-match',
     'addition_game','multiplication_game','shape_sorter_math','vocabulary_quiz',
     'chinese_character_quiz','chinese_game1','circuit-lab','english-ruins','french-market','math-orbit',

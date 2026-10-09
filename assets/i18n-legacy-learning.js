@@ -8,6 +8,24 @@
     if (!i18n) return;
 
     i18n.register({
+        '先看图认识汉字，再找朋友。不用先会读中文，英文和法文会帮你。': ['Meet the Chinese words in pictures, then find their partners. English and French meanings help you get started.', 'Découvre les mots chinois en images, puis retrouve leurs paires. Les sens en anglais et en français sont là pour t’aider.'],
+        '先认识 4 个词，再从两个选项里找朋友。图片、英文和法文都会帮你。': ['Meet 4 words, then choose between two answers. Pictures, English and French meanings are here to help.', 'Découvre 4 mots, puis choisis entre deux réponses. Les images et les sens en anglais et en français t’aident.'],
+        '词库暂时没加载，先玩这四个入门词。刷新可重试。': ['The word bank could not load. Start with these four beginner words, or refresh to try again.', 'La banque de mots ne s’est pas chargée. Découvre ces quatre mots pour débuter, ou actualise la page.'],
+        '4 对 · 从这里开始': ['4 pairs · Start here', '4 paires · Pour commencer'],
+        '6 对 · 想多玩一点': ['6 pairs · A little more', '6 paires · Un peu plus'],
+        '12 对 · 自选挑战': ['12 pairs · Optional challenge', '12 paires · Défi au choix'],
+        '20 对 · 自选挑战': ['20 pairs · Optional challenge', '20 paires · Défi au choix'],
+        '先认识这些词': ['Meet your words first', 'Découvre les mots d’abord'],
+        '看图片、汉字和意思。准备好了，再开始。随时都可以回来看。': ['Look at each picture, Chinese word and meaning. Start when you’re ready. You can come back anytime.', 'Regarde les images, les mots chinois et leur sens. Commence quand tu veux. Tu peux revenir à tout moment.'],
+        '准备好了，开始配对': ['I’m ready to match', 'Je suis prêt à trouver les paires'],
+        '准备好了，开始找图': ['I’m ready to try', 'Je suis prêt à essayer'],
+        '再看词卡': ['Look at the word cards', 'Revoir les cartes de mots'],
+        '先看词卡，准备好了再开始。': ['Meet the words, then start when you’re ready.', 'Découvre les mots, puis commence quand tu veux.'],
+        '哪个汉字和图片是一对？': ['Which Chinese word goes with this picture?', 'Quel mot chinois va avec cette image ?'],
+        '差一点点。看看词卡，再试一次。': ['Nearly! Look at the word card and try again.', 'Presque ! Regarde la carte du mot et réessaie.']
+    });
+
+    i18n.register({
         "点一点图形，做上数数标记。收集十颗种子，种满你的花园！": [
                 "Tap each shape to mark your count. Collect seeds to fill your ten-plot garden!",
                 "Touche chaque forme pour la compter. Récolte des graines pour les dix cases de ton jardin !"

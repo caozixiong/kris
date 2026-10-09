@@ -1,4 +1,4 @@
-/* Independent 23-page experience regression.
+/* Independent 26-page experience regression.
  * Executes production HTML and JS with the dependency-free DOM adapter.
  * This is NOT a browser, layout, touch, screen-reader or real-audio check.
  */
@@ -11,6 +11,7 @@ const { makeDOM, ROOT } = require('./quest-dom.cjs');
 const GAMES = [
   'addition_game', 'multiplication_game', 'shape_sorter_math', 'vocabulary_quiz',
   'bilingual-memory', 'word-bridge', 'sentence-match', 'chinese_character_quiz', 'chinese_game1',
+  'chinese-first-words', 'chinese-picture-match', 'chinese-word-builder',
   'math-orbit', 'english-ruins', 'french-market', 'circuit-lab',
   'math1', 'math234', 'math567', 'math8', 'math9', 'math10',
   'math_addition_subtraction', 'math_visual_game', 'math_chinese', 'math_english'
@@ -108,8 +109,8 @@ function assertUniqueIds(g) { const ids = g.all('[id]').map(n => n.id); assert.e
 function assertTranslatedUI(g) { const missing=[]; function walk(node) { if(node.nodeType===3) { if(!node.parentElement.closest('[translate="no"],[data-i18n-skip],[data-no-i18n],kris-reviews,noscript') && /[\u3400-\u9fff]/.test(node.nodeValue)) missing.push(node.nodeValue.trim()); } else for(const child of node.childNodes) walk(child); } walk(g.document.documentElement); assert.deepEqual(missing,[],g.name+' untranslated UI'); }
 function assertLocalImages(g) { for (const img of g.all('img[src]')) { const src = img.getAttribute('src'); if (!/^(?:https?:|data:)/.test(src)) assert(fs.existsSync(path.resolve(path.dirname(g.file), src)), `${g.name} missing image: ${src}`); } }
 if (require.main === module) {
-  test('exactly 23 canonical games remain review-enabled and linked', () => {
-    assert.equal(GAMES.length, 23); assert.equal(new Set(GAMES).size, 23);
+  test('exactly 26 canonical games remain review-enabled and linked', () => {
+    assert.equal(GAMES.length, 26); assert.equal(new Set(GAMES).size, 26);
     const catalog = fs.readFileSync(path.join(ROOT, 'content.md'), 'utf8');
     for (const name of GAMES) { const file = pagePath(name), html = fs.readFileSync(path.join(ROOT, file), 'utf8'); assert.equal((html.match(/<kris-reviews\b/g) || []).length, 1, name); assert(html.includes(`data-game="${name}"`), name); assert(catalog.includes(file), `${file} missing from homepage catalog`); }
   });
@@ -257,22 +258,24 @@ if (require.main === module) {
     }
     assert.equal(snapshot().gameActive,false);assert.equal(snapshot().score,8);
   });
-  test('picture quiz: every original picture exists; manual review does not double-score',()=>{
-    const g=boot('chinese_character_quiz'),questions=plain(g.run('questions'));assert(questions.length>=6);
+  test('picture quiz: four taught shared words, two choices, retry and manual progress',()=>{
+    const g=boot('chinese_character_quiz'),questions=plain(g.run('questions'));assert.equal(questions.length,4);
+    assert.equal(g.all('.beginner-word-card').length,4);assert.equal(g.$('#picture-practice').hidden,true);g.click('#picture-start');
     for(const [i,q]of questions.entries()){
-      assertLocalImages(g);assert.equal(g.$('#picture-reading').textContent,'');
-      const button=g.all('.option-button').find(b=>b.textContent===q.correctAnswer);button.click();button.click();assert.equal(g.run('score'),i+1);assert(g.$('#picture-reading').textContent.includes(q.correctAnswer));
-      const current=g.run('currentQuestionIndex');g.advance(6000);assert.equal(g.run('currentQuestionIndex'),current);g.language('fr');assert.equal(g.run('score'),i+1);g.click('#picture-next');
+      assertLocalImages(g);assert.equal(g.$('#picture-reading').textContent,'');assert.equal(q.options.length,2);
+      const wrong=g.all('.option-button').find(b=>b.dataset.answer!==q.correctAnswer);wrong.click();assert.equal(g.run('score'),i);assert.equal(g.run('pictureAnswered'),false);assert.equal(g.$('#picture-next').hidden,true);
+      const button=g.all('.option-button').find(b=>b.dataset.answer===q.correctAnswer);button.click();button.click();assert.equal(g.run('score'),i+1);assert(g.$('#picture-reading').textContent.includes(q.correctAnswer));
+      const current=g.run('currentQuestionIndex');g.advance(6000);assert.equal(g.run('currentQuestionIndex'),current);g.language('fr');assert.equal(g.run('score'),i+1);g.click('#picture-review');g.click('#picture-start');assert.equal(g.run('currentQuestionIndex'),current);g.click('#picture-next');
     }
-    assert.equal(g.run('score'),questions.length);g.click('.option-button');assert.equal(g.run('score'),0);
+    assert.equal(g.run('score'),questions.length);g.click('.option-button');assert.equal(g.run('score'),0);assert.equal(g.$('#picture-study').hidden,false);
   });
-  test('Chinese memory: 6/12/20 native pairs, no concealed label leaks and cancellable 1-second mismatches',()=>{
+  test('Chinese memory: study first, 4/6/12/20 native pairs, safe hidden faces and cancelled mismatches',()=>{
     const g=boot('chinese_game1');
-    for(const size of [6,12,20]){
-      g.click('#pairs-'+size);assert.equal(g.all('.card').length,size*2);assertLocalImages(g);
+    for(const size of [4,6,12,20]){
+      g.click('#pairs-'+size);assert.equal(g.all('.card').length,size*2);assertLocalImages(g);assert.equal(g.all('.beginner-word-card').length,size);assert.equal(g.$('#game-board').hidden,true);g.click('#memory-start');
       for(const card of g.all('.card')){assert.equal(card.tagName,'BUTTON');assert.equal(card.querySelector('.card-front').getAttribute('aria-hidden'),'true');assert(!card.getAttribute('aria-label').includes(card.querySelector('.card-front').textContent.trim())||!card.querySelector('.card-front').textContent.trim(),'concealed label does not expose hanzi');}
-      const a=g.all('.card')[0],b=g.all('.card').find(c=>c.dataset.id!==a.dataset.id);a.click();b.click();g.advance(999);assert.equal(g.all('.card.flipped').length,2);g.language('en');g.advance(1);assert.equal(g.all('.card.flipped').length,0);
-      a.click();b.click();g.click('#restart-button');const fresh=g.all('.card').map(c=>c.dataset.id);g.advance(2000);assert.deepEqual(g.all('.card').map(c=>c.dataset.id),fresh);assert.equal(g.all('.card.flipped').length,0);
+      const a=g.all('.card')[0],b=g.all('.card').find(c=>c.dataset.id!==a.dataset.id);a.click();b.click();g.advance(1399);assert.equal(g.all('.card.flipped').length,2);g.language('en');g.advance(1);assert.equal(g.all('.card.flipped').length,0);
+      a.click();b.click();g.click('#restart-button');const fresh=g.all('.card').map(c=>c.dataset.id);g.advance(2000);assert.deepEqual(g.all('.card').map(c=>c.dataset.id),fresh);assert.equal(g.all('.card.flipped').length,0);g.click('#memory-start');
       for(const id of new Set(g.all('.card').map(c=>c.dataset.id))){for(const card of g.all('.card').filter(c=>c.dataset.id===id))card.click();g.advance(200);}assert.equal(Number(g.$('#score').textContent),size*10);assert.equal(g.all('#memory-collection span').length,size);assert.equal(g.all('.card.matched').length,size*2);
     }
   });

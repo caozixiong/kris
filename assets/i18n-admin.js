@@ -342,6 +342,9 @@
   ]
 });
 I.register({
+ "中文第一步":["First Chinese Words", "Mes premiers mots chinois"],
+ "图词找朋友":["Chinese Picture Match", "Images et mots chinois"],
+ "汉字搭搭乐":["Chinese Word Builder", "Construis des mots chinois"],
  "双语翻翻乐":["Bilingual Memory", "Mémoire bilingue"],
  "单词搭桥":["Word Bridge", "Le pont des mots"],
  "句子对对碰":["Sentence Match", "Paires de phrases"],

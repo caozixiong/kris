@@ -42,6 +42,7 @@ function create(file, options = {}) {
   context.window = context;
   vm.createContext(context);
   for (const script of ['assets/i18n.js', 'assets/i18n-site.js', 'assets/i18n-legacy-learning.js']) vm.runInContext(fs.readFileSync(path.join(root, script), 'utf8'), context, { filename: script });
+  if (file.includes('chinese_') && !options.missingBank && fs.existsSync(path.join(root, 'assets/chinese-bank.js'))) vm.runInContext(fs.readFileSync(path.join(root, 'assets/chinese-bank.js'), 'utf8'), context, { filename: 'assets/chinese-bank.js' });
   if (file === 'vocabulary_quiz.html' && !options.missingBank && fs.existsSync(path.join(root, 'assets/word-bank.js'))) vm.runInContext(fs.readFileSync(path.join(root, 'assets/word-bank.js'), 'utf8'), context, { filename: 'assets/word-bank.js' });
   for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) if (!/\bsrc\s*=/.test(match[1])) vm.runInContext(match[2], context, { filename: file });
   for (const fn of documentEvents.DOMContentLoaded || []) fn();
@@ -91,19 +92,27 @@ for (const file of files) {
     if (file.includes('math_visual_game')) { click('#theme-chicks'); noChineseUI(g); click('#theme-matchsticks'); noChineseUI(g); }
   }
   if (file.includes('chinese_character_quiz')) {
+    assert.equal($('#picture-study').hidden, false); assert.equal(all('.beginner-word-card').length, 4);
     const options = all('#options-container button').map(b => b.textContent);
     language('fr'); assert.deepEqual(all('#options-container button').map(b => b.textContent), options);
-    run('selectAnswer("苹果")'); assert.equal($('#feedback-message').textContent, 'Bravo !');
-    language('en'); assert.equal($('#score-display').textContent, 'Score: 1');
+    run('selectAnswer(questions[0].correctAnswer)'); assert.equal(run('score'), 0, 'Study phase cannot be skipped by a stale answer');
+    click('#picture-start');
+    run('selectAnswer(questions[0].options[1])'); assert.equal($('#feedback-message').textContent, 'Presque ! Regarde la carte du mot et réessaie.');
+    assert.equal(run('pictureAnswered'), false); assert.equal($('#picture-next').hidden, true);
+    language('en'); assert.equal($('#feedback-message').textContent, 'Nearly! Look at the word card and try again.');
+    run('selectAnswer(questions[0].correctAnswer)'); assert.equal($('#score-display').textContent, 'Score: 1');
+    click('#picture-review'); assert.equal($('#picture-study').hidden, false); click('#picture-start'); assert.equal(run('score'), 1);
     advance(1500); assert.equal(run('currentQuestionIndex'), 0, 'Picture reading stays until Next'); click('#picture-next'); for (let i = 1; i < run('questions.length'); i++) { run('selectAnswer(questions[currentQuestionIndex].correctAnswer)'); click('#picture-next'); }
-    assert.equal($('#feedback-message').textContent, 'Game over! Your total score: 6 / 6');
-    language('fr'); assert.equal($('#feedback-message').textContent, 'Partie terminée ! Ton score : 6 / 6');
-    click('#options-container button'); assert.equal($('#score-display').textContent, 'Score : 0');
-    run('selectAnswer("香蕉")'); assert.equal($('#feedback-message').textContent, 'Mauvaise réponse. La bonne réponse est : 苹果');
+    assert.equal($('#feedback-message').textContent, 'Game over! Your total score: 4 / 4');
+    language('fr'); assert.equal($('#feedback-message').textContent, 'Partie terminée ! Ton score : 4 / 4');
+    click('#options-container button'); assert.equal($('#score-display').textContent, 'Score : 0'); assert.equal($('#picture-study').hidden, false);
   }
   if (file.includes('chinese_game1')) {
+    assert.equal(all('.card').length, 8); assert.equal($('#game-board').hidden, true); assert.equal(all('.beginner-word-card').length, 4);
+    click('.card'); assert.equal(all('.card.flipped').length, 0); click('#memory-start');
     const ids = all('.card').map(c => c.dataset.id); click('.card'); language('fr'); assert.deepEqual(all('.card').map(c => c.dataset.id), ids); assert.equal(all('.card.flipped').length, 1);
-    click('#restart-button'); assert.equal(all('.card').length, 12); click('#pairs-20');
+    click('#memory-review'); click('#memory-start'); assert.equal(all('.card.flipped').length, 1);
+    click('#restart-button'); assert.equal(all('.card').length, 8); click('#pairs-20'); click('#memory-start');
     for (const id of [...new Set(all('.card').map(c => c.dataset.id))]) {
       for (const card of all('.card').filter(c => c.dataset.id === id)) card.click();
       advance(220);

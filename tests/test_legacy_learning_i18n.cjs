@@ -108,34 +108,48 @@ async function noChineseUI(page) {
       }
     }
     if (file.includes('chinese_character_quiz')) {
+      assert.equal(await page.locator('.beginner-word-card').count(), 4);
+      assert.equal(await page.locator('#picture-study').isVisible(), true);
       const options = await page.locator('#options-container button').allTextContents();
       await language(page, 'fr');
       assert.deepEqual(await page.locator('#options-container button').allTextContents(), options);
-      await page.evaluate(() => selectAnswer('苹果'));
+      await page.locator('#picture-start').click();
+      await page.evaluate(() => selectAnswer(questions[0].options[1]));
+      assert.equal(await text(page, '#feedback-message'), 'Presque ! Regarde la carte du mot et réessaie.');
+      assert.equal(await page.locator('#picture-next').isVisible(), false);
+      await page.evaluate(() => selectAnswer(questions[0].correctAnswer));
       assert.equal(await text(page, '#feedback-message'), 'Bravo !');
       await language(page, 'en');
       assert.equal(await text(page, '#score-display'), 'Score: 1');
+      await page.locator('#picture-review').click(); await page.locator('#picture-start').click();
+      assert.equal(await page.evaluate(() => score), 1);
       await page.clock.runFor(1500);
       assert.equal(await page.evaluate(() => currentQuestionIndex), 0);
       await page.locator('#picture-next').click();
-      for (let i = 1; i < 6; i++) {
+      for (let i = 1; i < 4; i++) {
         await page.evaluate(() => selectAnswer(questions[currentQuestionIndex].correctAnswer));
         await page.locator('#picture-next').click();
       }
-      assert.equal(await text(page, '#feedback-message'), 'Game over! Your total score: 6 / 6');
+      assert.equal(await text(page, '#feedback-message'), 'Game over! Your total score: 4 / 4');
       await language(page, 'fr');
-      assert.equal(await text(page, '#feedback-message'), 'Partie terminée ! Ton score : 6 / 6');
+      assert.equal(await text(page, '#feedback-message'), 'Partie terminée ! Ton score : 4 / 4');
       await page.locator('#options-container button').click();
       assert.equal(await text(page, '#score-display'), 'Score : 0');
+      assert.equal(await page.locator('#picture-study').isVisible(), true);
     }
     if (file.includes('chinese_game1')) {
+      assert.equal(await page.locator('.card').count(), 8);
+      assert.equal(await page.locator('#memory-study').isVisible(), true);
+      await page.locator('#memory-start').click();
       const cardIds = await page.locator('.card').evaluateAll(cards => cards.map(c => c.dataset.id));
       await page.locator('.card').first().click();
       await language(page, 'fr');
       assert.deepEqual(await page.locator('.card').evaluateAll(cards => cards.map(c => c.dataset.id)), cardIds);
       assert.equal(await page.locator('.card.flipped').count(), 1);
+      await page.locator('#memory-review').click(); await page.locator('#memory-start').click();
+      assert.equal(await page.locator('.card.flipped').count(), 1);
       await page.locator('#restart-button').click();
-      await page.locator('#pairs-20').click();
+      await page.locator('#pairs-20').click(); await page.locator('#memory-start').click();
       const ids = await page.locator('.card').evaluateAll(cards => [...new Set(cards.map(c => c.dataset.id))]);
       for (const id of ids) {
         await page.locator(`.card[data-id="${id}"]`).nth(0).click();

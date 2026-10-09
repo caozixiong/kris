@@ -103,13 +103,13 @@ function register(g) {
     const home = harness(read('index.html'), { catalogs: ['assets/i18n-site.js','assets/i18n-game-categories.js'] });
     home.context.fetch = async () => { if (offline) throw Error('offline'); return { ok: true, text: async () => read('content.md') }; };
     home.execute('script.js'); await settle();
-    assert.equal(home.all('#game-grid [data-game]').length, 23);
+    assert.equal(home.all('#game-grid [data-game]').length, 26);
     const expectedTitles={en:['Bilingual Memory','Word Bridge','Sentence Match'],fr:['Mémoire bilingue','Le pont des mots','Paires de phrases'],zh:['双语翻翻乐','单词搭桥','句子对对碰']};
     const gameCards=home.all('#game-grid [data-game]');
     home.$('#game-search').value='bilingue';home.$('#game-search').dispatch('input');
     for (const lang of ['en','fr','zh']) {home.language(lang);await settle();assert.deepEqual(gameCards.slice(0,3).map(c=>c.querySelector('h3').textContent),expectedTitles[lang]);assert.equal(gameCards.filter(c=>!c.hidden).length,3);assert.equal(home.$('#game-search').value,'bilingue');}
     home.language('fr');await settle();assert.equal(home.$('#game-results-status').textContent,'3 jeux trouvés');
-    home.$('#clear-game-search').click();home.language('zh');await settle();assert.equal(gameCards.filter(c=>!c.hidden).length,23);
+    home.$('#clear-game-search').click();home.language('zh');await settle();assert.equal(gameCards.filter(c=>!c.hidden).length,26);
     const names={zh:['数学','中文','英文','法文'],en:['Math','Chinese','English','French'],fr:['Mathématiques','Chinois','Anglais','Français']};
     home.$('[data-game-category="french"]').click();
     const frenchIDs=()=>home.all('#game-grid [data-game]').filter(c=>!c.hidden).map(c=>c.getAttribute('href'));
@@ -122,7 +122,7 @@ function register(g) {
       if(lang!=='zh')assert(!/[\u3400-\u9fff]/u.test(home.$('#games').textContent),'all catalog and category copy translated');
     }
     home.$('[data-game-category="math"]').click();assert.equal(frenchIDs().length,14);
-    home.$('[data-game-category="all"]').click();assert.equal(frenchIDs().length,23);
+    home.$('[data-game-category="all"]').click();assert.equal(frenchIDs().length,26);
     home.$('#show-more').click(); home.$('#resource-search').value = 'NASA'; home.$('#resource-search').dispatch('input'); await settle();
     const visible = home.all('#resource-grid .resource-card').filter(c => !c.hidden), input = home.$('#resource-search');
     assert.equal(visible.length, 1);

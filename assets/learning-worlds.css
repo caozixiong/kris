@@ -57,10 +57,10 @@
 #picture-reading { font-size:24px; color:#3d6249; min-height:40px; }
 .memory-world { background:#f3ecd8; padding-bottom:30px; justify-content:flex-start; }
 .memory-world .header { margin:12px; width:min(840px,calc(100% - 24px)); }
-.memory-world .game-board { width:calc(100% - 24px); max-width:360px; grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:10px; }
-.memory-world .game-board[data-pairs="12"] { max-width:520px; }
-.memory-world .game-board[data-pairs="20"] { max-width:700px; }
-.memory-world .card { width:100%; height:auto; aspect-ratio:1; padding:0; margin:0; border:0; background:none; font-family:'KaiTi','楷体',serif; }
+.memory-world .game-board { width:calc(100% - 24px); max-width:520px; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.memory-world .game-board[data-pairs="12"] { max-width:650px; }
+.memory-world .game-board[data-pairs="20"] { max-width:760px; }
+.memory-world .card { width:100%; height:160px; min-height:150px; aspect-ratio:auto; padding:0; margin:0; border:0; background:none; font-family:'KaiTi','楷体',serif; }
 .memory-world .card-face { inset:0; }
 .memory-world .card-back { background:repeating-linear-gradient(45deg,#4c6e68 0 12px,#567972 12px 24px); border:4px solid #e4cb97; }
 .memory-world .card-back::before { content:'✦'; font-size:32px; }
@@ -93,3 +93,36 @@
 .learning-world .home-link { display:inline-flex; align-items:center; color:#2d6274; font-size:15px; text-underline-offset:4px; }
 .shape-world #reset-button { position:static; margin:12px; flex-shrink:0; }
 @media (max-width:360px) { .counting-world .shapes-container { grid-template-columns:repeat(4,minmax(44px,1fr)); } }
+
+/* Study-first Chinese scaffolds: meaningful pictures and both familiar languages. */
+.beginner-note { padding:12px; border-radius:12px; background:#fff4cd; color:#5a431b; }
+.beginner-study { margin:18px auto; padding:16px; background:#fffdf5; border:2px solid #e1d2b1; border-radius:22px; }
+.beginner-study h2 { margin:4px 0 8px; font-size:22px; }
+.beginner-study p { color:#4b5c64; }
+.beginner-study-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; max-width:640px; margin:16px auto; }
+.beginner-word-card { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:12px 8px; border:1px solid #d6dbd5; border-radius:18px; background:#fff; }
+.learning-picture-art { display:flex; align-items:center; justify-content:center; width:100%; min-height:0; }
+.beginner-word-card .learning-picture-art { height:100px; }
+.learning-picture-art img { max-width:100%; max-height:100%; object-fit:contain; }
+.beginner-picture-fallback { font-size:48px; line-height:1.2; }
+.beginner-hanzi { display:block; font-family:'KaiTi','楷体',serif; font-size:32px; line-height:1.3; color:#223f41; }
+.beginner-pinyin { display:block; font-size:16px; line-height:1.45; color:#445e67; }
+.beginner-meaning { display:block; font-family:system-ui,sans-serif; font-size:15px; line-height:1.4; color:#354451; overflow-wrap:anywhere; }
+.beginner-meaning[lang="fr"] { color:#6b4771; }
+.picture-world .beginner-choice { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:130px; max-width:calc(50% - 8px); flex:1; margin:0; }
+.picture-world .beginner-choice.needs-practice { opacity:.65; }
+.picture-world #image-container .learning-picture-art { height:200px; }
+.picture-world #picture-meaning { margin:-10px auto 18px; }
+.picture-world #picture-reading .beginner-hanzi { font-size:28px; }
+.memory-world .card-front { flex-direction:column; gap:2px; padding:8px; }
+.memory-world .card-front .beginner-hanzi { font-size:36px; line-height:1.15; }
+.memory-world .card-front .beginner-pinyin { font-size:14px; line-height:1.2; }
+.memory-world .card-front .beginner-meaning { font-size:14px; line-height:1.15; }
+.memory-world .card-front .learning-picture-art { height:68px; }
+.memory-world .card-front .learning-picture-art img { max-width:100%; max-height:100%; }
+.memory-world .card-front .beginner-picture-fallback { font-size:44px; }
+.memory-world .world-controls button:disabled { opacity:.45; }
+@media (min-width:650px) { .beginner-study-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media (max-width:360px) { .beginner-study { padding:10px; } .beginner-study-grid { gap:8px; } .beginner-word-card { padding:10px 5px; } .picture-world .beginner-choice { min-width:105px; padding:12px 8px; } }
+
+@media (min-width:480px) { .memory-world .game-board { grid-template-columns:repeat(4,minmax(0,1fr)); } }

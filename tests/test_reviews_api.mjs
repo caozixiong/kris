@@ -23,12 +23,12 @@ function harness(options = {}) {
   }});
   return {handler,calls,rows,counters};
 }
-assert.equal(GAME_IDS.length,23); assert.equal(new Set(GAME_IDS).size,23);
-for(const game of ['bilingual-memory','word-bridge','sentence-match']) {
+assert.equal(GAME_IDS.length,26); assert.equal(new Set(GAME_IDS).size,26);
+for(const game of GAME_IDS) {
  const h=harness();assert.ok(GAME_IDS.includes(game));
  assert.equal((await h.handler(makeRequest(undefined,{method:'GET',query:`?game=${game}`}))).status,200);
- const response=await h.handler(makeRequest({action:'submit',game,answer,body:'Bilingual game test'}));
- assert.equal(response.status,202);assert.deepEqual(h.rows,[{game_id:game,body:'Bilingual game test'}]);
+ const response=await h.handler(makeRequest({action:'submit',game,answer,body:'Canonical game test'}));
+ assert.equal(response.status,202);assert.deepEqual(h.rows,[{game_id:game,body:'Canonical game test'}]);
 }
 assert.equal(await answersMatch(' '+answer.toUpperCase()+' ',answer),true);
 for(const bad of ['',null,0,'bad','x'.repeat(121)]) assert.equal(await answersMatch(bad,answer),false);
@@ -68,4 +68,4 @@ for(const options of [{dbError:true},{badRateResponse:true}]) {const h=harness(o
  const h=harness();assert.equal((await h.handler(makeRequest({},{headers:{origin:'https://example.com'}}))).status,403);assert.equal((await h.handler(makeRequest({},{headers:{origin:''}}))).status,403);assert.equal((await h.handler(makeRequest({},{headers:{'content-type':'text/plain'}}))).status,415);assert.equal((await h.handler(makeRequest({},{method:'DELETE'}))).status,405);assert.equal(h.calls.length,0);
  const preflight=await h.handler(new Request('https://test-project.supabase.co/functions/v1/game-reviews',{method:'OPTIONS',headers:{origin}}));assert.equal(preflight.status,204);assert.equal(preflight.headers.get('Access-Control-Allow-Origin'),origin);
 }
-console.log('PASS: review API validation, 23-game allowlist, server answer check, pending-only insertion, minimal public data, quotas, secret-free fail-closed errors, method/origin checks.');
+console.log('PASS: review API validation, 26-game allowlist, server answer check, pending-only insertion, minimal public data, quotas, secret-free fail-closed errors, method/origin checks.');

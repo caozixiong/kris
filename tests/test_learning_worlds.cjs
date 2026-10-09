@@ -48,43 +48,53 @@ for(const file of ['games/math_addition_subtraction.html','games/math_visual_gam
  }
  assert.equal(snap().gameActive,false);assert.match(g.$('#feedback-message').textContent,/8 \/ 8/);g.click('#start-game');assert.equal(snap().score,0);assert.equal(snap().round,0);
 }
-// Every picture refers to authored local art; each choice locks once; every
-// prompt, reading, result and restart remains under manual learner control.
+// Beginner Chinese intentionally replaces the old six-question/four-choice
+// fixture with four taught words/two choices. Wrong answers remain retryable.
 {
  const g=create('games/chinese_character_quiz.html',{seed:743}),questions=plain(g.run('questions'));
- assert.equal(questions.length,6);
- const stale=g.$('#options-container button');
+ assert.equal(questions.length,4);assert.equal(g.all('.beginner-word-card').length,4);assert.equal(g.$('#picture-practice').hidden,true);
+ const stale=g.$('#options-container button');g.click('#picture-start');
  for(let i=0;i<questions.length;i++){
   const q=questions[i];assert(fs.readFileSync(path.resolve(__dirname,'../games',q.image),'utf8').includes('<svg'));
-  assert.equal(new Set(q.options).size,4);assert(q.options.includes(q.correctAnswer));
+  assert.equal(new Set(q.options).size,2);assert(q.options.includes(q.correctAnswer));assert(g.context.KrisChineseBank.entries.some(e=>e.id===q.id&&e.hanzi===q.correctAnswer));
+  g.run('selectAnswer(questions[currentQuestionIndex].options[1])');assert.equal(g.run('pictureAnswered'),false);assert.equal(g.run('score'),i);assert.equal(g.$('#picture-next').hidden,true);
+  const state=()=>g.run('({currentQuestionIndex,score,pictureAnswered,pictureVersion})');languages(g,state);
+  g.click('#picture-review');languages(g,state);g.click('#picture-start');
   g.run('selectAnswer(questions[currentQuestionIndex].correctAnswer);selectAnswer(questions[currentQuestionIndex].correctAnswer)');
   assert.equal(g.run('score'),i+1);assert.match(g.$('#picture-reading').textContent,new RegExp(q.correctAnswer));
-  languages(g,()=>g.run('({currentQuestionIndex,score,pictureAnswered})'));
-  g.advance(50000);assert.equal(g.run('currentQuestionIndex'),i);g.click('#picture-next');
+  languages(g,state);g.advance(50000);assert.equal(g.run('currentQuestionIndex'),i);g.click('#picture-next');
  }
- assert.match(g.$('#feedback-message').textContent,/6 \/ 6/);g.click('#options-container button');stale.click();assert.equal(g.run('pictureAnswered'),false,'Old picture choices cannot answer a new campaign');
+ assert.match(g.$('#feedback-message').textContent,/4 \/ 4/);g.click('#options-container button');g.click('#picture-start');stale.click();assert.equal(g.run('pictureAnswered'),false,'Old picture choices cannot answer a new campaign');
+ // Missing images retain a visible emoji and both meanings.
+ const img=g.$('#image-container img');for(const fn of img.listeners.error)fn();assert.equal(img.hidden,true);assert.equal(g.$('#image-container .beginner-picture-fallback').hidden,false);assert(g.$('#picture-meaning').textContent);
 }
-// All memory sizes: each character has exactly one picture, hidden faces are
-// inaccessible, mismatches auto-return and cancelled timers cannot erase a
-// new board. All20 original concepts and illustrations remain reachable.
+// All memory sizes: four pairs by default, with teaching before play. More
+// pairs are opt-in. Fixed face alignment and safe cancelled timers stay intact.
 {
  const g=create('games/chinese_game1.html',{seed:36});
- for(const size of [6,12,20]){
-  if(size!==6)g.click('#pairs-'+size);
-  const cards=g.all('.card');assert.equal(cards.length,size*2);
+ for(const size of [4,6,12,20]){
+  if(size!==4)g.click('#pairs-'+size);
+  const cards=g.all('.card');assert.equal(cards.length,size*2);assert.equal(g.$('#game-board').hidden,true);assert.equal(g.all('.beginner-word-card').length,size);
   assert.equal(g.$('#game-board').dataset.pairs,String(size),'Board width follows selected pair count');
   assert.equal(g.$('#game-board').style.gridTemplateColumns,undefined,'Responsive columns are controlled by CSS, never fixed inline');assert(cards.every(c=>c.tagName==='BUTTON'));
   assert(cards.every(c=>c.querySelector('.card-front').getAttribute('aria-hidden')==='true'));
+  cards[0].click();assert.equal(g.all('.card.flipped').length,0,'Study phase cannot expose cards');g.click('#memory-start');
   const a=cards[0],b=cards.find(c=>c.dataset.id!==a.dataset.id);a.click();b.click();
-  const ids=cards.map(c=>c.dataset.id);languages(g,()=>g.all('.card').map(c=>[c.dataset.id,c.className]));
-  g.advance(999);assert.equal(g.all('.card.flipped').length,2);g.advance(1);assert.equal(g.all('.card.flipped').length,0);
-  a.click();b.click();g.click('#restart-button');g.click('.card');g.advance(2000);assert.equal(g.all('.card.flipped').length,1,'Old mismatch cannot reset new flipped state');
-  g.click('#restart-button');
-  for(const id of new Set(g.all('.card').map(c=>c.dataset.id))){const pair=g.all('.card').filter(c=>c.dataset.id===id);assert.equal(pair.length,2);assert.notEqual(pair[0].dataset.type,pair[1].dataset.type);pair.forEach(c=>c.click());g.advance(220);}
+  languages(g,()=>g.all('.card').map(c=>[c.dataset.id,c.className]));
+  g.advance(1399);assert.equal(g.all('.card.flipped').length,2);g.advance(1);assert.equal(g.all('.card.flipped').length,0);
+  a.click();b.click();g.click('#restart-button');g.click('#memory-start');g.click('.card');g.advance(2000);assert.equal(g.all('.card.flipped').length,1,'Old mismatch cannot reset new flipped state');
+  g.click('#memory-review');const state=g.all('.card').map(c=>c.className);languages(g,()=>g.all('.card').map(c=>c.className));g.click('#memory-start');assert.deepEqual(g.all('.card').map(c=>c.className),state);
+  g.click('#restart-button');g.click('#memory-start');
+  for(const id of new Set(g.all('.card').map(c=>c.dataset.id))){assert(g.context.KrisChineseBank.entries.some(e=>e.id===id));const pair=g.all('.card').filter(c=>c.dataset.id===id);assert.equal(pair.length,2);assert.notEqual(pair[0].dataset.type,pair[1].dataset.type);pair.forEach(c=>c.click());g.advance(220);}
   assert.equal(g.$('#score').textContent,String(size*10));assert.equal(g.all('#memory-collection span').length,size);
   for(const img of g.all('.card img'))assert(fs.existsSync(path.resolve(__dirname,'../games',img.getAttribute('src'))));
   assert.equal(g.document.activeElement,g.$('#play-again-button'));
  }
+}
+for(const file of ['games/chinese_character_quiz.html','games/chinese_game1.html']){
+ const g=create(file,{missingBank:true});assert.equal(g.all('.beginner-word-card').length,4);languages(g,()=>g.all('.beginner-word-card').map(n=>n.textContent));
+ if(file.includes('game1')){assert.equal(g.$('#memory-bank-note').hidden,false);assert.equal(g.$('#pairs-20').disabled,true);g.click('#memory-start');g.click('.card');assert.equal(g.all('.card.flipped').length,1);}
+ else{assert.equal(g.$('#picture-bank-note').hidden,false);g.click('#picture-start');g.run('selectAnswer(questions[0].correctAnswer)');assert.equal(g.run('score'),1);}
 }
 function subset(values,target){for(let mask=1;mask<1<<values.length;mask++){let sum=0;const selected=[];for(let i=0;i<values.length;i++)if(mask>>i&1){sum+=values[i];selected.push(i);}if(sum===target)return selected;}return null;}
 // The known all2s/target3 failure is covered by a seed sweep, independent
@@ -123,12 +133,12 @@ for(const missingBank of [false,true]){
  assert.equal(g.$('#review-words').hidden,true);assert.equal(g.run('correctCount'),10);assert.equal(g.run('missedWords.length'),0);
 }
 const css=fs.readFileSync(path.join(__dirname,'../assets/learning-worlds.css'),'utf8');
-for(const rule of ['min-height:44px','focus-visible','prefers-reduced-motion','max-width:360px','repeat(auto-fit,minmax(70px,1fr))'])assert(css.includes(rule));
+for(const rule of ['min-height:44px','focus-visible','prefers-reduced-motion','max-width:360px','repeat(2,minmax(0,1fr))','min-height:150px'])assert(css.includes(rule));
 // Absolute faces of native buttons must start at the card origin. Without
 // inset, the native button's static inline position displaces faces half a row.
 assert.match(css,/\.memory-world \.card-face\s*\{[^}]*inset\s*:\s*0\s*;/);
-assert.match(css,/\.memory-world \.game-board\s*\{[^}]*max-width\s*:\s*360px\s*;/);
-for(const [pairs,width] of [[12,520],[20,700]]) {
+assert.match(css,/\.memory-world \.game-board\s*\{[^}]*max-width\s*:\s*520px\s*;/);
+for(const [pairs,width] of [[12,650],[20,760]]) {
   const selector=`.memory-world .game-board[data-pairs="${pairs}"] { max-width:${width}px; }`;
   assert(css.includes(selector),'Balanced responsive board width for '+pairs+' pairs');
 }

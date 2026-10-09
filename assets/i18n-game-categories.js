@@ -3,6 +3,56 @@
  'use strict';
  const I = window.KrisI18n; if (!I) return;
  I.register({
+  "中文第一步": [
+    "Chinese First Steps",
+    "Premiers pas en chinois"
+  ],
+  "图词找朋友": [
+    "Picture–Word Friends",
+    "Images et mots amis"
+  ],
+  "汉字搭搭乐": [
+    "Chinese Word Builder",
+    "Assemble les mots chinois"
+  ],
+  "零起点 · 看图学词": [
+    "First steps · learn with pictures",
+    "Débutant · apprendre en images"
+  ],
+  "中文零起点 · 先学 4 个": [
+    "First Chinese · 4 words to start",
+    "Débutant en chinois · 4 mots"
+  ],
+  "中文零起点 · 图词配对": [
+    "First Chinese · picture matching",
+    "Débutant en chinois · images et mots"
+  ],
+  "中文零起点 · 拼词小步走": [
+    "First Chinese · build simple words",
+    "Débutant en chinois · assembler des mots"
+  ],
+  "先看图、听一听，再从两个选项中找汉字。300 个基础汉字和词语，每次只学 4–6 个。": [
+    "See, listen, then choose between two Chinese words. A bank of 300 basic characters and words, just 4–6 at a time.",
+    "Observe, écoute, puis choisis entre deux mots chinois. Un répertoire de 300 caractères et mots de base, 4 à 6 à la fois."
+  ],
+  "看着图画和释义，给汉字找朋友。先认识再配对，不计时，可以反复练习。": [
+    "Match pictures and meanings with Chinese words. Learn them first, then play again at your own pace.",
+    "Associe les images et les sens aux mots chinois. Découvre-les d’abord, puis joue à ton rythme."
+  ],
+  "先认识每个汉字，再照着提示搭出简单词语。一步一步学，不需要先会拼音。": [
+    "Meet each character, then follow the hints to build simple words. One small step at a time, without needing to read pinyin.",
+    "Découvre chaque caractère, puis suis les indices pour assembler des mots simples. Pas besoin de savoir lire le pinyin."
+  ],
+  "先看图认识 4 个词，再用两个选项慢慢练习。": [
+    "Meet 4 words through pictures, then gently practise with two choices.",
+    "Découvre 4 mots en images, puis entraîne-toi avec deux choix."
+  ],
+  "先认识汉字和图画，再从 4 对开始找朋友，随时查看提示。": [
+    "Meet the characters and pictures first, then start matching 4 pairs with hints whenever you need them.",
+    "Découvre les caractères et les images, puis commence avec 4 paires et des indices à tout moment."
+  ]
+});
+ I.register({
   "选一个喜欢的类别，开始今天的小挑战。英法双语游戏在英文和法文里都能找到。": [
     "Pick a category for today’s little challenge. English–French games appear in both language categories.",
     "Choisis une catégorie pour ton défi du jour. Les jeux bilingues se trouvent en anglais et en français."

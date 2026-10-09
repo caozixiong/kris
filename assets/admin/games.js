@@ -1,20 +1,35 @@
 /* Display labels only; the database validates every game ID. */
 window.KRIS_ADMIN_GAMES = Object.freeze([
-{
-  "id": "bilingual-memory",
-  "name": "双语翻翻乐",
-  "href": "./games/bilingual-memory.html"
-},
-{
-  "id": "word-bridge",
-  "name": "单词搭桥",
-  "href": "./games/word-bridge.html"
-},
-{
-  "id": "sentence-match",
-  "name": "句子对对碰",
-  "href": "./games/sentence-match.html"
-},
+  {
+    "id": "chinese-first-words",
+    "name": "中文第一步",
+    "href": "./games/chinese-first-words.html"
+  },
+  {
+    "id": "chinese-picture-match",
+    "name": "图词找朋友",
+    "href": "./games/chinese-picture-match.html"
+  },
+  {
+    "id": "chinese-word-builder",
+    "name": "汉字搭搭乐",
+    "href": "./games/chinese-word-builder.html"
+  },
+  {
+    "id": "bilingual-memory",
+    "name": "双语翻翻乐",
+    "href": "./games/bilingual-memory.html"
+  },
+  {
+    "id": "word-bridge",
+    "name": "单词搭桥",
+    "href": "./games/word-bridge.html"
+  },
+  {
+    "id": "sentence-match",
+    "name": "句子对对碰",
+    "href": "./games/sentence-match.html"
+  },
   {
     "id": "addition_game",
     "name": "加法果园",
